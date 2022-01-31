@@ -25,7 +25,8 @@ Once you are in the fermipy environment, the first step is to install PyQt5:
 
 > $ pip install PyQt5
 
-
+<pre><code>This is a code block.
+</code></pre>
 
 # Tutorials
 
