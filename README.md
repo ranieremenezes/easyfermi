@@ -16,3 +16,7 @@ Once this process is complete, use the following command to activate the environ
 ~oi~
 *oi*
 _oi_
+<oi>
+  \oi
+{oi}
+&oi
