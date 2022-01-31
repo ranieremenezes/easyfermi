@@ -27,3 +27,8 @@ Once you are in the fermipy environment, the first step is to install PyQt5:
 
 
 
+# Tutorials
+
+You can check easyFermi tutorials on YouTube:
+
+https://www.youtube.com/channel/UCeLCfEoWasUKky6CPNN_opQ
