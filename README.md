@@ -9,6 +9,7 @@ We recommend the user to install Miniconda 3 or Anaconda 3 to proceed.
 To install Fermitools and Fermipy with conda, do:
 
 $ conda env create --name fermipy -c conda-forge -c fermipy python=3.7 fermitools=2.0.8
+
 $ conda install --name fermipy -c conda-forge fermipy
 
 Once this process is complete, use the following command to activate the environment:
