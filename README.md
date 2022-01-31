@@ -25,8 +25,13 @@ For more details, check the documentation of Fermipy here: https://fermipy.readt
 
 Once you are in the fermipy environment, do:
 
+<pre><code>pip install easyFermi
+</code></pre>
 
-<pre><code>pip install PyQt5
+# Usage
+
+<pre><code>python
+>>> import easyFermi
 </code></pre>
 
 # Tutorials
