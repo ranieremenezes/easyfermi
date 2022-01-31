@@ -23,7 +23,7 @@ For more details, check the documentation of Fermipy here: https://fermipy.readt
 
 # Installation 
 
-Once you are in the fermipy environment, the first step is to install PyQt5:
+Once you are in the fermipy environment, do:
 
 
 <pre><code>pip install PyQt5
