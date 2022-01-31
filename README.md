@@ -11,7 +11,6 @@ To install Fermitools and Fermipy with conda, do:
 <pre><code>conda env create --name fermipy -c conda-forge -c fermipy python=3.7 fermitools=2.0.8
 
 conda install --name fermipy -c conda-forge fermipy
-
 </code></pre>
 
 Once this process is complete, use the following command to activate the environment:
