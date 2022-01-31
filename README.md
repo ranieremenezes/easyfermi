@@ -8,13 +8,16 @@ We recommend the user to install Miniconda 3 or Anaconda 3 to proceed.
 
 To install Fermitools and Fermipy with conda, do:
 
-> $ conda env create --name fermipy -c conda-forge -c fermipy python=3.7 fermitools=2.0.8
+<pre><code>conda env create --name fermipy -c conda-forge -c fermipy python=3.7 fermitools=2.0.8
 
-> $ conda install --name fermipy -c conda-forge fermipy
+conda install --name fermipy -c conda-forge fermipy
+
+</code></pre>
 
 Once this process is complete, use the following command to activate the environment:
 
-> $ conda activate fermipy
+<pre><code>conda activate fermipy
+</code></pre>
 
 For more details, check the documentation of Fermipy here: https://fermipy.readthedocs.io/en/latest/install.html
 
@@ -23,9 +26,8 @@ For more details, check the documentation of Fermipy here: https://fermipy.readt
 
 Once you are in the fermipy environment, the first step is to install PyQt5:
 
-> $ pip install PyQt5
 
-<pre><code>This is a code block.
+<pre><code>pip install PyQt5
 </code></pre>
 
 # Tutorials
