@@ -1,5 +1,5 @@
 # easyFermi
-The easiest way to analyze Fermi-LAT data
+The easiest way to analyze Fermi-LAT data.
 
 # Requirements
 easyFermi relies on Python 3, Fermitools and Fermipy. 
@@ -30,9 +30,13 @@ Once you are in the fermipy environment, do:
 
 # Usage
 
-<pre><code>python
+While in the fermipy environment, do:
+
+<pre><code>$ python
 >>> import easyFermi
 </code></pre>
+
+
 
 # Tutorials
 
