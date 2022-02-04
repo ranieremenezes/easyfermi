@@ -2,9 +2,9 @@
 The easiest way to analyze Fermi-LAT data.
 
 # Requirements
-easyFermi relies on Python 3, Fermitools and Fermipy. 
+_easyFermi_ relies on Python 3, _Fermitools_ and _Fermipy_. 
 
-We recommend the user to install Miniconda 3 or Anaconda 3 to proceed.
+We recommend the user to install Miniconda 3 or Anaconda 3 before proceeding.
 
 To install _Fermitools_ with conda, do:
 
