@@ -25,7 +25,9 @@ from fermipy.gtanalysis import GTAnalysis
 from fermipy.plotting import ROIPlotter
 matplotlib.interactive(True)
 
-Version = '1.0.0'
+import pathlib
+libpath = str(pathlib.Path(__file__).parent.resolve())+"/images/"
+
 os.environ["LANG"] = 'C'
 
 class Worker(QtCore.QObject):
@@ -76,7 +78,7 @@ class Ui_mainWindow(QDialog):
         self.picture.setMouseTracking(False)
         self.picture.setAutoFillBackground(False)
         self.picture.setText("")
-        self.picture.setPixmap(QtGui.QPixmap("fermi.png"))
+        self.picture.setPixmap(QtGui.QPixmap(libpath+"fermi.png"))
         self.picture.setScaledContents(True)
         self.picture.setWordWrap(False)
         self.picture.setObjectName("picture")
@@ -162,63 +164,107 @@ class Ui_mainWindow(QDialog):
         self.label_11.setGeometry(QtCore.QRect(120, 280, 101, 21))
         self.label_11.setObjectName("label_11")
         self.groupBox_3 = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_3.setGeometry(QtCore.QRect(10, 190, 281, 331))
+        self.groupBox_3.setGeometry(QtCore.QRect(10, 190, 282, 331))
         self.groupBox_3.setObjectName("groupBox_3")
         self.label_15 = QtWidgets.QLabel(self.groupBox_3)
         self.label_15.setEnabled(False)
-        self.label_15.setGeometry(QtCore.QRect(30, 30, 121, 17))
+        self.label_15.setGeometry(QtCore.QRect(30, 30, 111, 17))
         self.label_15.setObjectName("label_15")
         self.lineEdit_6 = QtWidgets.QLineEdit(self.groupBox_3)
         self.lineEdit_6.setEnabled(False)
         self.lineEdit_6.setGeometry(QtCore.QRect(30, 50, 101, 21))
         self.lineEdit_6.setObjectName("lineEdit_6")
-        self.label_22 = QtWidgets.QLabel(self.groupBox_3)
-        self.label_22.setEnabled(False)
-        self.label_22.setGeometry(QtCore.QRect(30, 160, 181, 17))
-        self.label_22.setObjectName("label_22")
         self.checkBox_11 = QtWidgets.QCheckBox(self.groupBox_3)
-        self.checkBox_11.setGeometry(QtCore.QRect(10, 140, 231, 23))
+        self.checkBox_11.setGeometry(QtCore.QRect(10, 150, 141, 23))
         self.checkBox_11.setObjectName("checkBox_11")
         self.comboBox_2 = QtWidgets.QComboBox(self.groupBox_3)
         self.comboBox_2.setEnabled(False)
-        self.comboBox_2.setGeometry(QtCore.QRect(30, 100, 111, 25))
+        self.comboBox_2.setGeometry(QtCore.QRect(30, 110, 101, 25))
         self.comboBox_2.setObjectName("comboBox_2")
+        self.comboBox_2.addItem("")
         self.comboBox_2.addItem("")
         self.comboBox_2.addItem("")
         self.comboBox_2.addItem("")
         self.lineEdit_9 = QtWidgets.QLineEdit(self.groupBox_3)
         self.lineEdit_9.setEnabled(False)
-        self.lineEdit_9.setGeometry(QtCore.QRect(30, 180, 191, 21))
+        self.lineEdit_9.setGeometry(QtCore.QRect(30, 180, 101, 21))
         self.lineEdit_9.setObjectName("lineEdit_9")
         self.checkBox_10 = QtWidgets.QCheckBox(self.groupBox_3)
-        self.checkBox_10.setGeometry(QtCore.QRect(10, 290, 171, 23))
+        self.checkBox_10.setGeometry(QtCore.QRect(10, 300, 171, 23))
         self.checkBox_10.setChecked(True)
         self.checkBox_10.setObjectName("checkBox_10")
         self.label_21 = QtWidgets.QLabel(self.groupBox_3)
-        self.label_21.setGeometry(QtCore.QRect(110, 260, 101, 17))
+        self.label_21.setGeometry(QtCore.QRect(110, 270, 101, 17))
         self.label_21.setObjectName("label_21")
         self.doubleSpinBox_3 = QtWidgets.QDoubleSpinBox(self.groupBox_3)
         self.doubleSpinBox_3.setEnabled(True)
-        self.doubleSpinBox_3.setGeometry(QtCore.QRect(30, 230, 69, 21))
+        self.doubleSpinBox_3.setGeometry(QtCore.QRect(30, 240, 69, 21))
         self.doubleSpinBox_3.setMinimum(1.0)
         self.doubleSpinBox_3.setProperty("value", 4.0)
         self.doubleSpinBox_3.setObjectName("doubleSpinBox_3")
         self.doubleSpinBox_4 = QtWidgets.QDoubleSpinBox(self.groupBox_3)
         self.doubleSpinBox_4.setEnabled(True)
-        self.doubleSpinBox_4.setGeometry(QtCore.QRect(30, 260, 69, 21))
+        self.doubleSpinBox_4.setGeometry(QtCore.QRect(30, 270, 69, 21))
         self.doubleSpinBox_4.setMinimum(0.1)
         self.doubleSpinBox_4.setProperty("value", 0.5)
         self.doubleSpinBox_4.setObjectName("doubleSpinBox_4")
         self.checkBox_8 = QtWidgets.QCheckBox(self.groupBox_3)
-        self.checkBox_8.setGeometry(QtCore.QRect(10, 210, 221, 23))
+        self.checkBox_8.setGeometry(QtCore.QRect(10, 220, 221, 23))
         self.checkBox_8.setChecked(True)
         self.checkBox_8.setObjectName("checkBox_8")
         self.label_20 = QtWidgets.QLabel(self.groupBox_3)
-        self.label_20.setGeometry(QtCore.QRect(110, 230, 71, 17))
+        self.label_20.setGeometry(QtCore.QRect(110, 240, 71, 17))
         self.label_20.setObjectName("label_20")
         self.checkBox_12 = QtWidgets.QCheckBox(self.groupBox_3)
-        self.checkBox_12.setGeometry(QtCore.QRect(10, 80, 191, 21))
+        self.checkBox_12.setGeometry(QtCore.QRect(10, 90, 131, 21))
         self.checkBox_12.setObjectName("checkBox_12")
+        
+        self.radioButton_5 = QtWidgets.QRadioButton(self.groupBox_3)
+        self.radioButton_5.setGeometry(QtCore.QRect(150, 50, 81, 23))
+        self.radioButton_5.setChecked(True)
+        self.radioButton_5.setAutoExclusive(True)
+        self.radioButton_5.setObjectName("radioButton_5")
+        self.radioButton_6 = QtWidgets.QRadioButton(self.groupBox_3)
+        self.radioButton_6.setGeometry(QtCore.QRect(150, 70, 112, 23))
+        self.radioButton_6.setAutoExclusive(True)
+        self.radioButton_6.setObjectName("radioButton_6")
+        self.label_3 = QtWidgets.QLabel(self.groupBox_3)
+        self.label_3.setGeometry(QtCore.QRect(150, 30, 131, 17))
+        self.label_3.setObjectName("label_3")
+        self.label_19 = QtWidgets.QLabel(self.groupBox_3)
+        self.label_19.setEnabled(False)
+        self.label_19.setGeometry(QtCore.QRect(220, 100, 71, 21))
+        self.label_19.setObjectName("label_19")
+        self.checkBox_13 = QtWidgets.QCheckBox(self.groupBox_3)
+        self.checkBox_13.setEnabled(False)
+        self.checkBox_13.setGeometry(QtCore.QRect(170, 130, 121, 21))
+        self.checkBox_13.setChecked(False)
+        self.checkBox_13.setObjectName("checkBox_13")
+        self.lineEdit_12 = QtWidgets.QLineEdit(self.groupBox_3)
+        self.lineEdit_12.setEnabled(False)
+        self.lineEdit_12.setGeometry(QtCore.QRect(170, 100, 41, 21))
+        self.lineEdit_12.setObjectName("lineEdit_12")
+        self.line_4 = QtWidgets.QFrame(self.groupBox_3)
+        self.line_4.setGeometry(QtCore.QRect(0, 210, 281, 16))
+        self.line_4.setFrameShape(QtWidgets.QFrame.HLine)
+        self.line_4.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_4.setObjectName("line_4")
+        self.checkBox_14 = QtWidgets.QCheckBox(self.groupBox_3)
+        self.checkBox_14.setEnabled(False)
+        self.checkBox_14.setGeometry(QtCore.QRect(170, 150, 121, 21))
+        self.checkBox_14.setChecked(False)
+        self.checkBox_14.setObjectName("checkBox_14")
+        self.checkBox_15 = QtWidgets.QCheckBox(self.groupBox_3)
+        self.checkBox_15.setEnabled(False)
+        self.checkBox_15.setGeometry(QtCore.QRect(170, 170, 121, 21))
+        self.checkBox_15.setChecked(False)
+        self.checkBox_15.setObjectName("checkBox_15")
+        self.checkBox_16 = QtWidgets.QCheckBox(self.groupBox_3)
+        self.checkBox_16.setEnabled(True)
+        self.checkBox_16.setGeometry(QtCore.QRect(150, 190, 141, 21))
+        self.checkBox_16.setChecked(False)
+        self.checkBox_16.setObjectName("checkBox_16")
+        
         self.plainTextEdit = QtWidgets.QPlainTextEdit(self.centralwidget)
         self.plainTextEdit.setGeometry(QtCore.QRect(520, 210, 341, 261))
         self.plainTextEdit.setObjectName("plainTextEdit")
@@ -373,6 +419,11 @@ class Ui_mainWindow(QDialog):
         self.label_13.setEnabled(False)
         self.label_13.setGeometry(QtCore.QRect(310, 140, 131, 20))
         self.label_13.setObjectName("label_13")
+        self.line_6 = QtWidgets.QFrame(self.centralwidget)
+        self.line_6.setGeometry(QtCore.QRect(140, 220, 20, 181))
+        self.line_6.setFrameShape(QtWidgets.QFrame.VLine)
+        self.line_6.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_6.setObjectName("line_6")
         self.pushButton.raise_()
         self.progressBar.raise_()
         self.label_2.raise_()
@@ -417,6 +468,7 @@ class Ui_mainWindow(QDialog):
         self.lineEdit_11.raise_()
         self.toolButton_6.raise_()
         self.label_13.raise_()
+        self.line_6.raise_()
         mainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(mainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 870, 22))
@@ -478,7 +530,7 @@ class Ui_mainWindow(QDialog):
         self.toolButton_10.setCheckable(True)
         self.toolButton_10.clicked.connect(self.browsefiles)
         
-        self.lineEdit_9.setToolTip("Please don't use spaces before or after the commas")
+        self.lineEdit_9.setToolTip("e.g.: 4FGL J1222.5+0414,4FGL J1219.7+0444,4FGL ...")
         
         
         ###### Activating/deactivating options
@@ -494,51 +546,67 @@ class Ui_mainWindow(QDialog):
         self.radioButton_2.clicked.connect(self.activate)
         self.radioButton_3.clicked.connect(self.activate)
         self.radioButton_4.clicked.connect(self.activate)
+        self.radioButton_5.clicked.connect(self.activate)
+        self.radioButton_6.clicked.connect(self.activate)
 
         self.comboBox_4.activated.connect(self.activate)
         self.comboBox_4.setToolTip("Is your target listed in the catalog selected above?")
+        self.comboBox_2.setToolTip("Select a spectral model for your target")
+        self.checkBox_13.setToolTip("Check if you wish that only the normalizations can vary")
+        self.checkBox_14.setToolTip("Freeze the Galactic diffuse model")
+        self.checkBox_15.setToolTip("Freeze the isotropic diffuse model")
+        self.checkBox_16.setToolTip("If checked, you will freeze the spectral shape of the target")
 
     def retranslateUi(self, mainWindow):
         _translate = QtCore.QCoreApplication.translate
-        mainWindow.setWindowIcon(QtGui.QIcon('easyFermiIcon.png'))
+        mainWindow.setWindowIcon(QtGui.QIcon(libpath+'easyFermiIcon.png'))
         mainWindow.setWindowTitle(_translate("mainWindow", "easyFermi"))
         self.pushButton.setText(_translate("mainWindow", "Go!"))
         self.label_2.setText(_translate("mainWindow", "Log:"))
         self.groupBox_2.setTitle(_translate("mainWindow", "Science:"))
         self.radioButton.setText(_translate("mainWindow", "Disk"))
         self.label_4.setText(_translate("mainWindow", "N⁰ of time bins"))
-        self.checkBox_3.setText(_translate("mainWindow", "Extension"))
+        self.checkBox_3.setText(_translate("mainWindow", "Extension:"))
         self.label_9.setText(_translate("mainWindow", "N⁰ of cores"))
         self.label_10.setText(_translate("mainWindow", "N⁰ of energy bins"))
-        self.checkBox.setText(_translate("mainWindow", "Light curve"))
+        self.checkBox.setText(_translate("mainWindow", "Light curve:"))
         self.label_5.setText(_translate("mainWindow", "Max. size"))
-        self.checkBox_2.setText(_translate("mainWindow", "SED"))
+        self.checkBox_2.setText(_translate("mainWindow", "SED:"))
         self.radioButton_2.setText(_translate("mainWindow", "2D-Gauss"))
         self.checkBox_6.setText(_translate("mainWindow", "Remove target"))
-        self.checkBox_5.setText(_translate("mainWindow", "TS map"))
+        self.checkBox_5.setText(_translate("mainWindow", "TS map:"))
         self.checkBox_4.setText(_translate("mainWindow", "Re-localize"))
         self.label_11.setText(_translate("mainWindow", "Photon index"))
-        self.groupBox_3.setTitle(_translate("mainWindow", "Advanced configuration:"))
+        self.groupBox_3.setTitle(_translate("mainWindow", "Advanced configurations:"))
         self.label_15.setText(_translate("mainWindow", "Target name/tag:"))
-        self.label_22.setText(_translate("mainWindow", "Comma separated names:"))
-        self.checkBox_11.setText(_translate("mainWindow", "Delete sources"))
+        self.checkBox_11.setText(_translate("mainWindow", "Delete sources:"))
         self.comboBox_2.setAccessibleName(_translate("mainWindow", "4FGL"))
         self.comboBox_2.setAccessibleDescription(_translate("mainWindow", "4FGL"))
-        self.comboBox_2.setItemText(0, _translate("mainWindow", "Power-law"))
-        self.comboBox_2.setItemText(1, _translate("mainWindow", "LogPar"))
-        self.comboBox_2.setItemText(2, _translate("mainWindow", "PLEC"))
-        self.lineEdit_9.setText(_translate("mainWindow", "4FGL J0112.1+2245,4FGL ..."))
+        self.comboBox_2.setItemText(0, _translate("mainWindow", "Select..."))
+        self.comboBox_2.setItemText(1, _translate("mainWindow", "Power-law"))
+        self.comboBox_2.setItemText(2, _translate("mainWindow", "LogPar"))
+        self.comboBox_2.setItemText(3, _translate("mainWindow", "PLEC"))
+        self.lineEdit_9.setText(_translate("mainWindow", " "))
         self.checkBox_10.setText(_translate("mainWindow", "Do diagnostic plots"))
         self.label_21.setText(_translate("mainWindow", "Min. sep. (⁰)"))
-        self.checkBox_8.setText(_translate("mainWindow", "Find extra sources in the ROI"))
+        self.checkBox_8.setText(_translate("mainWindow", "Find extra sources in the ROI:"))
         self.label_20.setText(_translate("mainWindow", "Min. sig."))
-        self.checkBox_12.setText(_translate("mainWindow", "Change spectral model:"))
+        self.checkBox_12.setText(_translate("mainWindow", "Change model:"))
+        self.radioButton_5.setText(_translate("mainWindow", "Defaut"))
+        self.radioButton_6.setText(_translate("mainWindow", "Customized"))
+        self.label_3.setText(_translate("mainWindow", "Free source radius:"))
+        self.label_19.setText(_translate("mainWindow", "Radius (⁰)"))
+        self.checkBox_13.setText(_translate("mainWindow", "Only norm."))
+        self.checkBox_14.setText(_translate("mainWindow", "Freeze Gal."))
+        self.checkBox_15.setText(_translate("mainWindow", "Freeze Iso."))
+        self.checkBox_16.setText(_translate("mainWindow", "Freeze shape targ."))
         self.plainTextEdit.setPlainText(_translate("mainWindow", "\n"
 ""))
+
         self.toolButton_10.setText(_translate("mainWindow", "..."))
         self.toolButton_4.setText(_translate("mainWindow", "..."))
         self.label_14.setText(_translate("mainWindow", "Dir. of diff. emission:"))
-        self.checkBox_9.setText(_translate("mainWindow", "Use external ltcube"))
+        self.checkBox_9.setText(_translate("mainWindow", "Use external ltcube:"))
         self.dateTimeEdit_2.setDisplayFormat(_translate("mainWindow", "dd/MM/yyyy HH:mm:ss"))
         self.dateTimeEdit.setDisplayFormat(_translate("mainWindow", "dd/MM/yyyy HH:mm:ss"))
         self.label_7.setText(_translate("mainWindow", "Start:"))
@@ -588,24 +656,34 @@ class Ui_mainWindow(QDialog):
     def reportProgress(self, n):
         if n == 0:
             self.progressBar.setProperty("value", 5)
+            
+            if self.lineEdit_9.text() != ' ':
+                self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Deleting source(s): "+self.lineEdit_9.text()+".\n")
+            else:
+                self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- No sources deleted.\n")
+                
             self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Running gtselect, gtbin, etc.\n")
             if (self.IsThereLtcube is None) & (self.IsThereLtcube3==0):
                 self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- It will take ~"+str(int(self.Time_intervMJD*206/(30.0*60)))+" min to run the ltcube\n")
                 self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"(Don't worry, it really takes some time...)\n")
             else:
                 self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Using precomputed ltcube.\n")
-        
+            
+            
         if n == 1:
-            if self.checkBox_11.isChecked():
-                self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Deleting source(s): "+self.lineEdit_9.text()+".\n")
             self.progressBar.setProperty("value", 25)
             self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Setup finished.\n")
             self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Computing flux, spectral index, TS, etc.\n")
+            #self.thread.terminate()
             
         if n == 2:
             self.progressBar.setProperty("value", 50)
             self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+self.fitquality+"\n")
             self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Main results saved in General_results.txt\n")
+                        
+            if self.freeradiusalert != 'ok':
+                self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+self.freeradiusalert+"\n")
+                    
             if self.checkBox_4.isChecked():
                 self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Re-localizing target...\n")
             if self.checkBox_5.isChecked():
@@ -667,11 +745,11 @@ class Ui_mainWindow(QDialog):
         self.progressBar.setProperty("value", 0)
         
         #Making Fermi logo transparent:
-        new_pix = QtGui.QPixmap("fermi.png")
+        new_pix = QtGui.QPixmap(libpath+"fermi.png")
         new_pix.fill(QtCore.Qt.transparent)
         painter = QtGui.QPainter(new_pix)
         painter.setOpacity(0.2)
-        painter.drawPixmap(QtCore.QPoint(), QtGui.QPixmap("fermi.png"))
+        painter.drawPixmap(QtCore.QPoint(), QtGui.QPixmap(libpath+"fermi.png"))
         painter.end()
         self.picture.setPixmap(new_pix)
         self.picture.setGeometry(QtCore.QRect(560, 210, 251, 251))
@@ -725,16 +803,20 @@ class Ui_mainWindow(QDialog):
                 
         #Change model if requested:
         if self.checkBox_12.isChecked():
-            self.gta.delete_source(self.sourcename)
             aux = self.comboBox_2.currentText()
-            if aux == 'Power-law':
+            if aux == 'Select...':
+                pass
+            elif aux == 'Power-law':
                 aux = 'PowerLaw'
             elif aux == 'LogPar':
                 aux = 'LogParabola'
             elif aux == 'PLEC':
                 aux = 'PLSuperExpCutoff2'
-            self.gta.add_source(self.sourcename, src_dict={'ra' : float(self.RA), 'dec' : float(self.Dec) , 'SpatialModel' : 'PointSource', 'SpectrumType' : aux})
-            self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Changing target spectral model.\n")
+            
+            if aux != 'Select...':    
+                self.gta.delete_source(self.sourcename)
+                self.gta.add_source(self.sourcename, src_dict={'ra' : float(self.RA), 'dec' : float(self.Dec) , 'SpatialModel' : 'PointSource', 'SpectrumType' : aux})
+                self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Changing target spectral model.\n")
         
         
         #Checking for ltcube:
@@ -851,7 +933,7 @@ class Ui_mainWindow(QDialog):
         msg = QtWidgets.QMessageBox()
         msg.setWindowTitle("Credits")
         msg.setText("######################################################################################\n")
-        msg.setInformativeText("- To acknowledge easyFermi, please cite 'de Menezes, R (2022)'.\n- Since easyFermi relies on Fermipy, please cite 'Wood et al. 2017'.\n\n######################################################################################\n\n- I would like to thank Clodomir Vianna and Lucas Costa Campos for their help and strong support in this project.")
+        msg.setInformativeText("- To acknowledge easyFermi, please cite 'de Menezes, R (2022)'.\n- Since easyFermi relies on Fermipy, please cite 'Wood et al. 2017'.\n\n######################################################################################\n\n- I would like to thank Clodomir Vianna and Lucas Costa Campos for their help and strong support in this project.\n- A big thanks to Douglas Carlos, Lucas Siconato and Rodrigo Nemmen, the first users/testers of easyFermi.")
         msg.setIcon(QtWidgets.QMessageBox.Information) #Information, Critical, Warning
         
         
@@ -950,10 +1032,8 @@ class Ui_mainWindow(QDialog):
             self.toolButton_10.setEnabled(False)
         
         if self.checkBox_11.isChecked():
-            self.label_22.setEnabled(True)
             self.lineEdit_9.setEnabled(True)
         else:
-            self.label_22.setEnabled(False)
             self.lineEdit_9.setEnabled(False)
             
         if self.checkBox_12.isChecked():
@@ -974,6 +1054,20 @@ class Ui_mainWindow(QDialog):
             self.toolButton_6.setEnabled(False)
             self.lineEdit_11.setEnabled(False)
             self.label_13.setEnabled(False)
+        
+        if self.radioButton_6.isChecked():
+            self.lineEdit_12.setEnabled(True)
+            self.label_19.setEnabled(True)
+            self.checkBox_13.setEnabled(True)
+            self.checkBox_14.setEnabled(True)
+            self.checkBox_15.setEnabled(True)
+        else:
+            self.lineEdit_12.setEnabled(False)
+            self.label_19.setEnabled(False)
+            self.checkBox_13.setEnabled(False)
+            self.checkBox_14.setEnabled(False)
+            self.checkBox_15.setEnabled(False)
+        
             
         if self.radioButton_3.isChecked():
             self.toolButton.setEnabled(True)
@@ -1053,13 +1147,48 @@ class Ui_mainWindow(QDialog):
         #Delete sources:
         if self.checkBox_11.isChecked():
             a = self.lineEdit_9.text().split(',')
-            for i in a:
-                self.gta.delete_source(i)
+            if a[0] == '':
+                pass
+            else:    
+                for i in a:
+                    self.gta.delete_source(i)
         
-        self.gta.free_sources(distance=self.roiwidth/2,pars='norm')
-        self.gta.free_source('galdiff')
-        self.gta.free_source('isodiff')
-        self.gta.free_source(self.sourcename)
+        
+        self.freeradius = self.roiwidth/2.
+        self.freeradiusalert = 'ok'
+        if self.radioButton_6.isChecked():
+            if self.lineEdit_12.text() != '':
+                self.freeradius = float(self.lineEdit_12.text())
+            else:
+                self.freeradiusalert = '- No free source radius available: using default free source radius: '+str(self.freeradius)+" deg."
+            
+            if self.checkBox_13.isChecked():
+                """Free only the normalizations:"""
+                self.gta.free_sources(distance=self.freeradius,pars='norm')
+            else:
+                self.gta.free_sources(distance=self.freeradius)
+                
+            if self.checkBox_14.isChecked():
+                """Freeze Galactic diffuse model:"""
+                self.gta.free_source('galdiff',free=False)
+            else:
+                pass
+                
+            if self.checkBox_15.isChecked():
+                """Freeze Isotropic diffuse model:"""
+                self.gta.free_source('isodiff',free=False)
+            else:
+                pass
+        else:    
+            self.gta.free_sources(distance=self.freeradius)
+            #self.gta.free_source('galdiff')
+            #self.gta.free_source('isodiff')
+            #self.gta.free_source(self.sourcename)
+        
+        if self.checkBox_16.isChecked():
+            self.gta.free_source(self.sourcename,free=False)
+            self.gta.free_source(self.sourcename,pars='norm')
+        
         
         fit_results = self.gta.fit(optimizer='MINUIT')
         
@@ -1201,3 +1330,8 @@ ui = Ui_mainWindow()
 ui.setupUi(mainWindow)
 mainWindow.show()
 sys.exit(app.exec_())
+
+
+
+
+
