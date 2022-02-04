@@ -6,31 +6,37 @@ easyFermi relies on Python 3, Fermitools and Fermipy.
 
 We recommend the user to install Miniconda 3 or Anaconda 3 to proceed.
 
-To install Fermitools and Fermipy with conda, do:
+To install _Fermitools_ with conda, do:
 
-<pre><code>conda env create --name fermipy -c conda-forge -c fermipy python=3.7 fermitools=2.0.8
-
-conda install --name fermipy -c conda-forge fermipy
+<pre><code>$ conda create -n fermi -c conda-forge -c fermi fermitools python=3
 </code></pre>
 
-Once this process is complete, use the following command to activate the environment:
+If you have problems with the installation of Fermitools, please take a look on the video tutorial here: https://fermi.gsfc.nasa.gov/ssc/data/analysis/video_tutorials/
 
-<pre><code>conda activate fermipy
+Now that you installed the _Fermitools_, open the fermi environment in the terminal with:
+
+<pre><code>$ conda activate fermi
 </code></pre>
+
+And then install _Fermipy_ with the following command:
+
+<pre><code>$ pip install fermipy
+</code></pre>
+
 
 For more details, check the documentation of Fermipy here: https://fermipy.readthedocs.io/en/latest/install.html
 
 
 # Installation 
 
-Once you are in the fermipy environment, do:
+Once you are in the fermi environment and have installed _Fermipy_, do:
 
-<pre><code>pip install easyFermi
+<pre><code>$ pip install easyFermi
 </code></pre>
 
 # Usage
 
-While in the fermipy environment, do:
+While in the fermi environment, do:
 
 <pre><code>$ python
 >>> import easyFermi
@@ -40,6 +46,6 @@ While in the fermipy environment, do:
 
 # Tutorials
 
-You can check easyFermi tutorials on YouTube:
+You can check _easyFermi_ tutorials on YouTube:
 
 https://www.youtube.com/channel/UCeLCfEoWasUKky6CPNN_opQ
