@@ -42,6 +42,8 @@ While in the fermi environment, do:
 >>> import easyFermi
 </code></pre>
 
+![easyFermi main window](/code/images/easyFermiWindow.png "EasyFermi main window")
+
 
 
 # Tutorials
