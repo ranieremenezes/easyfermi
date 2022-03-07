@@ -521,7 +521,10 @@ class Ui_mainWindow(QDialog):
         self.actionOpen_Tutorial.setObjectName("actionOpen_Tutorial")
         self.actionSee_credits = QtWidgets.QAction(mainWindow)
         self.actionSee_credits.setObjectName("actionSee_credits")
+        self.actionLoad_state = QtWidgets.QAction(mainWindow)
+        self.actionLoad_state.setObjectName("actionLoad_state")
         self.menuTutorial.addAction(self.actionOpen_Tutorial)
+        self.menuTutorial.addAction(self.actionLoad_state)
         self.menuCredits.addAction(self.actionSee_credits)
         self.menubar.addAction(self.menuTutorial.menuAction())
         self.menubar.addAction(self.menuCredits.menuAction())
@@ -535,6 +538,7 @@ class Ui_mainWindow(QDialog):
         #self.actionOpen_Tutorial.connect(self.popup_tutorial)
         self.actionOpen_Tutorial.triggered.connect(self.popup_tutorial)
         self.actionSee_credits.triggered.connect(self.popup_credits)
+        self.actionLoad_state.triggered.connect(self.load_GUIstate)
             
         ############ Loading main files:
         self.toolButton.setCheckable(True)
@@ -585,6 +589,8 @@ class Ui_mainWindow(QDialog):
         self.checkBox_15.setToolTip("Freeze the isotropic diffuse model")
         self.checkBox_16.setToolTip("If checked, you will freeze the spectral shape of the target")
         self.checkBox_8.setToolTip("Check to look for extra sources in the ROI, i.e. sources not listed in the adopted catalog")
+        self.checkBox_6.setToolTip("If checked, the target will be removed from the model. If unchecked, easyFermi computes the residuals TS map")
+        self.label_11.setToolTip("The photon index of the test source")
 
     def retranslateUi(self, mainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -604,7 +610,7 @@ class Ui_mainWindow(QDialog):
         self.radioButton_2.setText(_translate("mainWindow", "2D-Gauss"))
         self.checkBox_6.setText(_translate("mainWindow", "Remove target"))
         self.checkBox_5.setText(_translate("mainWindow", "TS map:"))
-        self.checkBox_4.setText(_translate("mainWindow", "Re-localize"))
+        self.checkBox_4.setText(_translate("mainWindow", "Relocalize"))
         self.label_11.setText(_translate("mainWindow", "Photon index"))
         self.groupBox_3.setTitle(_translate("mainWindow", "Advanced configurations:"))
         self.label_15.setText(_translate("mainWindow", "Target name/tag:"))
@@ -615,7 +621,7 @@ class Ui_mainWindow(QDialog):
         self.comboBox_2.setItemText(1, _translate("mainWindow", "Power-law"))
         self.comboBox_2.setItemText(2, _translate("mainWindow", "LogPar"))
         self.comboBox_2.setItemText(3, _translate("mainWindow", "PLEC"))
-        self.lineEdit_9.setText(_translate("mainWindow", " "))
+        self.lineEdit_9.setText(_translate("mainWindow", ""))
         self.checkBox_10.setText(_translate("mainWindow", "Diagnostic plots"))
         self.label_21.setText(_translate("mainWindow", "Minimum separation (⁰)"))
         self.checkBox_8.setText(_translate("mainWindow", "Find extra sources in the ROI:"))
@@ -673,7 +679,7 @@ class Ui_mainWindow(QDialog):
         self.comboBox_4.setItemText(1, _translate("mainWindow", "No"))
         self.toolButton_6.setText(_translate("mainWindow", "..."))
         self.label_13.setText(_translate("mainWindow", "Dir. of photon files:"))
-        self.menuTutorial.setTitle(_translate("mainWindow", "Tutorial"))
+        self.menuTutorial.setTitle(_translate("mainWindow", "Menu"))
         self.menuCredits.setTitle(_translate("mainWindow", "Credits"))
         self.actionOpen.setText(_translate("mainWindow", "Open..."))
         self.actionSave.setText(_translate("mainWindow", "Save"))
@@ -686,6 +692,7 @@ class Ui_mainWindow(QDialog):
         self.actionPaste.setShortcut(_translate("mainWindow", "Ctrl+V"))
         self.actionOpen_Tutorial.setText(_translate("mainWindow", "Open Tutorial"))
         self.actionSee_credits.setText(_translate("mainWindow", "See credits"))
+        self.actionLoad_state.setText(_translate("mainWindow", "Load GUI state"))
 
     def reportProgress(self, n):
         if n == 0:
@@ -698,7 +705,7 @@ class Ui_mainWindow(QDialog):
                 
             self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Running gtselect, gtbin, etc.\n")
             if (self.IsThereLtcube is None) & (self.IsThereLtcube3==0):
-                self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- It will take ~"+str(int(self.Time_intervMJD*206/(30.0*60)))+" min to run the ltcube\n")
+                self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- It will take up to ~"+str(int(self.Time_intervMJD*206/(30.0*60)))+" min to run the ltcube\n")
                 self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"(Don't worry, it really takes some time...)\n")
             else:
                 self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Using precomputed ltcube.\n")
@@ -713,13 +720,13 @@ class Ui_mainWindow(QDialog):
         if n == 2:
             self.progressBar.setProperty("value", 50)
             self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+self.fitquality+"\n")
-            self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Main results saved in General_results.txt\n")
+            self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Main results saved in Target_results.txt\n")
                         
             if self.freeradiusalert != 'ok':
                 self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+self.freeradiusalert+"\n")
                     
             if self.checkBox_4.isChecked():
-                self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Re-localizing target...\n")
+                self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Relocalizing target...\n")
             if self.checkBox_5.isChecked():
                 self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Computing TS map.\n")
             if self.checkBox_2.isChecked():
@@ -786,11 +793,275 @@ class Ui_mainWindow(QDialog):
             self.thread.finished.connect(  lambda: self.pushButton.setText(_translate("MainWindow", "Go!"))  )
         
             self.thread.finished.connect(  lambda: self.progressBar.setProperty("value", 100)  )
-        
+            
+            self.thread.finished.connect(  lambda: self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Saving GUI status...\n")  )
+            
+            self.thread.finished.connect(  self.save_GUIstate   )
+            
             self.thread.finished.connect(  lambda: self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Process finished!\n")  )
+            
         else:
             self.popup_go()
     
+    
+    def save_GUIstate(self):
+        if self.radioButton_3.isChecked():
+            Standard = 'Yes'
+            Coords = self.lineEdit.text()
+            Energ = self.lineEdit_2.text()
+            date = self.dateTimeEdit.text()
+            date2 = self.dateTimeEdit_2.text()
+            spacecraft = self.lineEdit_3.text()
+            diffuse = self.lineEdit_4.text()
+            dir_photon = self.lineEdit_5.text()
+            Use_external_ltcube = self.checkBox_9.isChecked()
+            external_ltcube = self.lineEdit_7.text()
+            catalog = self.comboBox.currentText()
+            cataloged = self.comboBox_4.currentText()
+            state = [Standard,Coords,Energ,date,date2,spacecraft,diffuse,dir_photon, Use_external_ltcube, external_ltcube, catalog, cataloged]
+            
+        else:
+            Standard = 'No'
+            configfile = self.lineEdit_8.text()
+            dir_photon = self.lineEdit_11.text()
+            state = [Standard, configfile, dir_photon]
+            
+            
+        nickname = self.lineEdit_6.text()
+        change_model = self.checkBox_12.isChecked()
+        which_model = self.comboBox_2.currentText()
+        delete_sources = self.checkBox_11.isChecked()
+        which_sources_deleted = self.lineEdit_9.text()
+        Free_radius_standard = self.radioButton_5.isChecked()
+        Free_radius_custom = self.radioButton_6.isChecked()
+        free_radius = self.lineEdit_12.text()
+        Only_norm = self.checkBox_13.isChecked()
+        Freeze_Gal = self.checkBox_14.isChecked()
+        Freeze_Iso = self.checkBox_15.isChecked()
+        Freeze_targ_shape = self.checkBox_16.isChecked()
+        find_sources = self.checkBox_8.isChecked()
+        min_sig = self.doubleSpinBox_3.value()
+        min_sep = self.doubleSpinBox_4.value()
+        diagnostic = self.checkBox_10.isChecked()
+        output_format = self.comboBox_3.currentText()
+        part2 = [nickname, change_model, which_model, delete_sources, which_sources_deleted, Free_radius_standard, Free_radius_custom, free_radius, Only_norm, Freeze_Gal, Freeze_Iso, Freeze_targ_shape, find_sources, min_sig, min_sep, diagnostic, output_format]
+        
+        
+        LC = self.checkBox.isChecked()
+        LC_Nbins = self.spinBox.value()
+        LC_Ncores = self.spinBox_2.value()
+        SED = self.checkBox_2.isChecked()
+        SED_Nbins = self.spinBox_3.value()
+        extension = self.checkBox_3.isChecked()
+        Disk = self.radioButton.isChecked()
+        Gauss2D = self.radioButton_2.isChecked()
+        max_size = self.doubleSpinBox.value()
+        reloc = self.checkBox_4.isChecked()
+        TS_map = self.checkBox_5.isChecked()
+        test_source_index = self.doubleSpinBox_2.value()
+        remove_targ_from_model = self.checkBox_6.isChecked()        
+        output = self.lineEdit_10.text()
+        part3 = [LC, LC_Nbins, LC_Ncores, SED, SED_Nbins, extension, Disk, Gauss2D, max_size, reloc, TS_map, test_source_index, remove_targ_from_model, output]
+        
+        state = state + part2 + part3
+        np.save(self.OutputDir+'GUI_status.npy', state, allow_pickle=True, fix_imports=True)
+            
+        
+        
+            
+    def load_GUIstate(self):
+    
+        fname = QFileDialog.getOpenFileName(self, 'Open file', '', '(*.npy)')
+        keys = np.load(fname[0])
+               
+        if keys[0] == 'Yes':
+            N = 0
+            self.radioButton_3.setChecked(True)
+            self.radioButton_4.setChecked(False)
+            self.lineEdit.setText(keys[1])
+            self.lineEdit_2.setText(keys[2])
+            self.lineEdit_3.setText(keys[5])
+            self.lineEdit_4.setText(keys[6])
+            self.lineEdit_5.setText(keys[7])
+            self.lineEdit_6.setText(keys[12])
+            if keys[8] == 'True':
+                self.checkBox_9.setChecked(True)
+                self.lineEdit_7.setText(keys[9])
+            else:
+                self.checkBox_9.setChecked(False)
+            
+            date1 = keys[3].split(' ')
+            date = np.asarray(date1[0].split('/')).astype(int)
+            time = np.asarray(date1[1].split(':')).astype(int)
+            self.dateTimeEdit.setDateTime(QtCore.QDateTime(QtCore.QDate(date[2], date[1], date[0]), QtCore.QTime(time[0], time[1], time[2])))
+            
+            date2 = keys[4].split(' ')
+            date = np.asarray(date2[0].split('/')).astype(int)
+            time = np.asarray(date2[1].split(':')).astype(int)
+            self.dateTimeEdit_2.setDateTime(QtCore.QDateTime(QtCore.QDate(date[2], date[1], date[0]), QtCore.QTime(time[0], time[1], time[2])))
+            catalog = keys[10]
+            cataloged = keys[11]
+            aux = self.comboBox.findText(catalog, QtCore.Qt.MatchFixedString)
+            self.comboBox.setCurrentIndex(aux)
+            aux = self.comboBox_4.findText(cataloged, QtCore.Qt.MatchFixedString)
+            self.comboBox_4.setCurrentIndex(aux)
+            
+            
+            
+        else:
+            N = 9
+            self.radioButton_3.setChecked(False)
+            self.radioButton_4.setChecked(True)
+            self.lineEdit_8.setText(keys[1])
+            self.lineEdit_11.setText(keys[2])
+            
+        
+        
+            
+        #Change model:    
+        if keys[13-N] == 'True':
+            self.checkBox_12.setChecked(True)
+            which_model = keys[14-N]
+            aux = self.comboBox_2.findText(which_model, QtCore.Qt.MatchFixedString)
+            self.comboBox_2.setCurrentIndex(aux)
+        else:
+            self.checkBox_12.setChecked(False)
+            which_model = keys[14-N]
+            aux = self.comboBox_2.findText(which_model, QtCore.Qt.MatchFixedString)
+            self.comboBox_2.setCurrentIndex(aux)
+        
+        
+        #Delete sources:    
+        if keys[15-N] == 'True':
+            self.checkBox_11.setChecked(True)
+            self.lineEdit_9.setText(keys[16-N])
+        else:
+            self.checkBox_11.setChecked(False)
+            self.lineEdit_9.setText(keys[16-N])
+        
+        #Free source radius:
+        if keys[17-N] == 'True':
+            self.radioButton_5.setChecked(True)
+            self.radioButton_6.setChecked(False)
+            self.lineEdit_12.setText(keys[19-N])
+            if keys[20-N] == 'True':
+                self.checkBox_13.setChecked(True)
+            else:
+                self.checkBox_13.setChecked(False)
+            if keys[21-N] == 'True':
+                self.checkBox_14.setChecked(True)
+            else:
+                self.checkBox_14.setChecked(False)
+            if keys[22-N] == 'True':
+                self.checkBox_15.setChecked(True)
+            else:
+                self.checkBox_15.setChecked(False)
+        else:
+            self.radioButton_5.setChecked(False)
+            self.radioButton_6.setChecked(True)
+            self.lineEdit_12.setText(keys[19-N])
+            if keys[20-N] == 'True':
+                self.checkBox_13.setChecked(True)
+            else:
+                self.checkBox_13.setChecked(False)
+            if keys[21-N] == 'True':
+                self.checkBox_14.setChecked(True)
+            else:
+                self.checkBox_14.setChecked(False)
+            if keys[22-N] == 'True':
+                self.checkBox_15.setChecked(True)
+            else:
+                self.checkBox_15.setChecked(False)
+        
+        #Target shape:
+        if keys[23-N] == 'True':
+            self.checkBox_16.setChecked(True)
+        else:
+            self.checkBox_16.setChecked(False)
+        
+        #Find sources:
+        if keys[24-N] == 'True':
+            self.checkBox_8.setChecked(True)
+            self.doubleSpinBox_3.setProperty("value", float(keys[25-N]))
+            self.doubleSpinBox_4.setProperty("value", float(keys[26-N]))
+        else:
+            self.checkBox_8.setChecked(False)
+            self.doubleSpinBox_3.setProperty("value", float(keys[25-N]))
+            self.doubleSpinBox_4.setProperty("value", float(keys[26-N]))
+        
+        #Diagnostic plots:
+        if keys[27-N] == 'True': 
+            self.checkBox_8.setChecked(True)
+        else:
+            self.checkBox_8.setChecked(False)
+            
+        #Output format:
+        output_format = keys[28-N]
+        aux = self.comboBox_3.findText(output_format, QtCore.Qt.MatchFixedString)
+        self.comboBox_3.setCurrentIndex(aux)
+        
+        #LC:
+        if keys[29-N] == 'True':
+            self.checkBox.setChecked(True)
+        else:
+            self.checkBox.setChecked(False)
+        
+        self.spinBox.setProperty("value", int(keys[30-N]))     
+        self.spinBox_2.setProperty("value", int(keys[31-N]))    
+        
+        
+        #SED:
+        if keys[32-N] == 'True':
+            self.checkBox_2.setChecked(True)
+        else:
+            self.checkBox_2.setChecked(False)
+        
+        self.spinBox_3.setProperty("value", int(keys[33-N]))  
+        
+        #Extension:
+        if keys[34-N] == 'True':
+            self.checkBox_3.setChecked(True)
+        else:
+            self.checkBox_3.setChecked(False)
+            
+        if keys[35-N] == 'True':
+            self.radioButton.setChecked(True)
+        else:
+            self.radioButton.setChecked(False)  
+        
+        if keys[36-N] == 'True':
+            self.radioButton_2.setChecked(True)
+        else:
+            self.radioButton_2.setChecked(False) 
+            
+        self.doubleSpinBox.setProperty("value", float(keys[37-N])) 
+        
+        #Relocalize:
+        if keys[38-N] == 'True':
+            self.checkBox_4.setChecked(True)
+        else:
+            self.checkBox_4.setChecked(False)
+        
+        #TSmap:
+        if keys[39-N] == 'True':
+            self.checkBox_5.setChecked(True)
+        else:
+            self.checkBox_5.setChecked(False)
+        
+        self.doubleSpinBox_2.setProperty("value", float(keys[40-N]))     
+        
+        if keys[41-N] == 'True':
+            self.checkBox_6.setChecked(True)
+        else:
+            self.checkBox_6.setChecked(False)
+        
+        #Output dir:
+        self.lineEdit_10.setText(keys[-1])
+        
+        #Activate/deactivate boxes according to the loaded GUI_satatus file
+        self.activate()     
+         
+           
     
     def check_for_erros(self):
         if self.radioButton_3.isChecked():
@@ -1026,11 +1297,11 @@ class Ui_mainWindow(QDialog):
         if self.lineEdit_6.isEnabled():
             f.write("  sources  :\n")
             n = self.lineEdit.text().split(',')
-            f.write("    - { name: '"+self.lineEdit_6.text()+"', ra : "+n[0]+", dec : "+n[1]+", SpectrumType : '"+self.comboBox_2.currentText()+"', SpatialModel: 'PointSource' }")
+            f.write("    - { name: '"+self.lineEdit_6.text()+"', ra : "+n[0]+", dec : "+n[1]+", SpectrumType : 'PowerLaw', SpatialModel: 'PointSource' }")
         
         f.close()
         
-        
+            
         
     def popup_tutorial(self):
         msg = QtWidgets.QMessageBox()
@@ -1048,7 +1319,7 @@ class Ui_mainWindow(QDialog):
         msg = QtWidgets.QMessageBox()
         msg.setWindowTitle("Credits")
         msg.setText("##############################################################################################\n")
-        msg.setInformativeText("- To acknowledge easyFermi, please cite 'de Menezes, R (2022)'.\n- Since easyFermi relies on Fermipy, please cite 'Wood et al. 2017'.\n\n##############################################################################################\n\n- I would like to thank Clodomir Vianna, Lucas Costa Campos and Raí Menezes for their help and strong support in this project.\n- A big thanks to Douglas Carlos, Kaori Nakashima, Lucas Siconato and Rodrigo Nemmen, the first users/testers of easyFermi.")
+        msg.setInformativeText("- To acknowledge easyFermi, please cite 'de Menezes, R (2022)'.\n- Since easyFermi relies on Fermipy, please cite 'Wood et al. 2017'.\n\n##############################################################################################\n\n- I would like to thank Clodomir Vianna, Fabio Cafardo, Lucas Costa Campos and Raí Menezes for their help and strong support in this project.\n- A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Rodrigo Lang, and Romana Grossova, the first users/testers of easyFermi.")
         msg.setIcon(QtWidgets.QMessageBox.Information) #Information, Critical, Warning
         
         
@@ -1288,7 +1559,7 @@ class Ui_mainWindow(QDialog):
             if self.lineEdit_12.text() != '':
                 self.freeradius = float(self.lineEdit_12.text())
             else:
-                self.freeradiusalert = '- No free source radius available: using default free source radius: '+str(self.freeradius)+" deg."
+                self.freeradiusalert = '- No free source radius available. Using default free source radius: '+str(self.freeradius)+" deg."
             
             if self.checkBox_13.isChecked():
                 """Free only the normalizations:"""
@@ -1336,7 +1607,7 @@ class Ui_mainWindow(QDialog):
             self.gta.write_roi(self.OutputDir+'Results',make_plots=False)
         
         #Saving results
-        f = open(self.OutputDir+'General_results.txt','w')
+        f = open(self.OutputDir+'Target_results.txt','w')
         f.write(str(self.gta.roi[self.sourcename]))
         f.write('\nEnergy flux upper limit (MeV cm-2 s-1): '+str(self.gta.roi.sources[0]['eflux_ul95']))
         f.write('\nPhoton flux upper limit (cm-2 s-1): '+str(self.gta.roi.sources[0]['flux_ul95']))
@@ -1364,9 +1635,9 @@ class Ui_mainWindow(QDialog):
         if self.checkBox_5.isChecked():
             model = {'Index' : self.doubleSpinBox_2.value(), 'SpatialModel' : 'PointSource'}
             if self.checkBox_6.isChecked():
-                TSmap = self.gta.tsmap(self.OutputDir+'Residuals_TS_map_', model=model, exclude=self.sourcename)
+                TSmap = self.gta.tsmap(self.OutputDir+'Source_TS_map_', model=model, exclude=self.sourcename)
             else:
-                TSmap = self.gta.tsmap(self.OutputDir+'Source_TS_map_', model=model)
+                TSmap = self.gta.tsmap(self.OutputDir+'Residuals_TS_map_', model=model)
 
             fig = plt.figure(figsize=(8,8))
             ROIPlotter(TSmap['sqrt_ts'],roi=self.gta.roi).plot(vmin=0,vmax=5,levels=[3,5,7,9],subplot=111,cmap='magma')
@@ -1388,7 +1659,7 @@ class Ui_mainWindow(QDialog):
             
             sed = self.gta.sed(self.sourcename,loge_bins=ebins)
             
-            f = plt.figure(dpi=250)
+            f = plt.figure(figsize=(6,5),dpi=250)
             ax = f.add_subplot(1,1,1)
             ax.xaxis.set_minor_locator(AutoMinorLocator(2))
             ax.yaxis.set_minor_locator(AutoMinorLocator(2))
@@ -1415,21 +1686,32 @@ class Ui_mainWindow(QDialog):
             import pprint
             self.gta.config['extension']['width_min'] = 0.01
             if self.radioButton.isChecked(): 
-                exten = self.gta.extension(self.sourcename,width=np.linspace(0.01,self.doubleSpinBox_2.value(),20).tolist(), spatial_model='RadialDisk')
+                exten = self.gta.extension(self.sourcename,width=np.linspace(0.01,self.doubleSpinBox_2.value()/2.0,20).tolist(), spatial_model='RadialDisk')
             else:
-                exten = self.gta.extension(self.sourcename,width=np.linspace(0.01,self.doubleSpinBox_2.value(),20).tolist(), spatial_model='RadialGaussian')
+                exten = self.gta.extension(self.sourcename,width=np.linspace(0.01,self.doubleSpinBox_2.value()/2.0,20).tolist(), spatial_model='RadialGaussian')
                 
-            self.gta.write_roi('ext_gauss_fit')
-            plt.figure(figsize=(8,6))
-            plt.plot(exten['width'],exten['dloglike'],marker='o')
-            plt.gca().set_xlabel('Width [deg]')
+            self.gta.write_roi(self.sourcename+'_extension')            
+            f = plt.figure(figsize=(6,5),dpi=250)
+            ax = f.add_subplot(1,1,1)
+            ax.xaxis.set_minor_locator(AutoMinorLocator(2))
+            ax.yaxis.set_minor_locator(AutoMinorLocator(2))
+            ax.tick_params(which='major', length=5, direction='in')
+            ax.tick_params(which='minor', length=2.5, direction='in',bottom=True, top=True, left=True, right=True)
+            ax.tick_params(bottom=True, top=True, left=True, right=True)
+            ax.grid(linestyle=':')
+            
+            plt.plot(exten['width'],exten['dloglike'],marker='o', markeredgecolor='black')
+            plt.grid(linestyle=':')
+            plt.gca().set_xlabel('Width [$^{\circ}$]')
             plt.gca().set_ylabel('Delta Log-Likelihood')
             plt.gca().axvline(exten['ext'], color='black', label='Extension radius')
             plt.gca().axvspan(exten['ext']-exten['ext_err_lo'],exten['ext']+exten['ext_err_hi'], alpha=0.2,color='b')
 
-            plt.annotate('TS$_{\mathrm{ext}}$ = %.2f\nR$_{68}$ = %.3f $\pm$ %.3f'%
+            plt.annotate(' TS$_{\mathrm{ext}}$ = %.2f\n R$_{68}$ = %.3f $\pm$ %.3f'%
                 (exten['ts_ext'],exten['ext'],exten['ext_err']),xy=(0.05,0.05),xycoords='axes fraction')
             plt.gca().legend(frameon=False)
+            plt.title(self.sourcename+' - Extension')
+            plt.tight_layout()
             plt.savefig(self.OutputDir+'Quickplot_extension.'+output_format,bbox_inches='tight')
             
             
@@ -1438,7 +1720,7 @@ class Ui_mainWindow(QDialog):
         if self.checkBox.isChecked():
             lc = self.gta.lightcurve(self.sourcename, nbins=self.spinBox.value(), free_radius=self.roiwidth/2,use_local_ltcube=True, use_scaled_srcmap=True, free_params=['norm'], shape_ts_threshold=9, multithread=True, nthread=self.spinBox_2.value())
             
-            f = plt.figure(figsize=(8,4),dpi=250)
+            f = plt.figure(figsize=(9,4),dpi=250)
             ax = f.add_subplot(1,1,1)
             ax.xaxis.set_minor_locator(AutoMinorLocator(2))
             ax.yaxis.set_minor_locator(AutoMinorLocator(2))
@@ -1455,10 +1737,16 @@ class Ui_mainWindow(QDialog):
             plt.xlabel('Time [MJD]')
             plt.title(self.sourcename+' - Energy light curve')
             ymax = (lc['eflux'][lc['ts']>9] + lc['eflux_err'][lc['ts']>9]).max()
-            plt.ylim(-9,(10**-scale)*1.1*ymax)
+            
+            if len(lc['ts']) == len(lc['ts'][lc['ts']>9]):
+                ymin =  (lc['eflux'] - 1.3*lc['eflux_err']).min()
+            else:
+                ymin = -9
+                
+            plt.ylim(ymin,(10**-scale)*1.1*ymax)
             plt.savefig(self.OutputDir+'Quickplot_eLC.'+output_format,bbox_inches='tight')
             
-            f = plt.figure(figsize=(8,4),dpi=250)
+            f = plt.figure(figsize=(9,4),dpi=250)
             ax = f.add_subplot(1,1,1)
             ax.xaxis.set_minor_locator(AutoMinorLocator(2))
             ax.yaxis.set_minor_locator(AutoMinorLocator(2))
@@ -1474,12 +1762,18 @@ class Ui_mainWindow(QDialog):
             plt.xlabel('Time [MJD]')
             plt.title(self.sourcename+' - Light curve')
             ymax = (lc['flux'][lc['ts']>9] + lc['flux_err'][lc['ts']>9]).max()
-            plt.ylim(-9,(10**-scale)*1.1*ymax)
+            
+            if len(lc['ts']) == len(lc['ts'][lc['ts']>9]):
+                ymin =  (lc['flux'] - 1.3*lc['flux_err']).min()
+            else:
+                ymin = -9
+                
+            plt.ylim(ymin,(10**-scale)*1.1*ymax)
             plt.savefig(self.OutputDir+'Quickplot_LC.'+output_format,bbox_inches='tight')
             
 
         #Saving results
-        f = open(self.OutputDir+'General_results.txt','w')
+        f = open(self.OutputDir+'Target_results.txt','w')
         f.write(str(self.gta.roi[self.sourcename]))
         f.write('\nEnergy flux upper limit (MeV cm-2 s-1): '+str(self.gta.roi.sources[0]['eflux_ul95']))
         f.write('\nPhoton flux upper limit (cm-2 s-1): '+str(self.gta.roi.sources[0]['flux_ul95']))
