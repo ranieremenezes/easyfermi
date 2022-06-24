@@ -38,6 +38,8 @@ While in the fermi environment, do:
 
 ![easyFermi main window](/code/images/easyFermiWindow.png "EasyFermi main window")
 
+Before running any analysis, **please make sure that none of the working directories have spaces in their names!** This will crash the analysis.
+
 Once you finish the analysis, all of the results will be saved in .npy, .fits and .pdf (or .png) files.
 You can easily access them with numpy or other softwares like e.g. TopCat.
 
