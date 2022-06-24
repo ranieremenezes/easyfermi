@@ -1,7 +1,7 @@
 # easyFermi
 The easiest way to analyze Fermi-LAT data.
 
-# Requirements
+# Requirements and installation
 _easyFermi_ relies on Python 3, _Fermitools_ and _Fermipy_. 
 
 We recommend the user to install Miniconda 3 or Anaconda 3 before proceeding.
@@ -19,6 +19,13 @@ Then activate the fermi environment:
 And simply install _Fermipy_ and _easyFermi_ with pip:
 
 <pre><code>$ pip install fermipy ipython easyFermi numpy==1.22.4
+</code></pre>
+
+# Uninstall
+
+To uninstall the _Fermitools_, _Fermipy_ and _easyFermi_, do:
+
+<pre><code>$ conda remove --name fermi --all
 </code></pre>
 
 # Usage
