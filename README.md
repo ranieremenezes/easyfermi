@@ -6,40 +6,26 @@ _easyFermi_ relies on Python 3, _Fermitools_ and _Fermipy_.
 
 We recommend the user to install Miniconda 3 or Anaconda 3 before proceeding.
 
-To install _Fermitools_ with conda, do:
+To install _Fermitools_ in the terminal with conda, do:
 
-<pre><code>$ conda create -n fermi -c conda-forge -c fermi fermitools python=3 clhep=2.4.4.1
+<pre><code>$ conda create --name fermi -c conda-forge -c fermi python=3.9 "fermitools>=2.2.0" healpy gammapy
 </code></pre>
 
-If you have problems with the installation of Fermitools, please take a look on the video tutorial here: https://fermi.gsfc.nasa.gov/ssc/data/analysis/video_tutorials/
-
-Now that you installed the _Fermitools_, you can install _Fermipy_ with the following command:
-
-<pre><code>$ conda install --name fermi -c conda-forge fermipy matplotlib=3.3.2
-</code></pre>
-
-Note that _Fermipy_ doesn't work properly with more recent releases of matplotlib. This is why we are installing matplotlib V3.3.2 here.
-
-For more details, check the documentation of Fermipy here: https://fermipy.readthedocs.io/en/latest/install.html
-
-
-# Installing easyFermi
-
-Now you just have to open the fermi environment with
+Then activate the fermi environment:
 
 <pre><code>$ conda activate fermi
 </code></pre>
 
-And then install easyFermi with pip:
+And simply install _Fermipy_ and _easyFermi_ with pip:
 
-<pre><code>$ pip install easyFermi
+<pre><code>$ pip install fermipy ipython easyFermi numpy==1.22.4
 </code></pre>
 
 # Usage
 
 While in the fermi environment, do:
 
-<pre><code>$ python
+<pre><code>$ ipython
 >>> import easyFermi
 </code></pre>
 
@@ -68,9 +54,9 @@ You can check _easyFermi_ tutorials on YouTube:
 
 https://www.youtube.com/channel/UCeLCfEoWasUKky6CPNN_opQ
 
-# Fermipy light curve problem
+# Fermipy V1.0.1 light curve problem
 
-In _Fermipy_ V1.0.1 (Python 3), some users face a "KeyError: 'fit_success'" issue when trying to build the light curves. 
+In the old version of _Fermipy_ (i.e. V1.0.1, Python 3), the users face a "KeyError: 'fit_success'" issue when trying to build the light curves. 
 
 This issue is solved here:
 https://github.com/fermiPy/fermipy/issues/368
