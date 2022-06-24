@@ -1319,7 +1319,7 @@ class Ui_mainWindow(QDialog):
         msg = QtWidgets.QMessageBox()
         msg.setWindowTitle("Credits")
         msg.setText("##############################################################################################\n")
-        msg.setInformativeText("- To acknowledge easyFermi, please cite 'de Menezes, R (2022)'.\n- Since easyFermi relies on Fermipy, please cite 'Wood et al. 2017'.\n\n##############################################################################################\n\n- I would like to thank Clodomir Vianna, Fabio Cafardo, Lucas Costa Campos and Raí Menezes for their help and strong support in this project.\n- A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Rodrigo Lang, and Romana Grossova, the first users/testers of easyFermi.")
+        msg.setInformativeText("- To acknowledge easyFermi, please cite <a href='https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract'>de Menezes, R (2022)</a>.\n- Since easyFermi relies on Fermipy, please cite <a href='https://ui.adsabs.harvard.edu/abs/2017ICRC...35..824W/abstract'>Wood et al. 2017</a> .\n\n##############################################################################################\n\n- I would like to thank Clodomir Vianna, Fabio Cafardo, Lucas Costa Campos and Raí Menezes for their help and strong support in this project.\n- A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Rodrigo Lang, and Romana Grossova, the first users/testers of easyFermi.")
         msg.setIcon(QtWidgets.QMessageBox.Information) #Information, Critical, Warning
         
         
@@ -1536,9 +1536,9 @@ class Ui_mainWindow(QDialog):
         counts = h[0].data
         counts.shape
         h[0].data = np.sum(counts,axis=0)
-        h.writeto(self.OutputDir+'cmap.fits',clobber=True)
+        h.writeto(self.OutputDir+'cmap.fits',overwrite=True)
         
-        self.gta.optimize()
+        self.gta.optimize(npred_threshold=50,shape_ts_threshold=30)
         
         if self.checkBox_8.isChecked():
             srcs = self.gta.find_sources(sqrt_ts_threshold=self.doubleSpinBox_3.value(), min_separation=self.doubleSpinBox_4.value(), multithread=True)
@@ -1592,7 +1592,7 @@ class Ui_mainWindow(QDialog):
         fit_results = self.gta.fit(optimizer='MINUIT')
         
         if fit_results['fit_quality'] == 3:
-            self.fitquality = '- Fit quality: 3. Excelent fit. Full accurate covariance matrix.'
+            self.fitquality = '- Fit quality: 3. Excellent fit. Full accurate covariance matrix.'
         elif fit_results['fit_quality'] == 2:
             self.fitquality = '- Fit quality: 2. Reasonable fit. Full matrix, but forced positive-definite (i.e. not accurate).'
         elif fit_results['fit_quality'] == 1:
