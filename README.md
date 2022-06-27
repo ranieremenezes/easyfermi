@@ -63,9 +63,31 @@ You can check _easyFermi_ tutorials on YouTube:
 
 https://www.youtube.com/channel/UCeLCfEoWasUKky6CPNN_opQ
 
-# Fermipy V1.0.1 light curve problem
+# Acknowledging _easyFermi_
+
+To acknowledge _easyFermi_ in a publiaction, please cite  [de Menezes, R (2022)](https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract).
+
+Since _easyFermi_ relies on _Fermipy_, please also cite [Wood et al. 2017](https://ui.adsabs.harvard.edu/abs/2017ICRC...35..824W/abstract).
+
+# Caveats
+
+### Fermipy V1.0.1 light curve problem
 
 In the old version of _Fermipy_ (i.e. V1.0.1, Python 3), the users face a "KeyError: 'fit_success'" issue when trying to build the light curves. 
 
-This issue is solved here:
-https://github.com/fermiPy/fermipy/issues/368
+This issue is solved [here](https://github.com/fermiPy/fermipy/issues/368).
+
+
+### Densely populated areas of the sky
+
+When analyzing a target surrounded by too many $\gamma$-ray sources, as typical in the Galactic plane, the users may face the following warning:
+
+ MINUIT USER ERROR.  PARAMETER NUMBER IS        101
+,  ALLOWED RANGE IS ONE TO 100
+
+And the likelihood fit will not work. This happens because the MINUIT minimizer can handle only up to 100 parameters when performing the fit. If this problem happens, we recommend the user to play with the "Free source radius" panel in the main window of _easyFermi_. The user can, for instance, check the box "Only norm." and MINUIT will fit only the normalization of the sources in the ROI. When this box is checked, _easyFermi_ will still fit the spectral shape of strong $\gamma$-ray sources (i.e. > 10 $\sigma$) when optimizing the region of interest, but will skip it during the main fit. In the end, the only real loss when checking the "Only norm." box is in the spectral shape of weak (< 10 $\sigma$) $\gamma$-ray sources.
+
+For more tips on this topic, we recommend the user to take a look at the [Goodness of fit](https://www.youtube.com/watch?v=Ny7aA9EBRUs&t=4s&ab_channel=easyFermi) tutorial on YouTube.
+
+
+
