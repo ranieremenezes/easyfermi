@@ -18,7 +18,7 @@ Then activate the fermi environment:
 
 And simply install _Fermipy_ and _easyFermi_ with pip:
 
-<pre><code>$ pip install fermipy ipython easyFermi numpy==1.22.4
+<pre><code>$ pip install fermipy ipython easyFermi
 </code></pre>
 
 # Uninstall
