@@ -70,7 +70,7 @@ To acknowledge _easyFermi_ in a publiaction, please cite  [de Menezes, R (2022)]
 Since _easyFermi_ relies on _Fermipy_, please also cite [Wood et al. 2017](https://ui.adsabs.harvard.edu/abs/2017ICRC...35..824W/abstract).
 
 
-I would like to thank Clodomir Vianna for helping me with the design of easyFermi, and to Fabio Cafardo, Lucas Costa Campos and Raí Menezes for their help and strong support in this project. A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Rodrigo Lang, and Romana Grossova, the first users/testers of easyFermi.
+I would like to thank Clodomir Vianna for helping me with the design of easyFermi, and to Fabio Cafardo, Lucas Costa Campos and Raí Menezes for their help and strong support in this project. A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Matt Pui, and Romana Grossova, the first users/testers of easyFermi.
 
 # Caveats
 
