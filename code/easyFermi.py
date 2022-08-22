@@ -20,6 +20,47 @@ try:
 except:
     print("No 'LANGUAGE' entry was found.")
 
+try:
+    os.environ['LC_MEASUREMENT'] = 'en_IN:en'
+except:
+    pass
+
+try:
+    os.environ['LC_PAPER'] = 'en_IN:en'
+except:
+    pass
+    
+try: 
+    os.environ['LC_MONETARY'] = 'en_IN:en'
+except:
+    pass
+    
+try:
+    os.environ['LC_ADDRESS'] = 'en_IN:en'
+except:
+    pass
+    
+try:
+    os.environ['LC_NUMERIC'] = 'en_IN:en'
+except:
+    pass
+    
+try:
+    os.environ['LC_TELEPHONE'] = 'en_IN:en'
+except:
+    pass
+    
+try:
+    os.environ['LC_IDENTIFICATION'] = 'en_IN:en'
+except:
+    pass
+
+try:
+    os.environ['LC_TIME'] = 'en_IN:en'
+except:
+    pass
+
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QDialog, QApplication, QFileDialog
 from PyQt5.uic import loadUi
@@ -31,8 +72,6 @@ from matplotlib.ticker import AutoMinorLocator
 import matplotlib
 matplotlib.interactive(True)
 import numpy as np
-from time import sleep          #REMOVE LATER
-from datetime import datetime   #REMOVE LATER
 import astropy.io.fits as pyfits
 from astropy.time import Time
 from fermipy.gtanalysis import GTAnalysis
@@ -1150,14 +1189,7 @@ class Ui_mainWindow(QDialog):
         
         
         
-        """
-        contador = 0
-        #REMOVE:
-        now = datetime.now()
-        current_time = now.strftime("%H:%M:%S")
-        print("Current Time =", current_time,', ',contador)
-        contador = contador + 1
-        """
+     
         
               
         
@@ -1319,7 +1351,7 @@ class Ui_mainWindow(QDialog):
         msg = QtWidgets.QMessageBox()
         msg.setWindowTitle("Credits")
         msg.setText("##############################################################################################\n")
-        msg.setInformativeText("- To acknowledge easyFermi, please cite <a href='https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract'>de Menezes, R (2022)</a>.\n- Since easyFermi relies on Fermipy, please cite <a href='https://ui.adsabs.harvard.edu/abs/2017ICRC...35..824W/abstract'>Wood et al. 2017</a> .\n\n##############################################################################################\n\n- I would like to thank Clodomir Vianna, Fabio Cafardo, Lucas Costa Campos and Raí Menezes for their help and strong support in this project.\n- A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Rodrigo Lang, and Romana Grossova, the first users/testers of easyFermi.")
+        msg.setInformativeText("- To acknowledge easyFermi, please cite <a href='https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract'>de Menezes, R (2022)</a>.\n- Since easyFermi relies on Fermipy, please cite <a href='https://ui.adsabs.harvard.edu/abs/2017ICRC...35..824W/abstract'>Wood et al. 2017</a> .\n\n##############################################################################################\n\n- I would like to thank Clodomir Vianna, Fabio Cafardo, Lucas Costa Campos and Raí Menezes for their help and strong support in this project.\n- A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Matt Pui, and Romana Grossova, the first users/testers of easyFermi.")
         msg.setIcon(QtWidgets.QMessageBox.Information) #Information, Critical, Warning
         
         
@@ -1729,10 +1761,14 @@ class Ui_mainWindow(QDialog):
             ax.tick_params(bottom=True, top=True, left=True, right=True)
             ax.grid(linestyle=':')
             
-            scale = int(np.log10(lc['eflux'][lc['ts']>9].max())) -2
+            if len(lc['eflux'][lc['ts']>9]) > 0:
+                scale = int(np.log10(lc['eflux'][lc['ts']>9].max())) -2
+            else:
+                scale = int(np.log10(lc['eflux_ul95'][lc['ts']>9].max())) -2
+                
             tmean = (lc['tmin_mjd'] + lc['tmax_mjd'])/2
             plt.errorbar(tmean[lc['ts']>9], (10**-scale)*lc['eflux'][lc['ts']>9], xerr = [ tmean[lc['ts']>9]- lc['tmin_mjd'][lc['ts']>9], lc['tmax_mjd'][lc['ts']>9] - tmean[lc['ts']>9] ], yerr=(10**-scale)*lc['eflux_err'][lc['ts']>9], markeredgecolor='black', fmt='o', capsize=4)
-            plt.errorbar(tmean[lc['ts']<=9], (10**-scale)*lc['eflux'][lc['ts']<=9], xerr = [ tmean[lc['ts']<=9]- lc['tmin_mjd'][lc['ts']<=9], lc['tmax_mjd'][lc['ts']<=9] - tmean[lc['ts']<=9] ], yerr=5*np.ones(len(lc['eflux_err'][lc['ts']<=9])), markeredgecolor='black', fmt='o', uplims=True, color='orange', capsize=4)
+            plt.errorbar(tmean[lc['ts']<=9], (10**-scale)*lc['eflux_ul95'][lc['ts']<=9], xerr = [ tmean[lc['ts']<=9]- lc['tmin_mjd'][lc['ts']<=9], lc['tmax_mjd'][lc['ts']<=9] - tmean[lc['ts']<=9] ], yerr=5*np.ones(len(lc['eflux_err'][lc['ts']<=9])), markeredgecolor='black', fmt='o', uplims=True, color='orange', capsize=4)
             plt.ylabel(r'Energy flux [$10^{'+str(scale)+'}$ MeV cm$^{-2}$ s$^{-1}$]')
             plt.xlabel('Time [MJD]')
             plt.title(self.sourcename+' - Energy light curve')
@@ -1755,9 +1791,13 @@ class Ui_mainWindow(QDialog):
             ax.tick_params(bottom=True, top=True, left=True, right=True)
             ax.grid(linestyle=':')
             
-            scale = int(np.log10(lc['flux'][lc['ts']>9].max())) -2
+            if len(lc['flux'][lc['ts']>9]) > 0:
+                scale = int(np.log10(lc['flux'][lc['ts']>9].max())) -2
+            else:
+                scale = int(np.log10(lc['flux_ul95'][lc['ts']>9].max())) -2
+            
             plt.errorbar(tmean[lc['ts']>9], (10**-scale)*lc['flux'][lc['ts']>9], xerr = [ tmean[lc['ts']>9]- lc['tmin_mjd'][lc['ts']>9], lc['tmax_mjd'][lc['ts']>9] - tmean[lc['ts']>9] ], yerr=(10**-scale)*lc['flux_err'][lc['ts']>9], markeredgecolor='black', fmt='o', capsize=4)
-            plt.errorbar(tmean[lc['ts']<=9], (10**-scale)*lc['flux'][lc['ts']<=9], xerr = [ tmean[lc['ts']<=9]- lc['tmin_mjd'][lc['ts']<=9], lc['tmax_mjd'][lc['ts']<=9] - tmean[lc['ts']<=9] ], yerr=5*np.ones(len(lc['flux_err'][lc['ts']<=9])), markeredgecolor='black', fmt='o', uplims=True, color='orange', capsize=4)
+            plt.errorbar(tmean[lc['ts']<=9], (10**-scale)*lc['flux_ul95'][lc['ts']<=9], xerr = [ tmean[lc['ts']<=9]- lc['tmin_mjd'][lc['ts']<=9], lc['tmax_mjd'][lc['ts']<=9] - tmean[lc['ts']<=9] ], yerr=5*np.ones(len(lc['flux_err'][lc['ts']<=9])), markeredgecolor='black', fmt='o', uplims=True, color='orange', capsize=4)
             plt.ylabel(r'Flux [$10^{'+str(scale)+'}$ cm$^{-2}$ s$^{-1}$]')
             plt.xlabel('Time [MJD]')
             plt.title(self.sourcename+' - Light curve')
