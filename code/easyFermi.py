@@ -1683,7 +1683,7 @@ class Ui_mainWindow(QDialog):
             dnde = np.array(c['sources'][self.sourcename]['model_flux']['dnde'])
             dnde_hi = np.array(c['sources'][self.sourcename]['model_flux']['dnde_hi'])
             dnde_lo = np.array(c['sources'][self.sourcename]['model_flux']['dnde_lo'])
-            
+            TSmin = 9
             
             Nbins = self.spinBox_3.value() + 1
             ebins = np.linspace(np.log10(self.Emin),np.log10(self.Emax),num=Nbins)
@@ -1699,15 +1699,34 @@ class Ui_mainWindow(QDialog):
             ax.tick_params(which='minor', length=2.5, direction='in',bottom=True, top=True, left=True, right=True)
             ax.tick_params(bottom=True, top=True, left=True, right=True)
             ax.grid(linestyle=':')
-
+            
             plt.loglog(E, (E**2)*dnde, 'k--')
             plt.loglog(E, (E**2)*dnde_hi, 'k')
             plt.loglog(E, (E**2)*dnde_lo, 'k')
-            plt.errorbar(sed['e_ctr'][sed['ts']>9], sed['e2dnde'][sed['ts']>9], xerr = [sed['e_ctr'][sed['ts']>9] - sed['e_min'][sed['ts']>9], sed['e_max'][sed['ts']>9] - sed['e_ctr'][sed['ts']>9]], yerr=sed['e2dnde_err'][sed['ts']>9], markeredgecolor='black', fmt ='o', capsize=4)
-            plt.errorbar(sed['e_ctr'][sed['ts']<=9], sed['e2dnde_ul95'][sed['ts']<=9], xerr = [sed['e_ctr'][sed['ts']<=9] - sed['e_min'][sed['ts']<=9], sed['e_max'][sed['ts']<=9] - sed['e_ctr'][sed['ts']<=9]], yerr=0.3*sed['e2dnde_ul95'][sed['ts']<=9], markeredgecolor='black', fmt='o', uplims=True, color='orange', capsize=4)
+            plt.errorbar(sed['e_ctr'][sed['ts']>TSmin], sed['e2dnde'][sed['ts']>TSmin], xerr = [sed['e_ctr'][sed['ts']>TSmin] - sed['e_min'][sed['ts']>TSmin], sed['e_max'][sed['ts']>TSmin] - sed['e_ctr'][sed['ts']>TSmin]], yerr=sed['e2dnde_err'][sed['ts']>TSmin], markeredgecolor='black', fmt ='o', capsize=4)
+            plt.errorbar(sed['e_ctr'][sed['ts']<=TSmin], sed['e2dnde_ul95'][sed['ts']<=TSmin], xerr = [sed['e_ctr'][sed['ts']<=TSmin] - sed['e_min'][sed['ts']<=TSmin], sed['e_max'][sed['ts']<=TSmin] - sed['e_ctr'][sed['ts']<=TSmin]], yerr=0.3*sed['e2dnde_ul95'][sed['ts']<=TSmin], markeredgecolor='black', fmt='o', uplims=True, color='orange', capsize=4)
             plt.xlabel('Energy [MeV]')
             plt.ylabel(r'E$^{2}$ dN/dE [MeV cm$^{-2}$ s$^{-1}$]')
             plt.title(self.sourcename+' - SED')
+            
+            try:
+                ymax = 10*sed['e2dnde'][sed['ts']>TSmin].max()
+                ymin = 0.1*sed['e2dnde'][sed['ts']>TSmin].min()
+                if sed['e2dnde_ul95'][sed['ts']<=TSmin].max() > 0.5*ymax:
+                    ymax = 3*sed['e2dnde_ul95'][sed['ts']<=TSmin].max()
+                
+                if sed['e2dnde_ul95'][sed['ts']<=TSmin].min() < 2*ymin:
+                    ymin = 0.3*sed['e2dnde_ul95'][sed['ts']<=TSmin].min()
+                
+            except:
+                if len(sed['e2dnde'][sed['ts']>TSmin]) == 0:
+                    ymax = 3*sed['e2dnde_ul95'][sed['ts']<=TSmin].max()
+                    ymin = 0.3*sed['e2dnde_ul95'][sed['ts']<=TSmin].min()
+                elif len(sed['e2dnde_ul95'][sed['ts']<=TSmin]) == 0:
+                    ymax = 10*sed['e2dnde'][sed['ts']>TSmin].max()
+                    ymin = 0.1*sed['e2dnde'][sed['ts']>TSmin].min()
+            
+            plt.ylim(ymin,ymax)
             plt.tight_layout()
             plt.savefig(self.OutputDir+'Quickplot_SED.'+output_format,bbox_inches='tight')
             
