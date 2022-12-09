@@ -1770,6 +1770,7 @@ class Ui_mainWindow(QDialog):
         #LC:    
         if self.checkBox.isChecked():
             lc = self.gta.lightcurve(self.sourcename, nbins=self.spinBox.value(), free_radius=self.roiwidth/2,use_local_ltcube=True, use_scaled_srcmap=True, free_params=['norm'], shape_ts_threshold=9, multithread=True, nthread=self.spinBox_2.value())
+            TSmin = 9
             
             f = plt.figure(figsize=(9,4),dpi=250)
             ax = f.add_subplot(1,1,1)
@@ -1779,26 +1780,45 @@ class Ui_mainWindow(QDialog):
             ax.tick_params(which='minor', length=2.5, direction='in',bottom=True, top=True, left=True, right=True)
             ax.tick_params(bottom=True, top=True, left=True, right=True)
             ax.grid(linestyle=':')
+
             
-            if len(lc['eflux'][lc['ts']>9]) > 0:
-                scale = int(np.log10(lc['eflux'][lc['ts']>9].max())) -2
+            if len(lc['eflux'][lc['ts']>TSmin]) > 0:
+                scale = int(np.log10(lc['eflux'][lc['ts']>TSmin].max())) -2
             else:
-                scale = int(np.log10(lc['eflux_ul95'][lc['ts']>9].max())) -2
+                scale = int(np.log10(lc['eflux_ul95'].max())) -2
+            
+            
                 
             tmean = (lc['tmin_mjd'] + lc['tmax_mjd'])/2
-            plt.errorbar(tmean[lc['ts']>9], (10**-scale)*lc['eflux'][lc['ts']>9], xerr = [ tmean[lc['ts']>9]- lc['tmin_mjd'][lc['ts']>9], lc['tmax_mjd'][lc['ts']>9] - tmean[lc['ts']>9] ], yerr=(10**-scale)*lc['eflux_err'][lc['ts']>9], markeredgecolor='black', fmt='o', capsize=4)
-            plt.errorbar(tmean[lc['ts']<=9], (10**-scale)*lc['eflux_ul95'][lc['ts']<=9], xerr = [ tmean[lc['ts']<=9]- lc['tmin_mjd'][lc['ts']<=9], lc['tmax_mjd'][lc['ts']<=9] - tmean[lc['ts']<=9] ], yerr=5*np.ones(len(lc['eflux_err'][lc['ts']<=9])), markeredgecolor='black', fmt='o', uplims=True, color='orange', capsize=4)
+            plt.errorbar(tmean[lc['ts']>TSmin], (10**-scale)*lc['eflux'][lc['ts']>TSmin], xerr = [ tmean[lc['ts']>TSmin]- lc['tmin_mjd'][lc['ts']>TSmin], lc['tmax_mjd'][lc['ts']>TSmin] - tmean[lc['ts']>TSmin] ], yerr=(10**-scale)*lc['eflux_err'][lc['ts']>TSmin], markeredgecolor='black', fmt='o', capsize=4)
+            plt.errorbar(tmean[lc['ts']<=TSmin], (10**-scale)*lc['eflux_ul95'][lc['ts']<=TSmin], xerr = [ tmean[lc['ts']<=TSmin]- lc['tmin_mjd'][lc['ts']<=TSmin], lc['tmax_mjd'][lc['ts']<=TSmin] - tmean[lc['ts']<=TSmin] ], yerr=5*np.ones(len(lc['eflux_err'][lc['ts']<=TSmin])), markeredgecolor='black', fmt='o', uplims=True, color='orange', capsize=4)
             plt.ylabel(r'Energy flux [$10^{'+str(scale)+'}$ MeV cm$^{-2}$ s$^{-1}$]')
             plt.xlabel('Time [MJD]')
             plt.title(self.sourcename+' - Energy light curve')
-            ymax = (lc['eflux'][lc['ts']>9] + lc['eflux_err'][lc['ts']>9]).max()
             
-            if len(lc['ts']) == len(lc['ts'][lc['ts']>9]):
-                ymin =  (lc['eflux'] - 1.3*lc['eflux_err']).min()
-            else:
-                ymin = -9
+            try:
+                y0 = (lc['eflux'][lc['ts']>TSmin]).max()
+                y1 = (lc['eflux'][lc['ts']>TSmin] + lc['eflux_err'][lc['ts']>TSmin]).max()
+                if y1 > 4*y0:
+                    y1 = 4*y0
                 
-            plt.ylim(ymin,(10**-scale)*1.1*ymax)
+                y2 = (lc['eflux_ul95'][lc['ts']<=TSmin]).max()
+                if y1 > y2:
+                    ymax = y1
+                else:
+                    ymax = y2
+                    
+                y3 = (lc['eflux'][lc['ts']>TSmin] - lc['eflux_err'][lc['ts']>TSmin]).min()
+                y4 = (lc['eflux_ul95'][lc['ts']<=TSmin]).min()
+                if y3 < y4:
+                    ymin = y3
+                else:
+                    ymin = y4
+            except:
+                ymax = (lc['eflux_ul95'][lc['ts']<=TSmin]).max()
+                ymin = (lc['eflux_ul95'][lc['ts']<=TSmin]).min()
+            
+            plt.ylim(-9,(10**-scale)*1.1*ymax)
             plt.savefig(self.OutputDir+'Quickplot_eLC.'+output_format,bbox_inches='tight')
             
             f = plt.figure(figsize=(9,4),dpi=250)
@@ -1810,24 +1830,44 @@ class Ui_mainWindow(QDialog):
             ax.tick_params(bottom=True, top=True, left=True, right=True)
             ax.grid(linestyle=':')
             
-            if len(lc['flux'][lc['ts']>9]) > 0:
-                scale = int(np.log10(lc['flux'][lc['ts']>9].max())) -2
+            if len(lc['flux'][lc['ts']>TSmin]) > 0:
+                scale = int(np.log10(lc['flux'][lc['ts']>TSmin].max())) -2
             else:
-                scale = int(np.log10(lc['flux_ul95'][lc['ts']>9].max())) -2
+                scale = int(np.log10(lc['flux_ul95'].max())) -2
             
-            plt.errorbar(tmean[lc['ts']>9], (10**-scale)*lc['flux'][lc['ts']>9], xerr = [ tmean[lc['ts']>9]- lc['tmin_mjd'][lc['ts']>9], lc['tmax_mjd'][lc['ts']>9] - tmean[lc['ts']>9] ], yerr=(10**-scale)*lc['flux_err'][lc['ts']>9], markeredgecolor='black', fmt='o', capsize=4)
-            plt.errorbar(tmean[lc['ts']<=9], (10**-scale)*lc['flux_ul95'][lc['ts']<=9], xerr = [ tmean[lc['ts']<=9]- lc['tmin_mjd'][lc['ts']<=9], lc['tmax_mjd'][lc['ts']<=9] - tmean[lc['ts']<=9] ], yerr=5*np.ones(len(lc['flux_err'][lc['ts']<=9])), markeredgecolor='black', fmt='o', uplims=True, color='orange', capsize=4)
+            plt.errorbar(tmean[lc['ts']>TSmin], (10**-scale)*lc['flux'][lc['ts']>TSmin], xerr = [ tmean[lc['ts']>TSmin]- lc['tmin_mjd'][lc['ts']>TSmin], lc['tmax_mjd'][lc['ts']>TSmin] - tmean[lc['ts']>TSmin] ], yerr=(10**-scale)*lc['flux_err'][lc['ts']>TSmin], markeredgecolor='black', fmt='o', capsize=4)
+            plt.errorbar(tmean[lc['ts']<=TSmin], (10**-scale)*lc['flux_ul95'][lc['ts']<=TSmin], xerr = [ tmean[lc['ts']<=TSmin]- lc['tmin_mjd'][lc['ts']<=TSmin], lc['tmax_mjd'][lc['ts']<=TSmin] - tmean[lc['ts']<=TSmin] ], yerr=5*np.ones(len(lc['flux_err'][lc['ts']<=TSmin])), markeredgecolor='black', fmt='o', uplims=True, color='orange', capsize=4)
             plt.ylabel(r'Flux [$10^{'+str(scale)+'}$ cm$^{-2}$ s$^{-1}$]')
             plt.xlabel('Time [MJD]')
             plt.title(self.sourcename+' - Light curve')
-            ymax = (lc['flux'][lc['ts']>9] + lc['flux_err'][lc['ts']>9]).max()
-            
-            if len(lc['ts']) == len(lc['ts'][lc['ts']>9]):
-                ymin =  (lc['flux'] - 1.3*lc['flux_err']).min()
-            else:
-                ymin = -9
+                       
+            try:
+                y0 = (lc['flux'][lc['ts']>TSmin]).max()
+                y1 = (lc['flux'][lc['ts']>TSmin] + lc['flux_err'][lc['ts']>TSmin]).max()
+                if y1 > 4*y0:
+                    y1 = 4*y0
                 
-            plt.ylim(ymin,(10**-scale)*1.1*ymax)
+                y2 = (lc['flux_ul95'][lc['ts']<=TSmin]).max()
+                if y1 > y2:
+                    ymax = y1
+                else:
+                    ymax = y2
+                    
+                y3 = (lc['flux'][lc['ts']>TSmin] - lc['flux_err'][lc['ts']>TSmin]).min()
+                y4 = (lc['flux_ul95'][lc['ts']<=TSmin]).min()
+                if y3 < y4:
+                    ymin = y3
+                else:
+                    ymin = y4
+            except:
+                ymax = (lc['flux_ul95'][lc['ts']<=TSmin]).max()
+                ymin = (lc['flux_ul95'][lc['ts']<=TSmin]).min()
+                            
+            plt.ylim(-9,(10**-scale)*1.1*ymax)
+            
+            
+            
+            
             plt.savefig(self.OutputDir+'Quickplot_LC.'+output_format,bbox_inches='tight')
             
 
