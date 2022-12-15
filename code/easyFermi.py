@@ -1709,22 +1709,27 @@ class Ui_mainWindow(QDialog):
             plt.ylabel(r'E$^{2}$ dN/dE [MeV cm$^{-2}$ s$^{-1}$]')
             plt.title(self.sourcename+' - SED')
             
-            try:
-                ymax = 10*sed['e2dnde'][sed['ts']>TSmin].max()
-                ymin = 0.1*sed['e2dnde'][sed['ts']>TSmin].min()
-                if sed['e2dnde_ul95'][sed['ts']<=TSmin].max() > 0.5*ymax:
-                    ymax = 3*sed['e2dnde_ul95'][sed['ts']<=TSmin].max()
+            if len(sed['e2dnde'][sed['ts']>TSmin]) > 0:
+                ymax = 2*(sed['e2dnde'][sed['ts']>TSmin] + sed['e2dnde_err'][sed['ts']>TSmin]).max()
+                ymin = 0.5*(sed['e2dnde'][sed['ts']>TSmin] - sed['e2dnde_err'][sed['ts']>TSmin]).min()
+                if ymax > 4*sed['e2dnde'][sed['ts']>TSmin].max():
+                    ymax = 4*sed['e2dnde'][sed['ts']>TSmin].max()
                 
-                if sed['e2dnde_ul95'][sed['ts']<=TSmin].min() < 2*ymin:
-                    ymin = 0.3*sed['e2dnde_ul95'][sed['ts']<=TSmin].min()
+                if ymin < sed['e2dnde'][sed['ts']>TSmin].min()/5.0:
+                    ymin = sed['e2dnde'][sed['ts']>TSmin].min()/5.0
+                    
+                if len(sed['e2dnde_ul95'][sed['ts']<=TSmin]) > 0:
+                    yaux = (sed['e2dnde_ul95'][sed['ts']<=TSmin]).max()
+                    if yaux > ymax:
+                        ymax = yaux
+                        
+                    yaux = (sed['e2dnde_ul95'][sed['ts']<=TSmin]).min()
+                    if yaux < ymin:
+                        ymin = yaux
+            else:
+                ymax = 2*sed['e2dnde_ul95'][sed['ts']<=TSmin].max()
+                ymin = 0.5*sed['e2dnde_ul95'][sed['ts']<=TSmin].min()
                 
-            except:
-                if len(sed['e2dnde'][sed['ts']>TSmin]) == 0:
-                    ymax = 3*sed['e2dnde_ul95'][sed['ts']<=TSmin].max()
-                    ymin = 0.3*sed['e2dnde_ul95'][sed['ts']<=TSmin].min()
-                elif len(sed['e2dnde_ul95'][sed['ts']<=TSmin]) == 0:
-                    ymax = 10*sed['e2dnde'][sed['ts']>TSmin].max()
-                    ymin = 0.1*sed['e2dnde'][sed['ts']>TSmin].min()
             
             plt.ylim(ymin,ymax)
             plt.tight_layout()
@@ -1796,29 +1801,23 @@ class Ui_mainWindow(QDialog):
             plt.xlabel('Time [MJD]')
             plt.title(self.sourcename+' - Energy light curve')
             
-            try:
+            
+            if len(lc['eflux'][lc['ts']>TSmin]) > 0:
                 y0 = (lc['eflux'][lc['ts']>TSmin]).max()
                 y1 = (lc['eflux'][lc['ts']>TSmin] + lc['eflux_err'][lc['ts']>TSmin]).max()
                 if y1 > 4*y0:
                     y1 = 4*y0
                 
-                y2 = (lc['eflux_ul95'][lc['ts']<=TSmin]).max()
-                if y1 > y2:
-                    ymax = y1
-                else:
-                    ymax = y2
-                    
-                y3 = (lc['eflux'][lc['ts']>TSmin] - lc['eflux_err'][lc['ts']>TSmin]).min()
-                y4 = (lc['eflux_ul95'][lc['ts']<=TSmin]).min()
-                if y3 < y4:
-                    ymin = y3
-                else:
-                    ymin = y4
-            except:
-                ymax = (lc['eflux_ul95'][lc['ts']<=TSmin]).max()
-                ymin = (lc['eflux_ul95'][lc['ts']<=TSmin]).min()
-            
-            plt.ylim(-9,(10**-scale)*1.1*ymax)
+                if len(lc['eflux_ul95'][lc['ts']<=TSmin]) > 0:
+                    y2 = (lc['eflux_ul95'][lc['ts']<=TSmin]).max()
+                    if y2 > y1:
+                        y1 = y2
+                
+            else:
+                y1 = (lc['eflux_ul95'][lc['ts']<=TSmin]).max()
+                
+            ymin = -(10**-scale)*0.1*y1
+            plt.ylim(ymin,(10**-scale)*1.1*y1)
             plt.savefig(self.OutputDir+'Quickplot_eLC.'+output_format,bbox_inches='tight')
             
             f = plt.figure(figsize=(9,4),dpi=250)
@@ -1840,30 +1839,24 @@ class Ui_mainWindow(QDialog):
             plt.ylabel(r'Flux [$10^{'+str(scale)+'}$ cm$^{-2}$ s$^{-1}$]')
             plt.xlabel('Time [MJD]')
             plt.title(self.sourcename+' - Light curve')
-                       
-            try:
+            
+            
+            if len(lc['flux'][lc['ts']>TSmin]) > 0:
                 y0 = (lc['flux'][lc['ts']>TSmin]).max()
                 y1 = (lc['flux'][lc['ts']>TSmin] + lc['flux_err'][lc['ts']>TSmin]).max()
                 if y1 > 4*y0:
                     y1 = 4*y0
                 
-                y2 = (lc['flux_ul95'][lc['ts']<=TSmin]).max()
-                if y1 > y2:
-                    ymax = y1
-                else:
-                    ymax = y2
-                    
-                y3 = (lc['flux'][lc['ts']>TSmin] - lc['flux_err'][lc['ts']>TSmin]).min()
-                y4 = (lc['flux_ul95'][lc['ts']<=TSmin]).min()
-                if y3 < y4:
-                    ymin = y3
-                else:
-                    ymin = y4
-            except:
-                ymax = (lc['flux_ul95'][lc['ts']<=TSmin]).max()
-                ymin = (lc['flux_ul95'][lc['ts']<=TSmin]).min()
-                            
-            plt.ylim(-9,(10**-scale)*1.1*ymax)
+                if len(lc['flux_ul95'][lc['ts']<=TSmin]) > 0:
+                    y2 = (lc['flux_ul95'][lc['ts']<=TSmin]).max()
+                    if y2 > y1:
+                        y1 = y2
+                
+            else:
+                y1 = (lc['flux_ul95'][lc['ts']<=TSmin]).max()
+            
+            ymin = -(10**-scale)*0.1*y1               
+            plt.ylim(ymin,(10**-scale)*1.1*y1)
             
             
             
