@@ -76,10 +76,12 @@ import astropy.io.fits as pyfits
 from astropy.time import Time
 from fermipy.gtanalysis import GTAnalysis
 from fermipy.plotting import ROIPlotter
+import platform
 
 import pathlib
 libpath = str(pathlib.Path(__file__).parent.resolve())+"/images/"
 
+OS_name = platform.system()
 
 class Worker(QtCore.QObject):
     starting = QtCore.pyqtSignal()
@@ -632,6 +634,9 @@ class Ui_mainWindow(QDialog):
         self.checkBox_8.setToolTip("Check to look for extra sources in the ROI, i.e. sources not listed in the adopted catalog")
         self.checkBox_6.setToolTip("If checked, the target will be removed from the model. If unchecked, easyFermi computes the residuals TS map")
         self.label_11.setToolTip("The photon index of the test source")
+        self.spinBox_2.setToolTip("Multiprocessing is available only for Linux OS")
+        self.checkBox_4.setToolTip("Check this to find the optimal R.A. and Dec. of the target's gamma-ray emission")
+        self.lineEdit_12.setToolTip("Only the sources within this radius will have free parameters during the fit")
 
     def retranslateUi(self, mainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -1411,9 +1416,11 @@ class Ui_mainWindow(QDialog):
         """ This function activates/deactivates the entries in the main window"""
         if self.checkBox.isChecked():
             self.spinBox.setEnabled(True)
-            self.spinBox_2.setEnabled(True)
+            if OS_name != "Darwin":
+                self.spinBox_2.setEnabled(True)
+                self.label_9.setEnabled(True)
             self.label_4.setEnabled(True)
-            self.label_9.setEnabled(True)
+            
         else:
             self.spinBox.setEnabled(False)
             self.spinBox_2.setEnabled(False)
@@ -1778,7 +1785,12 @@ class Ui_mainWindow(QDialog):
             
         #LC:    
         if self.checkBox.isChecked():
-            lc = self.gta.lightcurve(self.sourcename, nbins=self.spinBox.value(), free_radius=self.roiwidth/2,use_local_ltcube=True, use_scaled_srcmap=True, free_params=['norm'], shape_ts_threshold=9, multithread=True, nthread=self.spinBox_2.value())
+            #Running the LC in parallel cores is possible only in Linux systems:
+            if OS_name != "Darwin":
+                lc = self.gta.lightcurve(self.sourcename, nbins=self.spinBox.value(), free_radius=self.roiwidth/2,use_local_ltcube=True, use_scaled_srcmap=True, free_params=['norm'], shape_ts_threshold=9, multithread=True, nthread=self.spinBox_2.value())
+            else:
+                lc = self.gta.lightcurve(self.sourcename, nbins=self.spinBox.value(), free_radius=self.roiwidth/2,use_local_ltcube=True, use_scaled_srcmap=True, free_params=['norm'], shape_ts_threshold=9, multithread=False)
+            
             TSmin = 9
             
             f = plt.figure(figsize=(9,4),dpi=250)
