@@ -188,7 +188,7 @@ class Ui_mainWindow(QDialog):
         self.spinBox = QtWidgets.QSpinBox(self.groupBox_2)
         self.spinBox.setEnabled(False)
         self.spinBox.setGeometry(QtCore.QRect(40, 40, 48, 26))
-        self.spinBox.setMinimum(3)
+        self.spinBox.setRange(3,999)
         self.spinBox.setProperty("value", 20)
         self.spinBox.setObjectName("spinBox")
         self.radioButton_2 = QtWidgets.QRadioButton(self.groupBox_2)
