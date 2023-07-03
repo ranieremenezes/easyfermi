@@ -207,7 +207,7 @@ class Ui_mainWindow(QDialog):
         self.doubleSpinBox_2.setProperty("value", 2.0)
         self.doubleSpinBox_2.setObjectName("doubleSpinBox_2")
         self.checkBox_5 = QtWidgets.QCheckBox(self.groupBox_2)
-        self.checkBox_5.setGeometry(QtCore.QRect(10, 260, 131, 23))
+        self.checkBox_5.setGeometry(QtCore.QRect(10, 260, 151, 23))
         self.checkBox_5.setChecked(True)
         self.checkBox_5.setObjectName("checkBox_5")
         self.checkBox_4 = QtWidgets.QCheckBox(self.groupBox_2)
@@ -632,8 +632,8 @@ class Ui_mainWindow(QDialog):
         self.checkBox_15.setToolTip("Freeze the isotropic diffuse model")
         self.checkBox_16.setToolTip("If checked, you will freeze the spectral shape of the target")
         self.checkBox_8.setToolTip("Check to look for extra sources in the ROI, i.e. sources not listed in the adopted catalog")
-        self.checkBox_6.setToolTip("If checked, the target will be removed from the model. If unchecked, easyFermi computes the residuals TS map")
-        self.label_11.setToolTip("The photon index of the test source")
+        self.checkBox_6.setToolTip("If checked, easyFermi will also compute the residuals TS map")
+        self.label_11.setToolTip("The photon index of the test source adopted in the TS and excess maps")
         self.spinBox_2.setToolTip("Multiprocessing is available only for Linux OS")
         self.checkBox_4.setToolTip("Check this to find the optimal R.A. and Dec. of the target's gamma-ray emission")
         self.lineEdit_12.setToolTip("Only the sources within this radius will have free parameters during the fit")
@@ -654,8 +654,8 @@ class Ui_mainWindow(QDialog):
         self.label_5.setText(_translate("mainWindow", "Max. size"))
         self.checkBox_2.setText(_translate("mainWindow", "SED:"))
         self.radioButton_2.setText(_translate("mainWindow", "2D-Gauss"))
-        self.checkBox_6.setText(_translate("mainWindow", "Remove target"))
-        self.checkBox_5.setText(_translate("mainWindow", "TS map:"))
+        self.checkBox_6.setText(_translate("mainWindow", "Residuals TS map"))
+        self.checkBox_5.setText(_translate("mainWindow", "TS and excess maps:"))
         self.checkBox_4.setText(_translate("mainWindow", "Relocalize"))
         self.label_11.setText(_translate("mainWindow", "Photon index"))
         self.groupBox_3.setTitle(_translate("mainWindow", "Advanced configurations:"))
@@ -776,7 +776,7 @@ class Ui_mainWindow(QDialog):
             if self.checkBox_4.isChecked():
                 self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Relocalizing target...\n")
             if self.checkBox_5.isChecked():
-                self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Computing TS map.\n")
+                self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Computing TS and excess maps.\n")
             if self.checkBox_2.isChecked():
                 self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Computing SED.\n")
             if self.checkBox_3.isChecked():
@@ -1646,6 +1646,7 @@ class Ui_mainWindow(QDialog):
         #Do plots:
         if self.checkBox_10.isChecked():
             self.gta.write_roi(self.OutputDir+'Results',make_plots=True)
+            
         else:
             self.gta.write_roi(self.OutputDir+'Results',make_plots=False)
         
@@ -1678,15 +1679,24 @@ class Ui_mainWindow(QDialog):
         if self.checkBox_5.isChecked():
             model = {'Index' : self.doubleSpinBox_2.value(), 'SpatialModel' : 'PointSource'}
             if self.checkBox_6.isChecked():
-                TSmap = self.gta.tsmap(self.OutputDir+'Source_TS_map_', model=model, exclude=self.sourcename)
-            else:
-                TSmap = self.gta.tsmap(self.OutputDir+'Residuals_TS_map_', model=model)
+                TSmap_res = self.gta.tsmap(self.OutputDir+'Residuals_TS_map_', model=model)
+                fig = plt.figure(figsize=(8,8))
+                ROIPlotter(TSmap_res['sqrt_ts'],roi=self.gta.roi).plot(vmin=0,vmax=5,levels=[3,5,7,9],subplot=111,cmap='magma')
+                plt.gca().set_title('sqrt(TS)')
+                plt.savefig(self.OutputDir+'TSmap_residuals.'+output_format,bbox_inches='tight')
+                          
 
+            TSmap = self.gta.tsmap(self.OutputDir+'Source_TS_map_', model=model, exclude=self.sourcename)
             fig = plt.figure(figsize=(8,8))
             ROIPlotter(TSmap['sqrt_ts'],roi=self.gta.roi).plot(vmin=0,vmax=5,levels=[3,5,7,9],subplot=111,cmap='magma')
             plt.gca().set_title('sqrt(TS)')
-            plt.savefig(self.OutputDir+'TSmap.'+output_format,bbox_inches='tight')
-        
+            plt.savefig(self.OutputDir+'TSmap_target_highlighted.'+output_format,bbox_inches='tight')
+            
+            #Below we compute the excess, significance, model, and data maps:
+            resid = self.gta.residmap(self.OutputDir+'Excess_'+self.sourcename,model=model,make_plots=True, write_fits=True, write_npy=False)
+            
+            
+            
         #SED:    
         if self.checkBox_2.isChecked():
             c = np.load(self.OutputDir+'Results.npy',allow_pickle=True).flat[0]
