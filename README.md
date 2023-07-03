@@ -93,12 +93,6 @@ I would like to thank Clodomir Vianna for helping me with the design of easyFerm
 
 # Caveats
 
-### Fermipy V1.0.1 light curve problem
-
-In the old version of _Fermipy_ (i.e. V1.0.1, Python 3), the users face a "KeyError: 'fit_success'" issue when trying to build the light curves. 
-
-This issue is solved [here](https://github.com/fermiPy/fermipy/issues/368).
-
 
 ### Densely populated areas of the sky
 
