@@ -65,13 +65,30 @@ Let's give another example on how to open the fits file of the Excess map:
 
 ```
 import astropy.io.fits as pyfits
+from astropy.wcs import WCS
+import matplotlib.pyplot as plt
+
 Excess_data = pyfits.open("Excess_4FGL_j1229.0+0202_pointsource_powerlaw_2.00_residmap.fits")
 
-significance_map = h[0].data
-plt.imshow(significance_map,origin="lower",cmap="RdBu_r")
+wcs = WCS(Excess_data[0].header)
+significance_map = Excess_data[0].data
 
-Excess_map = h[2].data
+plt.figure()
+plt.subplot(projection=wcs)
+plt.imshow(significance_map,origin="lower",cmap="RdBu_r")
+plt.grid()
+plt.title("Significance (in $\sigma$)")
+plt.colorbar()
+
+wcs2 = WCS(Excess_data[2].header)
+Excess_map = Excess_data[2].data
+
+plt.figure()
+plt.subplot(projection=wcs2)
 plt.imshow(Excess_map,origin="lower",cmap="RdBu_r")
+plt.grid()
+plt.title("Excess (in counts)")
+plt.colorbar()
 plt.show()
 ```
 In this way, you can play with the plots as you wish.
