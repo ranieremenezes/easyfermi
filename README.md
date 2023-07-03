@@ -43,6 +43,8 @@ Before running any analysis, **please make sure that none of the working directo
 Once you finish the analysis, all of the results will be saved in .npy, .fits and .pdf (or .png) files.
 You can easily access them with numpy or other softwares like e.g. TopCat.
 
+### Light curves
+
 Let's use the source 4FGL J1229.0+0202 as an example, you can access the light curve data from python by opening the .npy file: 
 
 LC = numpy.load('4fgl_j1229.0+0202_lightcurve.npy')
@@ -56,6 +58,23 @@ tmin = LC[()]['tmin_mjd']
 tmax = LC[()]['tmax_mjd']
 
 Or you can simply open the file 4fgl_j1229.0+0202_lightcurve.fits directly in TopCat.
+
+### Excess and significance maps
+
+Let's give another example on how to open the fits file of the Excess map:
+
+```
+import astropy.io.fits as pyfits
+Excess_data = pyfits.open("Excess_4FGL_j1229.0+0202_pointsource_powerlaw_2.00_residmap.fits")
+
+significance_map = h[0].data
+plt.imshow(significance_map,origin="lower",cmap="RdBu_r")
+
+Excess_map = h[2].data
+plt.imshow(Excess_map,origin="lower",cmap="RdBu_r")
+plt.show()
+```
+In this way, you can play with the plots as you wish.
 
 # Tutorials
 
