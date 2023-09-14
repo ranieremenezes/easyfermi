@@ -6,6 +6,8 @@ _easyFermi_ relies on Python 3, _Fermitools_ and _Fermipy_.
 
 We recommend the user to install Miniconda 3 or Anaconda 3 before proceeding.
 
+_easyFermi_ was developed for Linux OS but you can install and use it on most Mac OS as well. If you have problems installing _easyFermi_ on Mac OS, take a look at the next section.
+
 To install _Fermitools_ in the terminal with conda, do:
 
 <pre><code>$ conda create --name fermi -c conda-forge -c fermi python=3.9 "fermitools>=2.2.0" healpy gammapy
@@ -20,6 +22,37 @@ And simply install _Fermipy_ and _easyFermi_ with pip:
 
 <pre><code>$ pip install fermipy ipython easyFermi
 </code></pre>
+
+# Installation on Mac OS with M1 chip
+Some users of easyFermi reported an incompatibility between MacOS (M1 chip) and _pyqt5_, which is the Python library that we use to create the graphical interface. This incompatibility crashes the installation, but we found a dirty way to make it work, as you can see below.
+
+So, in case you use a Mac OS and the installation steps listed in the previous section does not work, you can:
+
+Create the fermi environment:
+<pre><code>$ conda create --name fermi python=3.9 
+</code></pre>
+
+Then we activate it with:
+<pre><code>$  conda activate fermi
+</code></pre>
+
+Now we install _pyqt_:
+<pre><code>$ conda install pyqt 
+</code></pre>
+
+Note that _pyqt_ is installed before the _Fermitools_ and _Fermipy_, otherwise it will downgrade some matplotlib library and break the installation.
+
+Now we install the _Fermitools_:
+<pre><code>$ conda install -c conda-forge -c fermi "fermitools>=2.2.0" healpy gammapy
+</code></pre>
+
+And _Fermipy_:
+<pre><code>$ pip install fermipy ipython
+</code></pre>
+
+Then just download the script _easyFermi.py_ from GitHub and put it in your working directory.
+From this point on, you can follow the **Usage** section.
+
 
 # Uninstall
 
