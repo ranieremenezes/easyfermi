@@ -33,7 +33,7 @@ Create the fermi environment:
 </code></pre>
 
 Then we activate it with:
-<pre><code>$  conda activate fermi
+<pre><code>$ conda activate fermi
 </code></pre>
 
 Now we install _pyqt_:
