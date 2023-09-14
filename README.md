@@ -24,7 +24,7 @@ And simply install _Fermipy_ and _easyFermi_ with pip:
 </code></pre>
 
 # Installation on Mac OS with M1 chip
-Some users of easyFermi reported an incompatibility between MacOS (M1 chip) and _pyqt5_, which is the Python library that we use to create the graphical interface. This incompatibility crashes the installation, but we found a dirty way to make it work, as you can see below.
+Some users of easyFermi reported an incompatibility between MacOS (M1 chip) and _pyqt5_, which is the Python library that we use to create the graphical interface. This incompatibility crashes the installation, but we found a dirty solution to make it work, as you can see below.
 
 So, in case you use a Mac OS and the installation steps listed in the previous section does not work, you can:
 
