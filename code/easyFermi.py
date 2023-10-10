@@ -686,8 +686,7 @@ class Ui_mainWindow(QDialog):
         self.comboBox_3.setAccessibleDescription(_translate("mainWindow", "4FGL"))
         self.comboBox_3.setItemText(0, _translate("mainWindow", "pdf"))
         self.comboBox_3.setItemText(1, _translate("mainWindow", "png"))
-        self.plainTextEdit.setPlainText(_translate("mainWindow", "\n"
-""))
+        self.plainTextEdit.setPlainText(_translate("mainWindow", "\n"))
 
         self.toolButton_10.setText(_translate("mainWindow", "..."))
         self.toolButton_4.setText(_translate("mainWindow", "..."))
@@ -1196,12 +1195,6 @@ class Ui_mainWindow(QDialog):
         
         self.OutputDir = self.lineEdit_10.text()+'/'
         
-        
-        
-     
-        
-              
-        
         if self.radioButton_4.isChecked(): 
             self.gta = GTAnalysis(self.lineEdit_8.text(),logging={'verbosity': 3})
             self.roiwidth = self.gta.config.get('binning').get('roiwidth')
@@ -1226,24 +1219,6 @@ class Ui_mainWindow(QDialog):
         for n,s in enumerate(self.gta.roi.sources):
             if n == 0:
                 self.sourcename = s.name
-
-                
-        #Change model if requested:
-        if self.checkBox_12.isChecked():
-            aux = self.comboBox_2.currentText()
-            if aux == 'Select...':
-                pass
-            elif aux == 'Power-law':
-                aux = 'PowerLaw'
-            elif aux == 'LogPar':
-                aux = 'LogParabola'
-            elif aux == 'PLEC':
-                aux = 'PLSuperExpCutoff2'
-            
-            if aux != 'Select...':    
-                self.gta.delete_source(self.sourcename)
-                self.gta.add_source(self.sourcename, src_dict={'ra' : float(self.RA), 'dec' : float(self.Dec) , 'SpatialModel' : 'PointSource', 'SpectrumType' : aux})
-                self.plainTextEdit.setPlainText(self.plainTextEdit.toPlainText()+"- Changing target spectral model.\n")
         
         
         #Checking for ltcube:
@@ -1574,6 +1549,30 @@ class Ui_mainWindow(QDialog):
     
     
     def analysisBasics(self):
+    
+        """
+        This function calls fermipy to fit the RoI model in the Fermi-LAT data after the setup is done (i.e. after the computation
+        of ltcube, exposure map, srcmaps etc). This function is also in charge of generating a counts map, changing the target model
+        (if requested by the user), and deleting sources from the model (if requested).
+        
+        Parameters
+        ----------
+        self: instance of the class Ui_mainWindow
+            This parameter contains all the variables read from the Graphical interface.
+
+        Returns
+        -------
+        This function returns the data files cmap.fits, Target_results.txt, Results.fits, and Results.npy. All of which are saved
+        at the output directory read from the graphical interface.
+        
+        cmap.fits:
+            This is the counts map centered on the target.
+        Target_results.txt:
+            This file contains the results of the RoI fit only for the target, such that the user can have a quick look at it.
+        Results.fits, and Results.npy:
+            These files contain the same information. They give the user the full set of results regarding the fit of the RoI.
+        """
+    
         #Cmap:
         h = pyfits.open(self.OutputDir+'ccube.fits')
         counts = h[0].data
@@ -1581,6 +1580,25 @@ class Ui_mainWindow(QDialog):
         h[0].data = np.sum(counts,axis=0)
         h.writeto(self.OutputDir+'cmap.fits',overwrite=True)
         
+        #Change model if requested:
+        if self.checkBox_12.isChecked():
+            aux = self.comboBox_2.currentText()
+            if aux == 'Select...':
+                pass
+            elif aux == 'Power-law':
+                aux = 'PowerLaw'
+            elif aux == 'LogPar':
+                aux = 'LogParabola'
+            elif aux == 'PLEC':
+                aux = 'PLSuperExpCutoff2'
+            
+            if aux != 'Select...':    
+                self.gta.delete_source(self.sourcename)
+                skip_list = list(self.gta.roi.create_source_table()["source_name"])
+                self.gta.add_source(self.sourcename, src_dict={'ra' : float(self.RA), 'dec' : float(self.Dec) , 'SpatialModel' : 'PointSource', 'SpectrumType' : aux})
+                self.gta.optimize(skip=skip_list, npred_frac=0)  # We optimize only the new source added above. All other sources are skipped.
+        
+        # Optimizing RoI:
         self.gta.optimize(npred_threshold=50,shape_ts_threshold=30)
         
         if self.checkBox_8.isChecked():
@@ -1662,8 +1680,34 @@ class Ui_mainWindow(QDialog):
     
     def analysis_advanced(self):
         
-        output_format = self.comboBox_3.currentText()
+        """
+        This function calls fermipy to perform some advanced analyses as relocalizing the target, computing two types of TS map, computing the
+        target's SED, extension, and light curve (all under request by the user).
         
+        Parameters
+        ----------
+        self: instance of the class Ui_mainWindow
+            This parameter contains all the variables read from the Graphical interface.
+
+        Returns
+        -------
+        This function returns ".fits" and ".npy" data files, such as TARGET_NAME_loc.fits, Source_TS_map_pointsource_powerlaw_2.00_tsmap.fits, 
+        TARGET_NAME_sed.fits, TARGET_NAME_extension.fits, and TARGET_NAME_lightcurve.fits. All of which are saved at the output directory read 
+        from the graphical interface.
+        
+        TARGET_NAME_loc.fits and TARGET_NAME_loc.npy:
+            Data files with information on the best-fit RA and Dec for the target, as well as the r_68, r_95, and r_99 uncertainty regions.
+        Source_TS_map_pointsource_powerlaw_2.00_tsmap.fits:
+            TS map assuming a power-law index = 2. The user can freely change this index in the graphical interface.   
+        TARGET_NAME_sed.fits and TARGET_NAME_sed.npy:  
+            Data files with all the information regarding the SED of the target.
+        TARGET_NAME_extension.fits and TARGET_NAME_extension.npy:
+            Data files with all the information regarding the extension fit applied to the target.
+        TARGET_NAME_lightcurve.fits and TARGET_NAME_lightcurve.npy:
+            Data files with all the information regarding the energy-flux and photon-flux light curves. 
+        """
+        
+        output_format = self.comboBox_3.currentText()
         
         #Relocalize:    
         if self.checkBox_4.isChecked():
@@ -1753,6 +1797,7 @@ class Ui_mainWindow(QDialog):
                 
             
             plt.ylim(ymin,ymax)
+            plt.xlim(self.Emin*0.8,self.Emax*1.2)
             plt.tight_layout()
             plt.savefig(self.OutputDir+'Quickplot_SED.'+output_format,bbox_inches='tight')
             
