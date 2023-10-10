@@ -80,17 +80,15 @@ You can easily access them with numpy or other softwares like e.g. TopCat.
 
 Let's use the source 4FGL J1229.0+0202 as an example, you can access the light curve data from python by opening the .npy file: 
 
+```
 LC = numpy.load('4fgl_j1229.0+0202_lightcurve.npy')
-
 flux = LC[()]['flux']
-
 fluxError = LC[()]['flux_err']
-
 tmin = LC[()]['tmin_mjd']
-
 tmax = LC[()]['tmax_mjd']
+```
 
-Or you can simply open the file 4fgl_j1229.0+0202_lightcurve.fits directly in TopCat.
+Or you can simply open the file 4fgl_j1229.0+0202_lightcurve.fits directly with TopCat.
 
 ### Excess and significance maps
 
