@@ -1,4 +1,4 @@
-![easyFermi logo by Clodomir Vianna](/code/images/logo.jpg "easyFermi logo by Clodomir Vianna")
+![logo_for_github](https://github.com/ranieremenezes/easyFermi/assets/104923248/6de71340-1795-487f-8c5b-4068b8a69a58)
 
 # easyFermi
 The easiest way to analyze Fermi-LAT data.
