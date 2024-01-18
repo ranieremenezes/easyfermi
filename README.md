@@ -1,84 +1,71 @@
-![easyfermi](https://github.com/clodoN1109/easyFermi/assets/104923248/8d0b283f-cb1e-487d-8971-097a8b2dccbb)
-# easyFermi
+<p align="left" width="100%">
+ <img width="100%" height="250" src="https://github.com/clodoN1109/easyFermi/assets/104923248/d1a25a66-0fc6-4484-93fa-aaa8717f4276">
+ <h1>easyFermi</h1>
+</p> 
+
+
+
 The easiest way to analyze Fermi-LAT data.
 <p align="center" width="100%">
  <img width="60%" height="300" src="https://github.com/clodoN1109/easyFermi/assets/104923248/2c55876f-9983-4164-bd02-de274c9187ed">
 </p> 
 
-easyFermi is a GUI solution for speeding up the analysis of Fermi-LAT data by easying the interaction with the Fermi Software Analysis tools.
+easyFermi is a GUI solution for speeding up the analysis of Fermi-LAT data by easying the interaction with the Fermi software analysis tools.
 
 
 
 # Requirements
 
-- Linux OS / MAC OS
+- Linux OS / Mac OS
 - <a href="https://docs.conda.io/projects/miniconda/en/latest/">Miniconda 3</a> / <a href="https://conda.io/projects/conda/en/latest/user-guide/install/index.html">Anaconda 3</a>
 
 
-# Installation on Linux OS
+# Installation on Linux OS and Mac OS
+Note: for Mac OS with M1 chip, try instead next section.
 
-<pre><code>$ conda create --name fermi </code></pre>
+In the terminal, run the following commands:
 
+- Creating a virtual environment and installing packages:
+<pre><code>$ conda create --name fermi --channel conda-forge --channel fermi python=3.9 "fermitools>=2.2.0" healpy gammapy fermipy ipython </code></pre>
 
-
-_easyFermi_ relies on Python 3, _Fermitools_ and _Fermipy_. 
-
-We recommend the user to install Miniconda 3 or Anaconda 3 before proceeding.
-
-_easyFermi_ was developed for Linux OS but you can install and use it on most Mac OS as well. If you have problems installing _easyFermi_ on Mac OS, take a look at the next section.
-
-To install _Fermitools_ in the terminal with conda, do:
-
-<pre><code>$ conda create --name fermi -c conda-forge -c fermi python=3.9 "fermitools>=2.2.0" healpy gammapy
-</code></pre>
-
-Then activate the fermi environment:
+- Activating the virtual environment:
 
 <pre><code>$ conda activate fermi
 </code></pre>
 
-And simply install _Fermipy_ and _easyFermi_ with pip:
+- Installing the easyFermi package:
 
-<pre><code>$ pip install fermipy ipython easyFermi
-</code></pre>
+<pre><code>$ pip install easyFermi</code></pre>
 
 # Installation on Mac OS with M1 chip
-Some users of easyFermi reported an incompatibility between MacOS (M1 chip) and _pyqt5_, which is the Python library that we use to create the graphical interface. This incompatibility crashes the installation, but we found a dirty solution to make it work, as you can see below.
 
-So, in case you use a Mac OS and the installation steps listed in the previous section does not work, you can:
+- Creating a virtual environment:
+<pre><code>$ conda create --name fermi python=3.9 </code></pre>
 
-Create the fermi environment:
-<pre><code>$ conda create --name fermi python=3.9 
-</code></pre>
+- Activating the virtual environment:
+<pre><code>$ conda activate fermi</code></pre>
 
-Then we activate it with:
-<pre><code>$ conda activate fermi
-</code></pre>
+- Installing _pyqt_ package:
+<pre><code>$ conda install pyqt </code></pre>
 
-Now we install _pyqt_:
-<pre><code>$ conda install pyqt 
-</code></pre>
+Note: that _pyqt_ is installed before the _Fermitools_ and _Fermipy_, otherwise it will downgrade some matplotlib library and break the installation.
 
-Note that _pyqt_ is installed before the _Fermitools_ and _Fermipy_, otherwise it will downgrade some matplotlib library and break the installation.
-
-Now we install the _Fermitools_:
+- Installing _Fermitools_ package:
 <pre><code>$ conda install -c conda-forge -c fermi "fermitools>=2.2.0" healpy gammapy
 </code></pre>
 
-And _Fermipy_:
-<pre><code>$ pip install fermipy ipython
-</code></pre>
+- Installing _Fermipy_ package:
+<pre><code>$ pip install fermipy ipython</code></pre>
 
-Then just download the script _easyFermi.py_ from GitHub and put it in your working directory.
+- Download the script _easyFermi.py_ from GitHub and put it in your working directory.
 From this point on, you can follow the **Usage** section.
 
 
 # Uninstall
 
-To uninstall the _Fermitools_, _Fermipy_ and _easyFermi_, do:
-
-<pre><code>$ conda remove --name fermi --all
-</code></pre>
+In the terminal, run:
+<pre><code>$ conda deactivate</code></pre>
+<pre><code>$ conda env remove --name fermi</code></pre>
 
 # Usage
 
@@ -88,7 +75,11 @@ While in the fermi environment, do:
 >>> import easyFermi
 </code></pre>
 
-![easyFermi main window](/code/images/easyFermiWindow.png "EasyFermi main window")
+<p align="center" width="100%">
+ <img width="60%" height=400" src="/code/images/easyFermiWindow.png">
+ <h1>easyFermi</h1>
+</p> 
+
 
 Before running any analysis, **please make sure that none of the working directories have spaces in their names!** This will crash the analysis.
 
