@@ -1,7 +1,5 @@
-![logo_for_github](https://github.com/ranieremenezes/easyFermi/assets/104923248/6de71340-1795-487f-8c5b-4068b8a69a58)
-
+![easyfermi](https://github.com/clodoN1109/easyFermi/assets/104923248/8d0b283f-cb1e-487d-8971-097a8b2dccbb)
 # easyFermi
-
 The easiest way to analyze Fermi-LAT data.
 <p align="center" width="100%">
  <img width="60%" height="300" src="https://github.com/clodoN1109/easyFermi/assets/104923248/2c55876f-9983-4164-bd02-de274c9187ed">
