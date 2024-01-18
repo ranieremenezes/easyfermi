@@ -1,12 +1,14 @@
 ![logo_for_github](https://github.com/ranieremenezes/easyFermi/assets/104923248/6de71340-1795-487f-8c5b-4068b8a69a58)
 
 # easyFermi
+
 The easiest way to analyze Fermi-LAT data.
+<p align="center" width="100%">
+ <img width="60%" height="300" src="https://github.com/clodoN1109/easyFermi/assets/104923248/2c55876f-9983-4164-bd02-de274c9187ed">
+</p> 
 
 easyFermi is a GUI solution for speeding up the analysis of Fermi-LAT data by easying the interaction with the Fermi Software Analysis tools.
-<p align="center" width="100%">
- <img width="33%" src="https://github.com/clodoN1109/easyFermi/assets/104923248/2c55876f-9983-4164-bd02-de274c9187ed">
-</p>
+
 
 
 # Requirements
@@ -15,6 +17,9 @@ easyFermi is a GUI solution for speeding up the analysis of Fermi-LAT data by ea
 - <a href="https://docs.conda.io/projects/miniconda/en/latest/">Miniconda 3</a> / <a href="https://conda.io/projects/conda/en/latest/user-guide/install/index.html">Anaconda 3</a>
 
 
+# Installation on Linux OS
+
+<pre><code>$ conda create --name fermi </code></pre>
 
 
 
