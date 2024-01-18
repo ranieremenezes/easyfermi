@@ -3,7 +3,21 @@
 # easyFermi
 The easiest way to analyze Fermi-LAT data.
 
-# Requirements and installation
+easyFermi is a GUI solution for speeding up the analysis of Fermi-LAT data by easying the interaction with the Fermi Software Analysis tools.
+<p align="center" width="100%">
+ <img width="33%" src="https://github.com/clodoN1109/easyFermi/assets/104923248/2c55876f-9983-4164-bd02-de274c9187ed">
+</p>
+
+
+# Requirements
+
+- Linux OS / MAC OS
+- <a href="https://docs.conda.io/projects/miniconda/en/latest/">Miniconda 3</a> / <a href="https://conda.io/projects/conda/en/latest/user-guide/install/index.html">Anaconda 3</a>
+
+
+
+
+
 _easyFermi_ relies on Python 3, _Fermitools_ and _Fermipy_. 
 
 We recommend the user to install Miniconda 3 or Anaconda 3 before proceeding.
