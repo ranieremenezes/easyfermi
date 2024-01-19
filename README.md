@@ -166,3 +166,7 @@ For more tips on this topic, we recommend the user to take a look at the [Goodne
 
 
 
+
+<p align="center" width="100%">
+ <img width="20%" height="200" src="https://github.com/clodoN1109/easyFermi/assets/104923248/a5fd6166-4dce-475b-92e6-78cbcbcd36af">
+</p> 
