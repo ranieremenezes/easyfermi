@@ -26,16 +26,16 @@ Note: for Mac OS with M1 chip, try instead next section.
 In the terminal, run the following commands:
 
 - Creating a virtual environment and installing packages:
-<pre><code>$ conda create --name fermi --channel conda-forge --channel fermi python=3.9 "fermitools>=2.2.0" healpy gammapy fermipy ipython </code></pre>
+<pre><code>$ conda create --name fermi --channel conda-forge --channel fermi "python=3.9" "fermitools>=2.2.0" "healpy" "gammapy" "astropy=5.3.3" "pyqt=5.15.10" "astroquery=0.4.6"</code></pre>
 
 - Activating the virtual environment:
 
 <pre><code>$ conda activate fermi
 </code></pre>
 
-- Installing the easyFermi package:
+- Installing the easyFermi and fermipy packages:
 
-<pre><code>$ pip install easyFermi</code></pre>
+<pre><code>$ pip install "easyFermi" "fermipy==1.2"</code></pre>
 
 # Installation on Mac OS with M1 chip
 
