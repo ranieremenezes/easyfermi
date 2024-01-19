@@ -28,7 +28,7 @@ And simply install _Fermipy_ and _easyFermi_ with pip:
 # Installation on Mac OS with M1 chip
 Some users of easyFermi reported an incompatibility between MacOS (M1 chip) and _pyqt5_, which is the Python library that we use to create the graphical interface. This incompatibility crashes the installation, but we found a dirty solution to make it work, as you can see below.
 
-So, in case you use a Mac OS and the installation steps listed in the previous section does not work, you can:
+So, in case you use a Mac OS and the installation steps listed in the previous section do not work, you can:
 
 Create the fermi environment:
 <pre><code>$ conda create --name fermi python=3.9 
@@ -42,7 +42,7 @@ Now we install _pyqt_:
 <pre><code>$ conda install pyqt 
 </code></pre>
 
-Note that _pyqt_ is installed before the _Fermitools_ and _Fermipy_, otherwise it will downgrade some matplotlib library and break the installation.
+Note that _pyqt_ is installed before the _Fermitools_ and _Fermipy_, otherwise it will downgrade the matplotlib library and break the installation.
 
 Now we install the _Fermitools_:
 <pre><code>$ conda install -c conda-forge -c fermi "fermitools>=2.2.0" healpy gammapy
