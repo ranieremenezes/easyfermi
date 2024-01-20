@@ -32,10 +32,10 @@ easyFermi is a solution to facilitate Fermi-LAT data analysis by providing an in
 # Installation on Linux OS and Mac OS
 _Note for Mac OS (specially with M1 chip): if the procedures in this section fail, try the alternative instructions in the next section._
 
-In the terminal, run the following commands:
+In the terminal, run:
 
 - Creating a virtual environment and installing packages:
-<pre>$ <code>conda create --name fermi --channel conda-forge --channel fermi "python=3.9" "pyqt=5.15.10" "fermitools>=2.2.0" "healpy" "gammapy" "astropy=5.3.3" "fermipy=1.2" "astroquery=0.4.6"</code></pre>
+<pre>$ <code>conda create --name fermi --channel conda-forge --channel fermi "python=3.9" "pyqt=5.15.10" "fermitools>=2.2.0" "healpy" "gammapy" "astropy=5.3.3" "fermipy=v1.2" "astroquery=0.4.6"</code></pre>
 
 - Activating the virtual environment:
 
@@ -71,7 +71,7 @@ In the terminal, run:
 
 # Running
 
-In the terminal, run the following commands:
+In the terminal, run:
 
 - Activating the virtual environment:
 <pre>$ <code>conda activate easyfermi</code></pre>
@@ -118,5 +118,5 @@ I would like to thank Clodomir Vianna for helping me with the design of easyFerm
 
  <br>
 <p align="center" width="100%">
- <img width="20%" height="200" src="https://github.com/clodoN1109/easyFermi/assets/104923248/a5fd6166-4dce-475b-92e6-78cbcbcd36af">
+ <img height="200" src="https://github.com/clodoN1109/easyFermi/assets/104923248/a5fd6166-4dce-475b-92e6-78cbcbcd36af">
 </p> 
