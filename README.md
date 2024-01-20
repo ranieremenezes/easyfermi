@@ -10,8 +10,17 @@ The easiest way to analyze Fermi-LAT data.
  <img width="60%" height="300" src="https://github.com/clodoN1109/easyFermi/assets/104923248/2c55876f-9983-4164-bd02-de274c9187ed">
 </p> 
 
-easyFermi is a GUI solution for speeding up the analysis of Fermi-LAT data by easying the interaction with the Fermi software analysis tools.
+easyFermi is a solution to facilitate Fermi-LAT data analysis by providing an intuitive graphical interface to interact with Fermi software analysis tools.
 
+# Sections
+ - Requirements
+ - Installation on Linux OS and Mac OS
+ - Alternative Installation on Mac OS
+ - Uninstallation
+ - Running
+ - Tutorial
+ - Warnings
+ - Acknowledgements
 
 
 # Requirements
@@ -21,59 +30,54 @@ easyFermi is a GUI solution for speeding up the analysis of Fermi-LAT data by ea
 
 
 # Installation on Linux OS and Mac OS
-Note: for Mac OS with M1 chip, try instead next section.
+_Note for Mac OS (specially with M1 chip): if the procedures in this section fail, try the alternative instructions in the next section._
 
 In the terminal, run the following commands:
 
 - Creating a virtual environment and installing packages:
-<pre><code>$ conda create --name fermi --channel conda-forge --channel fermi "python=3.9" "pyqt=5.15.10" "fermitools>=2.2.0" "healpy" "gammapy" "astropy=5.3.3" "fermipy=1.2" "astroquery=0.4.6"</code></pre>
+<pre>$ <code>conda create --name fermi --channel conda-forge --channel fermi "python=3.9" "pyqt=5.15.10" "fermitools>=2.2.0" "healpy" "gammapy" "astropy=5.3.3" "fermipy=1.2" "astroquery=0.4.6"</code></pre>
 
 - Activating the virtual environment:
 
-<pre><code>$ conda activate fermi
+<pre>$ <code>conda activate fermi
 </code></pre>
 
 - Installing the easyFermi package:
 
-<pre><code>$ pip install "easyFermi"</code></pre>
+<pre>$ <code>pip install "easyFermi"</code></pre>
 
-# Installation on Mac OS with M1 chip
+# Alternative Installation on Mac OS
 
 - Creating a virtual environment:
-<pre><code>$ conda create --name fermi python=3.9 </code></pre>
+<pre>$ <code> conda create --name fermi python=3.9 </code></pre>
 
 - Activating the virtual environment:
-<pre><code>$ conda activate fermi</code></pre>
+<pre>$ <code>conda activate fermi</code></pre>
 
-- Installing _pyqt_ package:
-<pre><code>$ conda install pyqt </code></pre>
+- Installing pyqt package:
+<pre>$ <code>conda install --channel conda-forge "pyqt=5.15.10" </code></pre>
 
-Note: that _pyqt_ is installed before the _Fermitools_ and _Fermipy_, otherwise it will downgrade some matplotlib library and break the installation.
+- Installing packages:
+<pre>$ <code>conda install --channel conda-forge --channel fermi "fermitools>=2.2.0" healpy gammapy "fermipy=v1.2"</code></pre>
 
-- Installing _Fermitools_ package:
-<pre><code>$ conda install -c conda-forge -c fermi "fermitools>=2.2.0" healpy gammapy
-</code></pre>
+- Installing the easyFermi package:
+<pre>$ <code>pip install "easyFermi"</code></pre>
 
-- Installing _Fermipy_ package:
-<pre><code>$ pip install fermipy ipython</code></pre>
-
-- Download the script _easyFermi.py_ from GitHub and put it in your working directory.
-From this point on, you can follow the **Usage** section.
-
-
-# Uninstall
+# Uninstallation
 
 In the terminal, run:
-<pre><code>$ conda deactivate</code></pre>
-<pre><code>$ conda env remove --name fermi</code></pre>
+<pre>$ <code>conda deactivate</code></pre>
+<pre>$ <code>conda env remove --name fermi</code></pre>
 
-# Usage
+# Running
 
-While in the fermi environment, do:
+In the terminal, run the following commands:
 
-<pre><code>$ ipython
->>> import easyFermi
-</code></pre>
+- Activating the virtual environment:
+<pre>$ <code>conda activate fermi</code></pre>
+
+- Opening easyFermi:
+<pre>$ <code>python -c "import easyFermi"</code></pre>
 
 <p align="center" width="100%">
  <img width="60%" height=400" src="/code/images/easyFermiWindow.png">
@@ -134,23 +138,13 @@ plt.show()
 ```
 In this way, you can play with the plots as you wish.
 
-# Tutorials
+# Tutorial
 
-You can check _easyFermi_ tutorials on YouTube:
+Check more tutorials on the YouTube channel:
 
 https://www.youtube.com/channel/UCeLCfEoWasUKky6CPNN_opQ
 
-# Acknowledging _easyFermi_
-
-To acknowledge _easyFermi_ in a publiaction, please cite  [de Menezes, R (2022)](https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract).
-
-Since _easyFermi_ relies on _Fermipy_, please also cite [Wood et al. 2017](https://ui.adsabs.harvard.edu/abs/2017ICRC...35..824W/abstract).
-
-
-I would like to thank Clodomir Vianna for helping me with the design of easyFermi and for making the easyFermi logo, and to Fabio Cafardo, Lucas Costa Campos and Raí Menezes for their help and strong support in this project. A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Matt Pui, and Romana Grossova, the first users/testers of easyFermi.
-
-
-# Caveats
+# Warnings
 
 
 ### Densely populated areas of the sky
@@ -166,7 +160,14 @@ For more tips on this topic, we recommend the user to take a look at the [Goodne
 
 
 
- <br>
+# Acknowledgements
+
+To acknowledge _easyFermi_ in a publiaction, please cite  [de Menezes, R (2022)](https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract).
+
+Since _easyFermi_ relies on _Fermipy_, please also cite [Wood et al. 2017](https://ui.adsabs.harvard.edu/abs/2017ICRC...35..824W/abstract).
+
+I would like to thank Clodomir Vianna for helping me with the design of easyFermi and for making the easyFermi logo, and to Fabio Cafardo, Lucas Costa Campos and Raí Menezes for their help and strong support in this project. A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Matt Pui, and Romana Grossova, the first users/testers of easyFermi.
+
  <br>
 <p align="center" width="100%">
  <img width="20%" height="200" src="https://github.com/clodoN1109/easyFermi/assets/104923248/a5fd6166-4dce-475b-92e6-78cbcbcd36af">
