@@ -30,24 +30,24 @@ easyFermi is a solution to facilitate Fermi-LAT data analysis by providing an in
 # Installation
 
 - Creating a virtual environment:
-<pre>$ <code> conda create --name easyfermi "python=3.9" </code></pre>
+<pre><code>conda create --name easyfermi</code></pre>
 
 - Installing easyfermi and dependencies:
-<pre>$ <code>conda install --name easyfermi --channel conda-forge "pyqt=5.15.10" </code></pre>
-<pre>$ <code>conda install --name easyfermi --channel conda-forge --channel fermi "easyFermi" "python=3.9" "fermitools>=2.2.0" "healpy" "gammapy" "astropy=5.3.3" "fermipy=v1.2" "astroquery=0.4.6"</code></pre>
+<pre><code>conda install --name easyfermi --channel conda-forge "python=3.9" "pyqt=5.15.10"</code></pre>
+<pre><code>conda install --name easyfermi --channel conda-forge --channel fermi --channel clodolinus "easyfermi" "python=3.9" "fermitools>=2.2.0" "healpy" "gammapy" "astropy=5.3.3" "fermipy=v1.2" "astroquery=0.4.6"</code></pre>
 
 # Uninstallation
 
 In the terminal, run:
-<pre>$ <code>conda deactivate</code></pre>
-<pre>$ <code>conda env remove --name easyfermi</code></pre>
+<pre><code>conda deactivate</code></pre>
+<pre><code>conda env remove --name easyfermi</code></pre>
 
 # Running
 
 In the terminal, run:
 
-<pre>$ <code>conda activate easyfermi</code></pre>
-<pre>$ <code>python -c "import easyFermi"</code></pre>
+<pre><code>conda activate easyfermi</code></pre>
+<pre><code>python -c "import easyfermi"</code></pre>
 
 <p align="center" width="100%">
  <img width="60%" height=400" src="/code/images/easyFermiWindow.png">
