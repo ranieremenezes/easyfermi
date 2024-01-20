@@ -18,7 +18,7 @@ easyFermi is a solution to facilitate Fermi-LAT data analysis by providing an in
  - Alternative Installation on Mac OS
  - Uninstallation
  - Running
- - Tutorial
+ - Tutorials
  - Warnings
  - Acknowledgements
 
@@ -49,10 +49,10 @@ In the terminal, run the following commands:
 # Alternative Installation on Mac OS
 
 - Creating a virtual environment:
-<pre>$ <code> conda create --name fermi python=3.9 </code></pre>
+<pre>$ <code> conda create --name easyfermi python=3.9 </code></pre>
 
 - Activating the virtual environment:
-<pre>$ <code>conda activate fermi</code></pre>
+<pre>$ <code>conda activate easyfermi</code></pre>
 
 - Installing pyqt package:
 <pre>$ <code>conda install --channel conda-forge "pyqt=5.15.10" </code></pre>
@@ -67,85 +67,33 @@ In the terminal, run the following commands:
 
 In the terminal, run:
 <pre>$ <code>conda deactivate</code></pre>
-<pre>$ <code>conda env remove --name fermi</code></pre>
+<pre>$ <code>conda env remove --name easyfermi</code></pre>
 
 # Running
 
 In the terminal, run the following commands:
 
 - Activating the virtual environment:
-<pre>$ <code>conda activate fermi</code></pre>
+<pre>$ <code>conda activate easyfermi</code></pre>
 
 - Opening easyFermi:
 <pre>$ <code>python -c "import easyFermi"</code></pre>
 
 <p align="center" width="100%">
  <img width="60%" height=400" src="/code/images/easyFermiWindow.png">
- <h1>easyFermi</h1>
 </p> 
 
+# Tutorials
 
-Before running any analysis, **please make sure that none of the working directories have spaces in their names!** This will crash the analysis.
+Check for tutorials on the easyFermi YouTube channel:
 
-Once you finish the analysis, all of the results will be saved in .npy, .fits and .pdf (or .png) files.
-You can easily access them with numpy or other softwares like e.g. TopCat.
+<a href="https://www.youtube.com/channel/UCeLCfEoWasUKky6CPNN_opQ"> 
+ 
+![youtube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)
 
-### Light curves
-
-Let's use the source 4FGL J1229.0+0202 as an example, you can access the light curve data from python by opening the .npy file: 
-
-```
-LC = numpy.load('4fgl_j1229.0+0202_lightcurve.npy')
-flux = LC[()]['flux']
-fluxError = LC[()]['flux_err']
-tmin = LC[()]['tmin_mjd']
-tmax = LC[()]['tmax_mjd']
-```
-
-Or you can simply open the file 4fgl_j1229.0+0202_lightcurve.fits directly with TopCat.
-
-### Excess and significance maps
-
-Let's give another example on how to open the fits file of the Excess map:
-
-```
-import astropy.io.fits as pyfits
-from astropy.wcs import WCS
-import matplotlib.pyplot as plt
-
-Excess_data = pyfits.open("Excess_4FGL_j1229.0+0202_pointsource_powerlaw_2.00_residmap.fits")
-
-wcs = WCS(Excess_data[0].header)
-significance_map = Excess_data[0].data
-
-plt.figure()
-plt.subplot(projection=wcs)
-plt.imshow(significance_map,origin="lower",cmap="RdBu_r")
-plt.grid()
-plt.title("Significance (in $\sigma$)")
-plt.colorbar()
-
-wcs2 = WCS(Excess_data[2].header)
-Excess_map = Excess_data[2].data
-
-plt.figure()
-plt.subplot(projection=wcs2)
-plt.imshow(Excess_map,origin="lower",cmap="RdBu_r")
-plt.grid()
-plt.title("Excess (in counts)")
-plt.colorbar()
-plt.show()
-```
-In this way, you can play with the plots as you wish.
-
-# Tutorial
-
-Check more tutorials on the YouTube channel:
-
-https://www.youtube.com/channel/UCeLCfEoWasUKky6CPNN_opQ
+</a>
 
 # Warnings
-
 
 ### Densely populated areas of the sky
 
