@@ -14,8 +14,7 @@ easyFermi is a solution to facilitate Fermi-LAT data analysis by providing an in
 
 # Sections
  - Requirements
- - Installation on Linux OS and Mac OS
- - Alternative Installation on Mac OS
+ - Installation
  - Uninstallation
  - Running
  - Tutorials
@@ -28,40 +27,20 @@ easyFermi is a solution to facilitate Fermi-LAT data analysis by providing an in
 - Linux OS / Mac OS
 - <a href="https://docs.conda.io/projects/miniconda/en/latest/">Miniconda 3</a> / <a href="https://conda.io/projects/conda/en/latest/user-guide/install/index.html">Anaconda 3</a>
 
-
-# Installation on Linux OS and Mac OS
-_Note for Mac OS (specially with M1 chip): if the procedures in this section fail, try the alternative instructions in the next section._
-
-In the terminal, run:
-
-- Creating a virtual environment and installing packages:
-<pre>$ <code>conda create --name fermi --channel conda-forge --channel fermi "python=3.9" "pyqt=5.15.10" "fermitools>=2.2.0" "healpy" "gammapy" "astropy=5.3.3" "fermipy=v1.2" "astroquery=0.4.6"</code></pre>
-
-- Activating the virtual environment:
-
-<pre>$ <code>conda activate fermi
-</code></pre>
-
-- Installing the easyFermi package:
-
-<pre>$ <code>pip install "easyFermi"</code></pre>
-
-# Alternative Installation on Mac OS
+# Installation
 
 - Creating a virtual environment:
 <pre>$ <code> conda create --name easyfermi python=3.9 </code></pre>
 
+- Installing packages:
+<pre>$ <code>conda install --name easyfermi --channel conda-forge "pyqt=5.15.10" </code></pre>
+<pre>$ <code>conda install --name easyfermi --channel conda-forge --channel fermi "python=3.9" "fermitools>=2.2.0" "healpy" "gammapy" "astropy=5.3.3" "fermipy=v1.2" "astroquery=0.4.6"</code></pre>
+
 - Activating the virtual environment:
 <pre>$ <code>conda activate easyfermi</code></pre>
 
-- Installing pyqt package:
-<pre>$ <code>conda install --channel conda-forge "pyqt=5.15.10" </code></pre>
-
-- Installing packages:
-<pre>$ <code>conda install --channel conda-forge --channel fermi "fermitools>=2.2.0" healpy gammapy "fermipy=v1.2"</code></pre>
-
 - Installing the easyFermi package:
-<pre>$ <code>pip install "easyFermi"</code></pre>
+<pre>$ <code>pip install --require-virtualenv --no-deps "easyFermi"</code></pre>
 
 # Uninstallation
 
