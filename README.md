@@ -30,17 +30,11 @@ easyFermi is a solution to facilitate Fermi-LAT data analysis by providing an in
 # Installation
 
 - Creating a virtual environment:
-<pre>$ <code> conda create --name easyfermi python=3.9 </code></pre>
+<pre>$ <code> conda create --name easyfermi "python=3.9" </code></pre>
 
-- Installing packages:
+- Installing easyfermi and dependencies:
 <pre>$ <code>conda install --name easyfermi --channel conda-forge "pyqt=5.15.10" </code></pre>
-<pre>$ <code>conda install --name easyfermi --channel conda-forge --channel fermi "python=3.9" "fermitools>=2.2.0" "healpy" "gammapy" "astropy=5.3.3" "fermipy=v1.2" "astroquery=0.4.6"</code></pre>
-
-- Activating the virtual environment:
-<pre>$ <code>conda activate easyfermi</code></pre>
-
-- Installing the easyFermi package:
-<pre>$ <code>pip install --require-virtualenv --no-deps "easyFermi"</code></pre>
+<pre>$ <code>conda install --name easyfermi --channel conda-forge --channel fermi "easyFermi" "python=3.9" "fermitools>=2.2.0" "healpy" "gammapy" "astropy=5.3.3" "fermipy=v1.2" "astroquery=0.4.6"</code></pre>
 
 # Uninstallation
 
@@ -52,10 +46,7 @@ In the terminal, run:
 
 In the terminal, run:
 
-- Activating the virtual environment:
 <pre>$ <code>conda activate easyfermi</code></pre>
-
-- Opening easyFermi:
 <pre>$ <code>python -c "import easyFermi"</code></pre>
 
 <p align="center" width="100%">
