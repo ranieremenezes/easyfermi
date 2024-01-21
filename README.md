@@ -32,9 +32,12 @@ easyFermi is a solution to facilitate Fermi-LAT data analysis by providing an in
 - Creating a virtual environment:
 <pre><code>conda create --name easyfermi</code></pre>
 
+- Configuring download channels:
+<pre><code>conda config --add conda-forge fermi easyfermi</code></pre>
+
 - Installing easyfermi and dependencies:
-<pre><code>conda install --name easyfermi --channel conda-forge "python=3.9" "pyqt=5.15.10"</code></pre>
-<pre><code>conda install --name easyfermi --channel conda-forge --channel fermi --channel easyfermi "easyfermi" "fermitools=2.2.0" "healpy=1.16.1" "gammapy=1.1" "astropy=5.3.3" "fermipy=v1.2" "astroquery=0.4.6"</code></pre>
+<pre><code>conda install --name easyfermi "python=3.9" "pyqt=5.15.10"</code></pre>
+<pre><code>conda install --name easyfermi "easyfermi" "fermitools=2.2.0" "healpy=1.16.1" "gammapy=1.1" "astropy=5.3.3" "fermipy=v1.2" "astroquery=0.4.6"</code></pre>
 
 # Uninstalling
 
@@ -65,7 +68,7 @@ Check for tutorials on the easyFermi YouTube channel:
 
 # Warnings
 
-### Densely populated areas of the sky
+- Densely populated areas of the sky:
 
 When analyzing a target surrounded by too many $\gamma$-ray sources, as typical in the Galactic plane, the users may face the following warning:
 
