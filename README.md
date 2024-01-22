@@ -30,7 +30,7 @@ easyFermi is a solution to facilitate Fermi-LAT data analysis by providing an in
 # Installing (for babies)
 
 In the terminal, run:
-<pre><code>conda create --name easyfermi -c conda-forge -c fermi -c clodolinus "python=3.9" "pyqt=5.15.10" "easyfermi" "fermitools=2.2.0" "healpy=1.16.1" "gammapy=1.1" "astropy=5.3.3" "fermipy=v1.2"</code></pre>
+<pre><code>conda create --name easyfermi -c conda-forge -c fermi -c clodolinus "python=3.9" "pyqt=5.15.10" "easyfermi" "fermitools=2.2.0" "healpy=1.16.1" "gammapy=1.1" "astropy=5.3.3" "fermipy=v1.2" "matplotlib=3.8.2"</code></pre>
 
 # Uninstalling
 
