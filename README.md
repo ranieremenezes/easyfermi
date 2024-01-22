@@ -27,17 +27,10 @@ easyFermi is a solution to facilitate Fermi-LAT data analysis by providing an in
 - Linux OS / Mac OS
 - <a href="https://docs.conda.io/projects/miniconda/en/latest/">Miniconda 3</a> / <a href="https://conda.io/projects/conda/en/latest/user-guide/install/index.html">Anaconda 3</a>
 
-# Installing
+# Installing (for babies)
 
-- Creating a virtual environment:
-<pre><code>conda create --name easyfermi</code></pre>
-
-- Configuring download channels:
-<pre><code>conda config --add conda-forge fermi clodolinus</code></pre>
-
-- Installing easyfermi and dependencies:
-<pre><code>conda install --name easyfermi "python=3.9" "pyqt=5.15.10"</code></pre>
-<pre><code>conda install --name easyfermi "easyfermi" "fermitools=2.2.0" "healpy=1.16.1" "gammapy=1.1" "astropy=5.3.3" "fermipy=v1.2" "astroquery=0.4.6"</code></pre>
+In the terminal, run:
+<pre><code>conda create --name easyfermi -c conda-forge -c fermi -c clodolinus "python=3.9" "pyqt=5.15.10" "easyfermi" "fermitools=2.2.0" "healpy=1.16.1" "gammapy=1.1" "astropy=5.3.3" "fermipy=v1.2"</code></pre>
 
 # Uninstalling
 
