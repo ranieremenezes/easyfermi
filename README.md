@@ -53,11 +53,13 @@ In the terminal, run:
 
 Check for tutorials on the easyFermi YouTube channel:
 
-<a href="https://www.youtube.com/channel/UCeLCfEoWasUKky6CPNN_opQ"> 
- 
-![youtube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)
+ <a href="https://www.youtube.com/channel/UCeLCfEoWasUKky6CPNN_opQ">
 
-</a>
+  ![youtube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)
+
+ [![Watch the video](https://img.youtube.com/vi/Ny7aA9EBRUs/hqdefault.jpg)](https://youtu.be/Ny7aA9EBRUs)
+ </a> [![Watch the video](https://img.youtube.com/vi/OPMOsheCId8/hqdefault.jpg)](https://youtu.be/OPMOsheCId8)
+ </a>
 
 # Warnings
 
@@ -65,13 +67,11 @@ Check for tutorials on the easyFermi YouTube channel:
 
 When analyzing a target surrounded by too many $\gamma$-ray sources, as typical in the Galactic plane, the users may face the following warning:
 
- MINUIT USER ERROR.  PARAMETER NUMBER IS        101
-,  ALLOWED RANGE IS ONE TO 100
+<pre><code>MINUIT USER ERROR. PARAMETER NUMBER IS 101, ALLOWED RANGE IS ONE TO 100</code></pre>
 
 And the likelihood fit will not work. This happens because the MINUIT minimizer can handle only up to 100 parameters when performing the fit. If this problem happens, we recommend the user to play with the "Free source radius" panel in the main window of _easyFermi_. The user can, for instance, check the box "Only norm." and MINUIT will fit only the normalization of the sources in the ROI. When this box is checked, _easyFermi_ will still fit the spectral shape of strong gamma-ray sources (i.e. above 10 sigma) when optimizing the region of interest, but will skip it during the main fit. In the end, the only real loss when checking the "Only norm." box is in the spectral shape of weak (below 10 sigma) gamma-ray sources.
 
 For more tips on this topic, we recommend the user to take a look at the [Goodness of fit](https://www.youtube.com/watch?v=Ny7aA9EBRUs&t=4s&ab_channel=easyFermi) tutorial on YouTube.
-
 
 
 # Acknowledgements
