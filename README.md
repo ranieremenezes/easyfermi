@@ -33,7 +33,7 @@ easyFermi is a solution to facilitate Fermi-LAT data analysis by providing an in
 <pre><code>conda create --name easyfermi</code></pre>
 
 - Configuring download channels:
-<pre><code>conda config --add conda-forge fermi easyfermi</code></pre>
+<pre><code>conda config --add conda-forge fermi clodolinus</code></pre>
 
 - Installing easyfermi and dependencies:
 <pre><code>conda install --name easyfermi "python=3.9" "pyqt=5.15.10"</code></pre>
