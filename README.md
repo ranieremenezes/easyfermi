@@ -38,7 +38,7 @@ Note: A virtual environment is a general tool for safely installing the dependen
 
 - Installing easyfermi:
 <pre><code>conda activate easyfermi</code></pre>
-<pre><code>pip install --require-virtualenv --no-deps easyfermi</code></pre>
+<pre><code>pip install --no-deps easyfermi</code></pre>
 
 
 # Uninstalling
