@@ -9,4 +9,4 @@ The EBL models adopted in easyFermi are from:
 
 The data files here were collected from the gammapy repository at https://github.com/gammapy/gammapy-data/tree/main/ebl
 
-If you make use of EBL correction via easyfermi, please cite these papers and also gammapy
+If you make use of EBL correction via easyfermi, please cite these papers and also gammapy (https://ui.adsabs.harvard.edu/abs/2023A%26A...678A.157D/abstract).
