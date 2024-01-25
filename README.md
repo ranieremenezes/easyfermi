@@ -14,8 +14,8 @@ easyFermi is a solution to facilitate Fermi-LAT data analysis by providing an in
 
 # Sections
  - Requirements
- - Installation
- - Uninstallation
+ - Installing
+ - Uninstalling
  - Running
  - Tutorials
  - Warnings
@@ -30,7 +30,16 @@ easyFermi is a solution to facilitate Fermi-LAT data analysis by providing an in
 # Installing
 
 In the terminal, run:
-<pre><code>conda create --name easyfermi -c conda-forge -c fermi -c clodolinus "python=3.9" "pyqt=5.15.10" "easyfermi" "fermitools=2.2.0" "healpy=1.16.1" "gammapy=1.1" "astropy=5.3.3" "fermipy=v1.2" "astroquery=0.4.6" "matplotlib=3.8.2" "psutil" "scipy=1.11.4"</code></pre>
+
+- Creating virtual environment and installing dependencies:
+<pre><code>conda create --name easyfermi -c conda-forge -c fermi "python=3.9" "matplotlib=3.8.2" "pyqt=5.15.10" "fermitools=2.2.0" "fermipy=v1.2" "scipy=1.11.4" "astropy=5.3.3" "astroquery=0.4.6" "healpy=1.16.1" "gammapy=1.1" "psutil=5.9.8"</code></pre>
+
+Note: A virtual environment is a general tool for safely installing the dependencies of an application without inadvertently replacing existing versions that may be needed by other applications or programs.
+
+- Installing easyfermi:
+<pre><code>conda activate easyfermi</code></pre>
+<pre><code>pip install --require-virtualenv --no-deps easyfermi</code></pre>
+
 
 # Uninstalling
 
@@ -43,7 +52,7 @@ In the terminal, run:
 In the terminal, run:
 
 <pre><code>conda activate easyfermi</code></pre>
-<pre><code>python -c "import easyfermi"</code></pre>
+<pre><code>python -c "import easyFermi"</code></pre>
 
 <p align="center" width="100%">
  <img width="60%" height=400" src="/code/images/easyFermiWindow.png">
@@ -57,9 +66,14 @@ Check for tutorials on the easyFermi YouTube channel:
 
   ![youtube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)
 
+ </a> 
+
+- Learn how to analyze Fermi-LAT data in 10 min
+  
  [![Watch the video](https://img.youtube.com/vi/Ny7aA9EBRUs/hqdefault.jpg)](https://youtu.be/Ny7aA9EBRUs)
- </a> [![Watch the video](https://img.youtube.com/vi/OPMOsheCId8/hqdefault.jpg)](https://youtu.be/OPMOsheCId8)
- </a>
+- Goodness of fit and advanced configurations
+  
+ [![Watch the video](https://img.youtube.com/vi/OPMOsheCId8/hqdefault.jpg)](https://youtu.be/OPMOsheCId8)
 
 # Warnings
 
