@@ -5,21 +5,9 @@
 
 
 
-The easiest way to analyze Fermi-LAT data.
-<p align="center" width="100%">
- <img width="60%" height="300" src="https://github.com/clodoN1109/easyFermi/assets/104923248/2c55876f-9983-4164-bd02-de274c9187ed">
-</p> 
 
 easyFermi is a solution to facilitate Fermi-LAT data analysis by providing an intuitive graphical interface to interact with Fermi software analysis tools.
 
-# Sections
- - Requirements
- - Installing
- - Uninstalling
- - Running
- - Tutorials
- - Warnings
- - Acknowledgements
 
 
 # Requirements
