@@ -3,8 +3,13 @@
  <h1>easyFermi</h1>
 </p> 
 
+The easiest way to analyze Fermi-LAT data.
 
+<div align="center">
 
+![easyfermi-demo-rect-ezgif com-video-to-gif-converter](https://github.com/ranieremenezes/easyFermi/assets/104923248/6657b52f-9538-40ff-86c0-5b742dd6f2b0)
+
+</div>
 
 easyFermi is a solution to facilitate Fermi-LAT data analysis by providing an intuitive graphical interface to interact with Fermi software analysis tools.
 
