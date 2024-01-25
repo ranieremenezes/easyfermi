@@ -32,7 +32,7 @@ easyFermi is a solution to facilitate Fermi-LAT data analysis by providing an in
 In the terminal, run:
 
 - Creating virtual environment and installing dependencies:
-<pre><code>conda create --no-channel-priority --override-channels --name easyfermi -c conda-forge -c fermi "python=3.9" "matplotlib=3.8.2" "pyqt=5.15.10" "fermitools=2.2.0" "fermipy=v1.2" "scipy=1.11.4" "astropy=5.3.3" "astroquery=0.4.6" "healpy=1.16.1" "gammapy=1.1" "psutil=5.9.8"</code></pre>
+<pre><code>conda create --name easyfermi -c conda-forge -c fermi "python=3.9" "matplotlib=3.8.2" "pyqt=5.15.10" "fermitools=2.2.0" "fermipy=v1.2" "scipy=1.11.4" "astropy=5.3.3" "astroquery=0.4.6" "healpy=1.16.1" "gammapy=1.1" "psutil=5.9.8"</code></pre>
 
 Note: A virtual environment is a general tool for safely installing the dependencies of an application without inadvertently replacing existing versions that may be needed by other applications or programs.
 
