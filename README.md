@@ -17,7 +17,7 @@ easyFermi is a solution to facilitate Fermi-LAT data analysis by providing an in
 
 # Requirements
 
-- Linux OS / Mac OS
+- Linux OS / Mac OS / Windows with <a href="https://learn.microsoft.com/en-us/windows/wsl/install">WSL (Windows Subsystem for Windows)</a>
 - <a href="https://docs.conda.io/projects/miniconda/en/latest/">Miniconda 3</a> / <a href="https://conda.io/projects/conda/en/latest/user-guide/install/index.html">Anaconda 3</a>
 
 # Installing
@@ -36,7 +36,10 @@ In the terminal, run:
 - Installing easyfermi:
 <pre><code>pip install --no-deps easyfermi</code></pre>
 
-Note: A virtual environment is a general tool for safely installing the dependencies of an application without inadvertently replacing existing versions that may be needed by other applications or programs.
+- (ONLY FOR WINDOWS) Installing libgl1 package:
+<pre><code>sudo apt-get install libgl1</code></pre>
+
+Note: A virtual environment is an important tool for safely installing the dependencies of an application without inadvertently replacing existing versions that may be needed by other applications or programs.
 
 
 # Uninstalling
