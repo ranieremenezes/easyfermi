@@ -29,9 +29,9 @@ In the terminal, run:
 <pre><code>conda activate easyfermi</code></pre>
 - Installing dependencies:
 
-<pre><code>conda install --channel fermi "fermitools=2.2.0" </code></pre>
+<pre><code>conda install --channel fermi --channel conda-forge "fermitools=2.2.0" </code></pre>
 
-<pre><code>conda install --channel conda-forge "python=3.9" "fermipy=v1.2" "scipy=1.11.4" "astropy=5.3.3" "pyqt=5.15.10" "astroquery=0.4.6" "healpy=1.16.1" "gammapy=1.1" "psutil=5.9.8" "matplotlib=3.8.2"</code></pre>
+<pre><code>conda install --channel fermi --channel conda-forge "python=3.9" "fermipy=v1.2" "scipy=1.11.4" "astropy=5.3.3" "pyqt=5.15.10" "astroquery=0.4.6" "healpy=1.16.1" "gammapy=1.1" "psutil=5.9.8" "matplotlib=3.8.2"</code></pre>
 
 - Installing easyfermi:
 <pre><code>pip install --no-deps easyfermi</code></pre>
