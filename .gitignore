@@ -1,0 +1,70 @@
+# Compiled files
+*.py[co]
+*.a
+*.o
+*.so
+__pycache__
+
+# Packages/installer info
+*.egg
+*.eggs
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+distribute-*.tar.gz
+
+# Other
+.*.swp
+*~
+\#*
+.\#*
+
+# Mac OSX
+.DS_Store
+
+# data files (should not be stored in git)
+**/wget*log*
+*.log
+*.txt
+*.csv
+*.fits
+*.fits.gz
+*.npy
+*.xml
+*.png
+*.jpg
+*.par
+*.yaml
+*.yml
+*.pdf
+
+# Exclude from ignoring what we actually need
+!src/easyfermi/resources/ebl/*.fits.gz
+!src/easyfermi/resources/images/*.png
+!src/easyfermi/resources/images/*.jpg
+!environment.yml
+!.github/workflows/*.yml
+
+# ignore version cache file
+easyfermi/_version_cache.py
+src/easyfermi/_version.py
+
+# Editors and IDEs
+
+# Visual Studio Code
+.vscode
+# Eclipse
+.project
+.pydevproject
+.settings
+# Pycharm
+.idea
+# KDevelop
+*kdev4
