@@ -56,7 +56,7 @@ In the terminal, run:
 <pre><code>python -c "import easyFermi"</code></pre>
 
 <p align="center" width="100%">
- <img width="60%" height=400" src="/code/images/easyFermiWindow.png">
+ <img width="60%" height=400" src="/code/resources/images/easyFermiWindow.png">
 </p> 
 
 # Tutorials
