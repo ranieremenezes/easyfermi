@@ -1,0 +1,6 @@
+include README.md
+
+prune build
+prune src/easyfermi/_dev_version
+
+global-exclude *.pyc *.o
