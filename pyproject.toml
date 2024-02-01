@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm[toml]>=8"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "easyfermi"
+authors = [
+    { name = "Raniere de Menezes", email = "easyfermi@gmail.com" },
+    { name = "Michele Peresano", email = "peresano.michele@gmail.com" },
+]
+description = "The easiest way to analyze Fermi-LAT data"
+readme = "README.md"
+requires-python = ">=3.9,<3.10"
+keywords = [
+    "python",
+    "fermi",
+    "GUI",
+    "graphical interface",
+    "easyfermi",
+    "gamma-rays",
+]
+license = { text = "BSD-3-Clause" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Operating System :: Unix",
+    "Operating System :: MacOS :: MacOS X",
+]
+dependencies = [
+    "astropy==5.3.3",
+    "astroquery==0.4.6",
+    "corner",
+    "emcee",
+    "fermipy==v1.2",
+    "gammapy==1.1",
+    "healpy==1.16.1",
+    'importlib-metadata; python_version<"3.10"',
+    "matplotlib==3.8.2",
+    "psutil==5.9.8",
+    "PyQt5==5.15.9",
+    "scipy==1.11.4",
+]
+dynamic = ["version"]
+
+[tool.setuptools_scm]
+write_to = "src/easyfermi/_version.py"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"resources.ebl" = ["*.fits.gz"]
+"reousrce.images" = ["*.png", "*.jpg"]
+
+[project.optional-dependencies]
+dev = ["easyfermi[docs]", "easyfermi[tests]", "ruff", "pre-commit"]
+
+[project.scripts]
+my-script = "my_package.module:function"
+
+# ... other project metadata fields as listed in:
+#     https://packaging.python.org/en/latest/guides/writing-pyproject-toml/
