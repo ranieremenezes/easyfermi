@@ -69,7 +69,7 @@ In the terminal, run:
 - `python -c "import easyFermi"`
 
 <p align="center" width="100%">
- <img width="60%" height=400" src="/code/resources/images/easyFermiWindow.png">
+ <img width="60%" height=400" src="/src/easyfermi/resources/images/easyFermiWindow.png">
 </p> 
 
 # Tutorials
