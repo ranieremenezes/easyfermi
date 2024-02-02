@@ -3,6 +3,12 @@
  <h1>easyFermi</h1>
 </p> 
 
+|ci|
+
+.. |ci| image:: https://github.com/ranieremenezes/easyFermi/workflows/CI/badge.svg?branch=main
+    :target: https://github.com/ranieremenezes/easyFermi/actions?query=workflow%3ACI+branch%3Amain
+    :alt: Test Status
+
 The easiest way to analyze Fermi-LAT data.
 
 <div align="center">
