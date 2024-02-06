@@ -11,7 +11,7 @@ The easiest way to analyze Fermi-LAT data.
 
 </div>
 
-easyFermi is a solution to facilitate Fermi-LAT data analysis by providing an intuitive graphical interface to interact with Fermi software analysis tools.
+easyfermi is a solution to facilitate Fermi-LAT data analysis by providing an intuitive graphical interface to interact with the Fermi science tools.
 
 
 
@@ -39,9 +39,6 @@ In the terminal, run:
 - (ONLY FOR WINDOWS) Installing libgl1 package:
 <pre><code>sudo apt-get install libgl1</code></pre>
 
-Note: A virtual environment is an important tool for safely installing the dependencies of an application without inadvertently replacing existing versions that may be needed by other applications or programs.
-
-
 # Uninstalling
 
 In the terminal, run:
@@ -53,7 +50,7 @@ In the terminal, run:
 In the terminal, run:
 
 <pre><code>conda activate easyfermi</code></pre>
-<pre><code>python -c "import easyFermi"</code></pre>
+<pre><code>python -c "import easyfermi"</code></pre>
 
 <p align="center" width="100%">
  <img width="60%" height=400" src="/code/resources/images/easyFermiWindow.png">
@@ -61,7 +58,7 @@ In the terminal, run:
 
 # Tutorials
 
-Check for tutorials on the easyFermi YouTube channel:
+Check for tutorials on the easyfermi YouTube channel:
 
  <a href="https://www.youtube.com/channel/UCeLCfEoWasUKky6CPNN_opQ">
 
@@ -79,11 +76,12 @@ Check for tutorials on the easyFermi YouTube channel:
 
 # Acknowledgements
 
-To acknowledge _easyFermi_ in a publiaction, please cite  [de Menezes, R (2022)](https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract).
+To acknowledge _easyfermi_ in a publication, please cite  [de Menezes, R (2022)](https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract).
 
-Since _easyFermi_ relies on _Fermipy_, please also cite [Wood et al. 2017](https://ui.adsabs.harvard.edu/abs/2017ICRC...35..824W/abstract).
+Since _easyfermi_ relies on _fermipy_, _gammapy_, _astropy_, and _emcee_, please also cite [Wood et al. 2017](https://ui.adsabs.harvard.edu/abs/2017ICRC...35..824W/abstract), [Donath et al. 2023](https://ui.adsabs.harvard.edu/abs/2023A%26A...678A.157D/abstract), [Astropy Collaboration et al. 2018](https://ui.adsabs.harvard.edu/abs/2018AJ....156..123A/abstract), and [Foreman-Mackey et al. 2013](https://ui.adsabs.harvard.edu/abs/2013PASP..125..306F/abstract) 
 
-I would like to thank Clodomir Vianna for helping me with the design of easyFermi and for making the easyFermi logo, and to Fabio Cafardo, Lucas Costa Campos and Raí Menezes for their help and strong support in this project. A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Matt Pui, and Romana Grossova, the first users/testers of easyFermi.
+
+I want to thank Clodomir Vianna for helping me design easyfermi, for making the easyfermi logo, and for the several hours of discussion about this project. Clodomir is the one responsible for making easyfermi user-friendly. Thanks to Fabio Cafardo, Lucas Costa Campos, and Raí Menezes for their help and strong support in this project. A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Matt Pui, and Romana Grossova, the first users/testers of easyfermi.
 
  <br>
 <p align="center" width="100%">
