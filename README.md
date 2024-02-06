@@ -53,7 +53,7 @@ In the terminal, run:
 <pre><code>python -c "import easyfermi"</code></pre>
 
 <p align="center" width="100%">
- <img width="60%" height=400" src="/code/resources/images/easyFermiWindow.png">
+ <img width="100%" height="100%" src="/code/resources/images/easyFermiWindow.png">
 </p> 
 
 # Tutorials
