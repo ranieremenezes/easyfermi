@@ -1,6 +1,6 @@
 <p align="left" width="100%">
  <img width="100%" height="250" src="https://github.com/clodoN1109/easyFermi/assets/104923248/d1a25a66-0fc6-4484-93fa-aaa8717f4276">
- <h1>easyFermi</h1>
+ <h1>easyfermi</h1>
 </p> 
 
 The easiest way to analyze Fermi-LAT data.
@@ -18,23 +18,22 @@ easyfermi is a solution to facilitate Fermi-LAT data analysis by providing an in
 # Requirements
 
 - Linux OS / Mac OS / Windows with <a href="https://learn.microsoft.com/en-us/windows/wsl/install">WSL (Windows Subsystem for Linux)</a>
-- <a href="https://docs.conda.io/projects/miniconda/en/latest/">Miniconda 3</a> / <a href="https://conda.io/projects/conda/en/latest/user-guide/install/index.html">Anaconda 3</a>
 
 # Installing
 
+The recommended way to install fermipy and the fermitools is by using <a href="https://github.com/conda-forge/miniforge">mamba</a>.
+
+You can also use conda, although it will take longer to solve the requested environment.
+
 In the terminal, run:
 
-- Creating and activating the virtual environment:
-<pre><code>conda create --name easyfermi</code></pre>
-<pre><code>conda activate easyfermi</code></pre>
-- Installing dependencies:
+- Creating the virtual environment and installing dependencies:
+<pre><code>mamba create --name easyfermi -c conda-forge -c fermi python=3.9 "fermitools>=2.2.0" "healpy=1.16.1" "gammapy=1.1" "fermipy=v1.2" "scipy=1.11.4" "astropy=5.3.3" "pyqt=5.15.9" "astroquery=0.4.6" "psutil=5.9.8" "matplotlib=3.8.2" "emcee=3.1.4" "corner=2.2.2"</code></pre>
 
-<pre><code>conda install --channel fermi --channel conda-forge "fermitools=2.2.0" </code></pre>
+- Activating the environment and installing easyfermi:
+<pre><code>mamba activate easyfermi</code></pre>
+<pre><code>pip install easyfermi</code></pre>
 
-<pre><code>conda install --channel fermi --channel conda-forge "python=3.9" "fermipy=v1.2" "scipy=1.11.4" "astropy=5.3.3" "pyqt=5.15.10" "astroquery=0.4.6" "healpy=1.16.1" "gammapy=1.1" "psutil=5.9.8" "matplotlib=3.8.2"</code></pre>
-
-- Installing easyfermi:
-<pre><code>pip install --no-deps easyfermi</code></pre>
 
 - (ONLY FOR WINDOWS) Installing libgl1 package:
 <pre><code>sudo apt-get install libgl1</code></pre>
@@ -42,14 +41,14 @@ In the terminal, run:
 # Uninstalling
 
 In the terminal, run:
-<pre><code>conda deactivate</code></pre>
-<pre><code>conda env remove --name easyfermi</code></pre>
+<pre><code>mamba deactivate</code></pre>
+<pre><code>mamba env remove --name easyfermi</code></pre>
 
 # Running
 
 In the terminal, run:
 
-<pre><code>conda activate easyfermi</code></pre>
+<pre><code>mamba activate easyfermi</code></pre>
 <pre><code>python -c "import easyfermi"</code></pre>
 
 <p align="center" width="100%">
