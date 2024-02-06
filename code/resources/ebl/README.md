@@ -1,4 +1,4 @@
-# Etragalactic background light (EBL) absorption correction
+# Extragalactic background light (EBL) absorption correction
 
 The EBL models adopted in easyFermi are from:
  - Franceschini et al. 2008 (http://adsabs.harvard.edu/abs/2008A%26A...487..837F)
