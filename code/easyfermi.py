@@ -26,6 +26,9 @@ import corner  # Version: 2.2.2
 from pathlib import Path
 import yaml
 from yaml import Loader
+import warnings
+
+warnings.filterwarnings("ignore")
 
 plt.rcParams.update({'font.size': 12})
 libpath = Path(__file__).parent.resolve() / Path("resources/images")
@@ -1678,15 +1681,6 @@ class Ui_mainWindow(QDialog):
         self.pushButton_Go.setEnabled(False)
         self.pushButton_Go.setText(_translate("MainWindow", "Running..."))
         self.progressBar.setProperty("value", 0)
-
-        self.radioButton_Standard.setEnabled(False)
-        self.radioButton_Custom.setEnabled(False)
-        self.radioButton_Standard.setChecked(False)
-        self.radioButton_Custom.setChecked(False)
-        self.activate()
-        
-        
-        
         
         
     def setFermipy(self):
@@ -1713,7 +1707,12 @@ class Ui_mainWindow(QDialog):
             self.generateConfig()
             self.gta = GTAnalysis(self.OutputDir+'config.yaml',logging={'verbosity': 3})
         
-        
+        # Making the configuration buttons innactive when the analysis is running:
+        self.radioButton_Standard.setEnabled(False)
+        self.radioButton_Custom.setEnabled(False)
+        self.radioButton_Standard.setChecked(False)
+        self.radioButton_Custom.setChecked(False)
+        self.activate()
         
         #Get target name:
         for n,s in enumerate(self.gta.roi.sources):
@@ -1944,7 +1943,7 @@ class Ui_mainWindow(QDialog):
         msg = QtWidgets.QMessageBox()
         msg.setWindowTitle("Credits")
         msg.setText("-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n- I would like to thank Clodomir Vianna, Fabio Cafardo, Lucas Costa Campos and Raí Menezes for their help and strong support in this project.\n- A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Matt Pui, and Romana Grossova, the first users/testers of easyfermi. \n ")
-        msg.setInformativeText("To acknowledge easyfermi, please cite <a href='https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract'>de Menezes, R. (2022)</a>. Since easyfermi relies on fermipy, gammapy, and astropy, please also cite <a href='https://ui.adsabs.harvard.edu/abs/2017ICRC...35..824W/abstract'>Wood et al. (2017)</a>, <a href='https://ui.adsabs.harvard.edu/abs/2023A%26A...678A.157D/abstract'>Donath et al. (2023)</a>, and <a href='https://ui.adsabs.harvard.edu/abs/2018AJ....156..123A/abstract'>Astropy Collaboration (2018)</a>.\n\n")
+        msg.setInformativeText("To acknowledge easyfermi, please cite <a href='https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract'>de Menezes, R. (2022)</a>. Since easyfermi relies on fermipy, gammapy, astropy, and emcee, please also cite <a href='https://ui.adsabs.harvard.edu/abs/2017ICRC...35..824W/abstract'>Wood et al. (2017)</a>, <a href='https://ui.adsabs.harvard.edu/abs/2023A%26A...678A.157D/abstract'>Donath et al. (2023)</a>, <a href='https://ui.adsabs.harvard.edu/abs/2018AJ....156..123A/abstract'>Astropy Collaboration (2018)</a>, and <a href='https://ui.adsabs.harvard.edu/abs/2013PASP..125..306F/abstract'>Foreman-Mackey et al. (2013)</a>.\n\n")
         msg.setIcon(QtWidgets.QMessageBox.Information) #Information, Critical, Warning
         
         msg.exec_()
@@ -3056,7 +3055,7 @@ class Ui_mainWindow(QDialog):
                 else:
                     EBL_model = "finke"
 
-                os.environ["GAMMAPY_DATA"] = EBLpath.name  # gammapy will look for EBL models in this directory
+                os.environ["GAMMAPY_DATA"] = str(EBLpath)  # gammapy will look for EBL models in this directory
                 absorption = EBLAbsorptionNormSpectralModel.read_builtin(EBL_model, redshift=self.redshift)
                 abs_data = absorption.evaluate(Energy_SED*u.MeV,self.redshift, alpha_norm=1)
                 dnde_data_points_deabsorbed = dnde_SED/abs_data
