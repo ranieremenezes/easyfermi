@@ -96,6 +96,7 @@ Otherwise, type:
 
 Substituting _mamba_ by _conda_ if this is the case for you.
 
+The main window of _easyfermi_ looks like this:
 <p align="center" width="100%">
  <img width="100%" height="100%" src="/src/easyfermi/resources/images/easyFermiWindow.png">
 </p> 
