@@ -98,7 +98,7 @@ Otherwise, type:
 Substituting _mamba_ by _conda_ if this is the case for you.
 
 <p align="center" width="100%">
- <img width="100%" height="100%" src="/code/resources/images/easyFermiWindow.png">
+ <img width="100%" height="100%" src="/src/easyfermi/resources/images/easyFermiWindow.png">
 </p> 
 
 # Tutorials
