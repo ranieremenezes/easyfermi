@@ -34,6 +34,11 @@ In the terminal, run:
 <pre><code>mamba activate easyfermi</code></pre>
 <pre><code>pip install easyfermi</code></pre>
 
+- If you want, you can set easyfermi as an environmental variable with e.g.:
+<pre><code>alias easyfermi="miniforge && mamba activate easyfermi && python -c 'import easyfermi'"</code></pre>
+
+Substitute _mamba_ by _conda_ if this is the case for you. With this variable defined, you can directly open easyfermi from the terminal (see **Running** below).
+
 
 - (ONLY FOR WINDOWS) Installing libgl1 package:
 <pre><code>sudo apt-get install libgl1</code></pre>
@@ -57,10 +62,14 @@ In the terminal, run:
 
 # Running
 
-In the terminal, run:
+If you defined the variable _easyfermi_ in your shell environment (see **Installing**), simply type:
+<pre><code>easyfermi</code></pre>
 
+else, do:
 <pre><code>mamba activate easyfermi</code></pre>
 <pre><code>python -c "import easyfermi"</code></pre>
+
+Substituting _mamba_ by _conda_ if this is the case for you.
 
 <p align="center" width="100%">
  <img width="100%" height="100%" src="/code/resources/images/easyFermiWindow.png">
