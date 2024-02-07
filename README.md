@@ -39,7 +39,7 @@ First clone the project's repository, for example using the HTTP protocol,
 ## Users
 
 1. create and activate the virtual environment
-
+   <pre><code>cd easyfermi</code></pre>
    <pre><code>mamba env create -f environment.yml</code></pre>
    <pre><code>mamba activate easyfermi</code></pre>
 
