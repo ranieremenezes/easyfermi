@@ -62,10 +62,10 @@ In the terminal, run:
 
 # Running
 
-If you defined the variable _easyfermi_ in your shell environment (see **Installing**), simply type:
+If you defined the variable _easyfermi_ in your shell environment (see **Installing**), simply type the following in the terminal:
 <pre><code>easyfermi</code></pre>
 
-else, do:
+Otherwise, type:
 <pre><code>mamba activate easyfermi</code></pre>
 <pre><code>python -c "import easyfermi"</code></pre>
 
