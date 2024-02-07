@@ -1,6 +1,6 @@
 <p align="left" width="100%">
  <img width="100%" height="250" src="https://github.com/clodoN1109/easyFermi/assets/104923248/d1a25a66-0fc6-4484-93fa-aaa8717f4276">
- <h1>easyFermi</h1>
+ <h1>easyfermi</h1>
 </p> 
 
 |ci|
@@ -18,6 +18,9 @@ The easiest way to analyze Fermi-LAT data.
 </div>
 
 easyfermi is a solution to facilitate Fermi-LAT data analysis by providing an intuitive graphical interface to interact with Fermi software analysis tools.
+easyfermi is a solution to facilitate Fermi-LAT data analysis by providing an intuitive graphical interface to interact with the Fermi science tools.
+
+
 
 # Requirements
 
@@ -116,6 +119,8 @@ Check for tutorials on the easyfermi YouTube channel:
  [![Watch the video](https://img.youtube.com/vi/OPMOsheCId8/hqdefault.jpg)](https://youtu.be/OPMOsheCId8)
 
 
+
+
 # Acknowledgements
 
 To acknowledge _easyfermi_ in a publication, please cite  [de Menezes, R (2022)](https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract).
@@ -124,6 +129,18 @@ Since _easyfermi_ relies on _fermipy_, _gammapy_, _astropy_, and _emcee_, please
 
 
 I want to thank Clodomir Vianna for helping me design easyfermi, for making the easyfermi logo, and for the several hours of discussion about this project. Clodomir is the one responsible for making easyfermi user-friendly. Thanks to Fabio Cafardo, Lucas Costa Campos, and Raí Menezes for their help and strong support in this project. A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Matt Pui, and Romana Grossova, the first users/testers of easyfermi.
+
+The EBL models adopted in easyFermi are from:
+ - Franceschini et al. 2008 (http://adsabs.harvard.edu/abs/2008A%26A...487..837F)
+ - Finke et al. 2010 (http://adsabs.harvard.edu/abs/2009arXiv0905.1115F)
+ - Dominguez et al. 2011 (http://adsabs.harvard.edu/cgi-bin/bib_query?arXiv:1007.1459)
+ - Franceschini & Rodighiero 2017 (https://ui.adsabs.harvard.edu/abs/2017A%26A...603A..34F/abstract)
+ - Saldana-Lopez et al. 2021 (https://ui.adsabs.harvard.edu/abs/2021MNRAS.507.5144S/abstract)
+
+The data files here were collected from the gammapy repository at https://github.com/gammapy/gammapy-data/tree/main/ebl
+
+If you make use of EBL correction via easyfermi, please cite these papers and gammapy (https://ui.adsabs.harvard.edu/abs/2023A%26A...678A.157D/abstract).
+
 
  <br>
 <p align="center" width="100%">
