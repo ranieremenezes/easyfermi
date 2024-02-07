@@ -21,7 +21,7 @@ easyfermi is a solution to facilitate Fermi-LAT data analysis by providing an in
 
 # Installing
 
-The recommended way to install fermipy and the fermitools is by using <a href="https://github.com/conda-forge/miniforge">mamba</a>.
+Let's start by using <a href="https://github.com/conda-forge/miniforge">mamba</a> to install fermipy and the fermitools.
 
 You can also use conda, although it will take longer to solve the requested environment.
 
