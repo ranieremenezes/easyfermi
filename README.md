@@ -34,7 +34,7 @@ This will create the virtual environment and install all dependencies. Then acti
 <pre><code>mamba activate easyfermi</code></pre>
 <pre><code>pip install easyfermi</code></pre>
 
-- (ONLY FOR WINDOWS) Install the `libgl1` package
+- (ONLY FOR WINDOWS) Install the `libgl1` package:
 <pre><code>sudo apt-get install libgl1</code></pre>
 
 - If you want, you can set _easyfermi_ as an environmental variable with e.g. (in Bash):
@@ -45,30 +45,20 @@ This will create the virtual environment and install all dependencies. Then acti
 Another option to install _easyfermi_ is by cloning the GitHub repository:
 <pre><code>git clone https://github.com/ranieremenezes/easyfermi.git</code></pre>
 
-Then change to the _easyfermi_ directory and follow the process described in the lines below:
+Then change to the _easyfermi_ directory and create the environment:
 <pre><code>cd easyfermi</code></pre>
+<pre><code>mamba env create -f environment.yml</code></pre>
+<pre><code>mamba activate easyfermi</code></pre>
 
 #### For users:
 
-1. Create and activate the virtual environment:
-   <pre><code>mamba env create -f environment.yml</code></pre>
-   <pre><code>mamba activate easyfermi</code></pre>
-
-3. Installing _easyfermi_:
-
-   <pre><code>pip install --no-deps easyfermi</code></pre>
-
+Install _easyfermi_:
+<pre><code>pip install --no-deps easyfermi</code></pre>
 
 #### For developers:
 
-1. Clone this repository
-2. Create a virtual environment:
-
-   <pre><code>mamba env create -f environment.yml</code></pre>
-
-3. install _easyfermi_ in editable mode:
-
-   <pre><code>pip install -e .</code></pre>
+Install _easyfermi_ in editable mode:
+<pre><code>pip install -e .</code></pre>
 
 # Upgrading
 
@@ -77,6 +67,8 @@ You can check your currently installed version of _easyfermi_ with _pip show_:
    
 If you have `easyfermi 2.0.X` installed, upgrade your installation to the latest version by running the following command in the _easyfermi_ environment:
 <pre><code>pip install easyfermi --upgrade --no-deps</code></pre>
+
+If instead, you have `easyfermi 1.X.X` installed, please install easyfermi V2 following section **Installation**.
 
 
 # Uninstalling
