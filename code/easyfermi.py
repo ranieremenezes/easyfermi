@@ -1215,7 +1215,7 @@ class Ui_mainWindow(QDialog):
                 if rounded_separation < 15:
                     self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+
                                                           "- Minimum separation between the target and the Sun: "+str(rounded_separation)+
-                                                          "°.\nPlease be aware that the Sun can affect your observations.\nYou can check the time ranges when the Sun is nearby in the diagnostic plots.")
+                                                          "°.\nPlease be aware that the Sun can affect your observations.\nYou can check the time ranges when the Sun is nearby in the diagnostic plots.\n")
                 else:
                     self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Minimum separation between the target and the Sun: "+
                                                           str(rounded_separation)+"°.\n")
@@ -1588,16 +1588,24 @@ class Ui_mainWindow(QDialog):
             if jump_paths:
                 pass
             else:
-                if (len(self.white_box_spacecraft_file.text()) > 0) & (len(self.white_box_Diffuse_dir.text()) > 0) & (len(self.white_box_photon_dir.text()) > 0):
+                if (os.path.exists(self.white_box_spacecraft_file.text())) & (os.path.exists(self.white_box_Diffuse_dir.text())) & (os.path.exists(self.white_box_photon_dir.text())):
                     pass
                 else:
                     check = check + 1
                     self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Invalid path. Please double check the data paths above.\n")
             
                 if self.checkBox_External_ltcube.isChecked():
-                    if len(self.white_box_External_ltcube.text()) < 1:
+                    if not os.path.exists(self.white_box_External_ltcube.text()):
                         check = check + 1
-                        self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Invalid path for external ltcube.\n")
+                        self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Invalid path for external ltcube list.\n")
+                    else:
+                        ltcube_list = np.loadtxt(self.white_box_External_ltcube.text(),ndmin=2,dtype=str)
+                        ltcube_list = ltcube_list[:,0]
+                        for ltcube in ltcube_list:
+                            if not os.path.exists(ltcube):
+                                check = check + 1
+                                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+f"- The path {ltcube} does not exist. Maybe you renamed the directory containing the ltcube_list.txt file. Give it a check.\n")
+
                 
                 if (len(self.white_box_spacecraft_file.text().split(' ')) > 1) or (len(self.white_box_Diffuse_dir.text().split(' ')) > 1) or (len(self.white_box_photon_dir.text().split(' ')) > 1):
                     check = check + 1
@@ -1649,9 +1657,9 @@ class Ui_mainWindow(QDialog):
                     answer = True
                 else:
                     answer = False
+                
             except:
-                answer = False
-            
+                answer = False                
             
         
         else:
@@ -2028,9 +2036,17 @@ class Ui_mainWindow(QDialog):
             self.pushButton_Download_SC.setEnabled(False)
         elif self.radioButton_Standard.isChecked():
             self.pushButton_Download_SC.setEnabled(True)
-            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Spacecraft file was downloaded to ./spacecraft/\n')
+            data_path = glob.glob("./spacecraft/*.fits")
+            if len(data_path[0]) > 0:
+                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Spacecraft file was downloaded to ./spacecraft/\n')
+            else:
+                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Spacecraft file was not downloaded. Please check your internet connection.\n')
         else:
-            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Spacecraft file was downloaded to ./spacecraft/\n')
+            data_path = glob.glob("./spacecraft/*.fits")
+            if len(data_path[0]) > 0:
+                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Spacecraft file was downloaded to ./spacecraft/\n')
+            else:
+                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Spacecraft file was not downloaded. Please check your internet connection.\n')
 
     def popup_download_SC(self):
 
@@ -2125,9 +2141,17 @@ class Ui_mainWindow(QDialog):
             self.pushButton_Download_Photons.setEnabled(False)
         elif self.radioButton_Standard.isChecked():
             self.pushButton_Download_Photons.setEnabled(True)
-            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Photon files were downloaded to ./Photons/\n')
+            data_path = glob.glob("./Photons/*.fits")
+            if len(data_path[0]) > 0:
+                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Photon files were downloaded to ./Photons/\n')
+            else:
+                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Photon files were not downloaded. Please check your internet connection.\n')
         else:
-            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Photon files were downloaded to ./Photons/\n')
+            data_path = glob.glob("./Photons/*.fits")
+            if len(data_path[0]) > 0:
+                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Photon files were downloaded to ./Photons/\n')
+            else:
+                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Photon files were not downloaded. Please check your internet connection.\n')
 
     def popup_download_Photons(self):
 
@@ -2593,8 +2617,13 @@ class Ui_mainWindow(QDialog):
             plt.tight_layout()
             plt.savefig(self.OutputDir+'Quickplot_Sun.'+output_format,bbox_inches='tight')
 
+            # Saving data:
+            np.savetxt(self.OutputDir+'Solar_ang_separation.csv', np.transpose([time_range,self.Solar_separation]),delimiter=",",header="Time [MJD], Angular separation [deg]")
+
         else:
             print("Time window is too short for computing the target-Sun separation plot. Minimum window is 4 days.")
+        
+        
 
 
 
@@ -2983,12 +3012,14 @@ class Ui_mainWindow(QDialog):
 
         TSmin = 9 
         self.include_VHE = False
-        if len(self.Energy_data_points) > 2:
-            self.allow_MCMC = True
-        else:
-            self.allow_MCMC = False
+        self.allow_MCMC = False
+        if self.checkBox_SED.isChecked():
+            if len(self.Energy_data_points) > 2:
+                self.allow_MCMC = True
+            else:
+                self.allow_MCMC = False
 
-        if self.checkBox_SED.isChecked() and self.allow_MCMC:
+        if self.allow_MCMC:
             if self.white_box_VHE.text().split('.')[-1] == 'fits':
                 try:
                     self.include_VHE = True
