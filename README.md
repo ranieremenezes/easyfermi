@@ -15,7 +15,7 @@ easyfermi is a solution to facilitate Fermi-LAT data analysis by providing an in
 
 
 
-# Requirements
+# Compatibilities
 
 - Linux OS / Mac OS / Windows with <a href="https://learn.microsoft.com/en-us/windows/wsl/install">WSL (Windows Subsystem for Linux)</a>
 
@@ -37,6 +37,17 @@ In the terminal, run:
 
 - (ONLY FOR WINDOWS) Installing libgl1 package:
 <pre><code>sudo apt-get install libgl1</code></pre>
+
+# Upgrading
+
+To upgrade your easyfermi installation to the latest version, run the following command in the easyfermi environment:
+
+<pre><code>pip install easyfermi --upgrade --no-deps</code></pre>
+
+You can check your currently installed version of easyfermi with _pip show_:
+
+<pre><code>pip show easyfermi</code></pre>
+
 
 # Uninstalling
 
