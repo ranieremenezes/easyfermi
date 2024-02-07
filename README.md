@@ -13,8 +13,7 @@ The easiest way to analyze Fermi-LAT data.
 
 </div>
 
-easyfermi is a solution to facilitate Fermi-LAT data analysis by providing an intuitive graphical interface to interact with Fermi software analysis tools.
-easyfermi is a solution to facilitate Fermi-LAT data analysis by providing an intuitive graphical interface to interact with the Fermi science tools.
+_easyfermi_ is a solution to facilitate Fermi-LAT data analysis by providing an intuitive graphical interface to interact with the Fermi science tools.
 
 
 
@@ -22,28 +21,24 @@ easyfermi is a solution to facilitate Fermi-LAT data analysis by providing an in
 
 - Linux OS / Mac OS / Windows with <a href="https://learn.microsoft.com/en-us/windows/wsl/install">WSL (Windows Subsystem for Linux)</a>
 - [Miniconda 3](https://docs.conda.io/projects/miniconda/en/latest/),
-  [Anaconda 3](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) or [Miniforge](https://github.com/conda-forge/miniforge)(recommended) distribution.
+  [Anaconda 3](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) or [Miniforge](https://github.com/conda-forge/miniforge) (recommended) distribution.
 
 # Installation
 
-It is recommended to use a virtual environment.
-
 The following instructions assume an installation of `conda` or `mamba` (a faster version of `conda`).
 
-A virtual environment is an important tool for safely installing the dependencies of an application without inadvertently replacing existing versions that may be needed by other applications or programs.
-
-First, clone the project's repository and access the easyfermi directory:
+First, clone the project's repository and access the _easyfermi_ directory:
 
 <pre><code>git clone https://github.com/ranieremenezes/easyfermi.git</code></pre>
 <pre><code>cd easyfermi</code></pre>
 
 ## Users
 
-1. create and activate the virtual environment
+1. Create and activate the virtual environment:
    <pre><code>mamba env create -f environment.yml</code></pre>
    <pre><code>mamba activate easyfermi</code></pre>
 
-3. installing `easyfermi`
+3. Installing _easyfermi_:
 
    <pre><code>pip install --no-deps easyfermi</code></pre>
 
@@ -51,18 +46,18 @@ First, clone the project's repository and access the easyfermi directory:
 
    <pre><code>sudo apt-get install libgl1</code></pre>
 
-- If you want, you can set easyfermi as an environmental variable with e.g. in Bash:
+- If you want, you can set _easyfermi_ as an environmental variable with e.g. in Bash:
 
 <pre><code>alias easyfermi="miniforge && mamba activate easyfermi && python -c 'import easyfermi'"</code></pre>
 
 ## Developers
 
-1. clone this repository
-2. create the virtual environment
+1. Clone this repository
+2. Create a virtual environment:
 
    <pre><code>mamba env create -f environment.yml</code></pre>
 
-3. install `easyfermi` in editable mode
+3. install _easyfermi_ in editable mode:
 
    <pre><code>pip install -e .</code></pre>
 
@@ -72,13 +67,13 @@ Update the conda environment:
 
    <pre><code>mamba env update --file environment.yml --prune</code></pre>
 
-To upgrade your easyfermi installation to the latest version, run the following command in the easyfermi environment:
+To upgrade your _easyfermi_ installation to the latest version, run the following command in the _easyfermi_ environment:
 
    <pre><code>pip install easyfermi --upgrade --no-deps</code></pre>
 
 
 
-You can check your currently installed version of easyfermi with _pip show_:
+You can check your currently installed version of _easyfermi_ with _pip show_:
 
    <pre><code>pip show easyfermi</code></pre>
 
@@ -105,7 +100,7 @@ Substituting _mamba_ by _conda_ if this is the case for you.
 
 # Tutorials
 
-Check for tutorials on the easyfermi YouTube channel:
+Check for tutorials on the _easyfermi_ YouTube channel:
 
  <a href="https://www.youtube.com/channel/UCeLCfEoWasUKky6CPNN_opQ">
 
