@@ -1,0 +1,24 @@
+name: easyfermi
+channels:
+ - conda-forge
+dependencies:
+ - python
+ - pip
+ # core dependencies
+ - astropy=5.3.3
+ - astroquery=0.4.6
+ - emcee
+ - fermi::fermitools=2.2.0
+ - fermipy=v1.2
+ - gammapy=1.1
+ - healpy=1.16.1
+ - matplotlib=3.8.2
+ - psutil=5.9.8
+ - pyqt=5.15.9
+ - scipy=1.11.4
+ # development
+ - black
+ - pre-commit
+ - ruff
+ - pip:
+     - corner

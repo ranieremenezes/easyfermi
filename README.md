@@ -3,6 +3,12 @@
  <h1>easyfermi</h1>
 </p> 
 
+|ci|
+
+.. |ci| image:: https://github.com/ranieremenezes/easyFermi/workflows/CI/badge.svg?branch=main
+    :target: https://github.com/ranieremenezes/easyFermi/actions?query=workflow%3ACI+branch%3Amain
+    :alt: Test Status
+
 The easiest way to analyze Fermi-LAT data.
 
 <div align="center">
@@ -11,48 +17,68 @@ The easiest way to analyze Fermi-LAT data.
 
 </div>
 
+easyfermi is a solution to facilitate Fermi-LAT data analysis by providing an intuitive graphical interface to interact with Fermi software analysis tools.
 easyfermi is a solution to facilitate Fermi-LAT data analysis by providing an intuitive graphical interface to interact with the Fermi science tools.
 
 
 
-# Compatibilities
+# Requirements
 
 - Linux OS / Mac OS / Windows with <a href="https://learn.microsoft.com/en-us/windows/wsl/install">WSL (Windows Subsystem for Linux)</a>
+- [Miniconda 3](https://docs.conda.io/projects/miniconda/en/latest/),
+  [Anaconda 3](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) or [Miniforge](https://github.com/conda-forge/miniforge)(recommended) distribution.
 
-# Installing
+# Installation
 
-Let's start by using <a href="https://github.com/conda-forge/miniforge">mamba</a> to install fermipy and the fermitools.
+It is recommended to use a virtual environment.
 
-You can also use conda, although it will take longer to solve the requested environment.
+The following instructions assume an installation of `conda` or `mamba` (a faster version of `conda`).
 
-In the terminal, run:
+A virtual environment is an important tool for safely installing the dependencies of an application without inadvertently replacing existing versions that may be needed by other applications or programs.
 
-- Creating the virtual environment and installing dependencies:
-<pre><code>mamba create --name easyfermi -c conda-forge -c fermi python=3.9 "fermitools>=2.2.0" "healpy=1.16.1" "gammapy=1.1" "fermipy=v1.2" "scipy=1.11.4" "astropy=5.3.3" "pyqt=5.15.9" "astroquery=0.4.6" "psutil=5.9.8" "matplotlib=3.8.2" "emcee=3.1.4" "corner=2.2.2"</code></pre>
+## Users
 
-- Activating the environment and installing easyfermi:
-<pre><code>mamba activate easyfermi</code></pre>
-<pre><code>pip install easyfermi</code></pre>
+1. create and activate the virtual environment
 
-- If you want, you can set easyfermi as an environmental variable with e.g.:
+   <pre><code>mamba env create -f environment.yml</code></pre>
+   <pre><code>mamba activate easyfermi</code></pre>
+
+3. installing `easyfermi`
+
+   <pre><code>pip install --no-deps easyfermi</code></pre>
+
+- (ONLY FOR WINDOWS) Instal the `libgl1` package
+
+   <pre><code>sudo apt-get install libgl1</code></pre>
+
+- If you want, you can set easyfermi as an environmental variable with e.g. in Bash:
+
 <pre><code>alias easyfermi="miniforge && mamba activate easyfermi && python -c 'import easyfermi'"</code></pre>
 
-Substitute _mamba_ by _conda_ if this is the case for you. With this variable defined, you can directly open easyfermi from the terminal (see **Running** below).
+## Developers
 
+1. clone this repository
+2. create the virtual environment
 
-- (ONLY FOR WINDOWS) Installing libgl1 package:
-<pre><code>sudo apt-get install libgl1</code></pre>
+   <pre><code>mamba env create -f environment.yml</code></pre>
+
+3. install `easyfermi` in editable mode
+
+   <pre><code>pip install -e .</code></pre>
 
 # Upgrading
 
 To upgrade your easyfermi installation to the latest version, run the following command in the easyfermi environment:
 
-<pre><code>pip install easyfermi --upgrade --no-deps</code></pre>
+   <pre><code>pip install easyfermi --upgrade --no-deps</code></pre>
+
+*Warning*: until a conda official package is available, you might need to update the conda environment first
+
+   <pre><code>mamba env update --file environment.yml --prune</code></pre>
 
 You can check your currently installed version of easyfermi with _pip show_:
 
-<pre><code>pip show easyfermi</code></pre>
-
+   <pre><code>pip show easyfermi</code></pre>
 
 # Uninstalling
 
@@ -93,6 +119,8 @@ Check for tutorials on the easyfermi YouTube channel:
  [![Watch the video](https://img.youtube.com/vi/OPMOsheCId8/hqdefault.jpg)](https://youtu.be/OPMOsheCId8)
 
 
+
+
 # Acknowledgements
 
 To acknowledge _easyfermi_ in a publication, please cite  [de Menezes, R (2022)](https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract).
@@ -101,6 +129,18 @@ Since _easyfermi_ relies on _fermipy_, _gammapy_, _astropy_, and _emcee_, please
 
 
 I want to thank Clodomir Vianna for helping me design easyfermi, for making the easyfermi logo, and for the several hours of discussion about this project. Clodomir is the one responsible for making easyfermi user-friendly. Thanks to Fabio Cafardo, Lucas Costa Campos, and Raí Menezes for their help and strong support in this project. A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Matt Pui, and Romana Grossova, the first users/testers of easyfermi.
+
+The EBL models adopted in easyFermi are from:
+ - Franceschini et al. 2008 (http://adsabs.harvard.edu/abs/2008A%26A...487..837F)
+ - Finke et al. 2010 (http://adsabs.harvard.edu/abs/2009arXiv0905.1115F)
+ - Dominguez et al. 2011 (http://adsabs.harvard.edu/cgi-bin/bib_query?arXiv:1007.1459)
+ - Franceschini & Rodighiero 2017 (https://ui.adsabs.harvard.edu/abs/2017A%26A...603A..34F/abstract)
+ - Saldana-Lopez et al. 2021 (https://ui.adsabs.harvard.edu/abs/2021MNRAS.507.5144S/abstract)
+
+The data files here were collected from the gammapy repository at https://github.com/gammapy/gammapy-data/tree/main/ebl
+
+If you make use of EBL correction via easyfermi, please cite these papers and gammapy (https://ui.adsabs.harvard.edu/abs/2023A%26A...678A.157D/abstract).
+
 
  <br>
 <p align="center" width="100%">
