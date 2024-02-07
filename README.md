@@ -1,13 +1,9 @@
 <p align="left" width="100%">
  <img width="100%" height="250" src="https://github.com/clodoN1109/easyFermi/assets/104923248/d1a25a66-0fc6-4484-93fa-aaa8717f4276">
  <h1>easyfermi</h1>
-</p> 
+</p>
 
-|ci|
-
-.. |ci| image:: https://github.com/ranieremenezes/easyFermi/workflows/CI/badge.svg?branch=main
-    :target: https://github.com/ranieremenezes/easyFermi/actions?query=workflow%3ACI+branch%3Amain
-    :alt: Test Status
+![ci](https://github.com/ranieremenezes/easyfermi/actions/workflows/ci.yml/badge.svg)
 
 The easiest way to analyze Fermi-LAT data.
 
@@ -35,6 +31,10 @@ It is recommended to use a virtual environment.
 The following instructions assume an installation of `conda` or `mamba` (a faster version of `conda`).
 
 A virtual environment is an important tool for safely installing the dependencies of an application without inadvertently replacing existing versions that may be needed by other applications or programs.
+
+First clone the project's repository, for example using the HTTP protocol,
+
+<pre><code>git clone https://github.com/ranieremenezes/easyfermi.git</code></pre>
 
 ## Users
 
