@@ -32,14 +32,14 @@ The following instructions assume an installation of `conda` or `mamba` (a faste
 
 A virtual environment is an important tool for safely installing the dependencies of an application without inadvertently replacing existing versions that may be needed by other applications or programs.
 
-First clone the project's repository, for example using the HTTP protocol,
+First, clone the project's repository and access the easyfermi directory:
 
 <pre><code>git clone https://github.com/ranieremenezes/easyfermi.git</code></pre>
+<pre><code>cd easyfermi</code></pre>
 
 ## Users
 
 1. create and activate the virtual environment
-   <pre><code>cd easyfermi</code></pre>
    <pre><code>mamba env create -f environment.yml</code></pre>
    <pre><code>mamba activate easyfermi</code></pre>
 
@@ -68,13 +68,15 @@ First clone the project's repository, for example using the HTTP protocol,
 
 # Upgrading
 
+Update the conda environment:
+
+   <pre><code>mamba env update --file environment.yml --prune</code></pre>
+
 To upgrade your easyfermi installation to the latest version, run the following command in the easyfermi environment:
 
    <pre><code>pip install easyfermi --upgrade --no-deps</code></pre>
 
-*Warning*: until a conda official package is available, you might need to update the conda environment first
 
-   <pre><code>mamba env update --file environment.yml --prune</code></pre>
 
 You can check your currently installed version of easyfermi with _pip show_:
 
