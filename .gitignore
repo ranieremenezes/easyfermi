@@ -32,7 +32,6 @@ distribute-*.tar.gz
 # data files (should not be stored in git)
 **/wget*log*
 *.log
-*.txt
 *.csv
 *.fits
 *.fits.gz
