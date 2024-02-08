@@ -111,7 +111,9 @@ Check for tutorials on the _easyfermi_ YouTube channel:
   
  [![Watch the video](https://img.youtube.com/vi/OPMOsheCId8/hqdefault.jpg)](https://youtu.be/OPMOsheCId8)
 
+# Documentation
 
+The documentation of _easyfermi_ can be found [here](https://easyfermi.readthedocs.io/en/latest/index.html).
 
 
 # Acknowledgements
