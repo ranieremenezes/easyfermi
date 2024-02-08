@@ -41,7 +41,6 @@ distribute-*.tar.gz
 *.png
 *.jpg
 *.par
-*.yaml
 *.yml
 *.pdf
 
