@@ -37,8 +37,9 @@ This will create the virtual environment and install all dependencies. Then acti
 - (ONLY FOR WINDOWS) Install the `libgl1` package:
 <pre><code>sudo apt-get install libgl1</code></pre>
 
-- If you want, you can set _easyfermi_ as an environmental variable with e.g. (in Bash):
+- If you want, you can set _easyfermi_ as an environmental variable. For instance, if you use a Bash shell environment, you can open the `.bashrc` file in your home and set:
 <pre><code>alias easyfermi="miniforge && mamba activate easyfermi && python -c 'import easyfermi'"</code></pre>
+substituting _miniforge_ and _mamba_ by e.g. _anaconda_ and _conda_ if needed. This line of command depends on which distribution of Python you installed and how you set up the _mamba/conda_ environment.
 
 ### Cloning the repository installation
 
