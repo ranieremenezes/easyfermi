@@ -1,7 +1,7 @@
 Welcome to easyfermi's documentation!
 ===================================
 
-The graphical interface `**easyfermi** <https://github.com/ranieremenezes/easyfermi>`_ provides a user-friendly way to analyze *Fermi*-LAT data, making use of `fermipy <https://github.com/fermiPy/fermipy>`, `gammapy <https://gammapy.org/>`, `astropy <https://www.astropy.org/>`, and `emcee <https://emcee.readthedocs.io/en/stable/>`.
+The graphical interface `easyfermi <https://github.com/ranieremenezes/easyfermi>`_ provides a user-friendly way to analyze *Fermi*-LAT data, making use of `fermipy <https://github.com/fermiPy/fermipy>`, `gammapy <https://gammapy.org/>`, `astropy <https://www.astropy.org/>`, and `emcee <https://emcee.readthedocs.io/en/stable/>`.
 
 
 **easyfermi** allows for several different analysis on Fermi-LAT data, such as:
@@ -34,7 +34,7 @@ Acknowledging *easyfermi*
 
 To acknowledge *easyfermi* in a publication please cite `de Menezes, R. 2022 <https://ui.adsabs.harvard.edu/abs/2022A%26C....4000609D/abstract>`_.
 
-Since easyfermi relies on fermipy, gammapy, astropy, and emcee, please also cite `Wood et al. 2017 <https://ui.adsabs.harvard.edu/#abs/2017ICRC...35..824W>`_, `Donath et al. 2023 <https://ui.adsabs.harvard.edu/abs/2023A%26A...678A.157D/abstract>`, `Astropy Collaboration et al. 2018 <https://ui.adsabs.harvard.edu/abs/2018AJ....156..123A/abstract>`, and `Foreman-Mackey et al. 2013 <https://ui.adsabs.harvard.edu/abs/2013PASP..125..306F/abstract>`.
+Since easyfermi relies on fermipy, gammapy, astropy, and emcee, please also cite `Wood et al. 2017 <https://ui.adsabs.harvard.edu/#abs/2017ICRC...35..824W>`_, `Donath et al. 2023 <https://ui.adsabs.harvard.edu/abs/2023A%26A...678A.157D/abstract>`_, `Astropy Collaboration et al. 2018 <https://ui.adsabs.harvard.edu/abs/2018AJ....156..123A/abstract>`, and `Foreman-Mackey et al. 2013 <https://ui.adsabs.harvard.edu/abs/2013PASP..125..306F/abstract>`.
 
 The EBL models adopted in *easyfermi* are from:
  - `Franceschini et al. 2008 <http://adsabs.harvard.edu/abs/2008A%26A...487..837F>`
