@@ -6,29 +6,78 @@ Usage
 Installation
 ------------
 
-To use Lumache, first install it using pip:
+To use **easyfermi**, first install the fermitools environment using mamba (or conda):
 
 .. code-block:: console
 
-   (.venv) $ pip install lumache
+   $ mamba create --name easyfermi -c conda-forge -c fermi python=3.9 "fermitools>=2.2.0" "healpy=1.16.1" "gammapy=1.1" "fermipy=v1.2" "scipy=1.11.4" "astropy=5.3.3" "pyqt=5.15.9" "astroquery=0.4.6" "psutil=5.9.8" "matplotlib=3.8.2" "emcee=3.1.4" "corner=2.2.2"
+   
+Then activate the environment and install **easyfermi**:
 
-Creating recipes
+.. code-block:: console
+
+    $ mamba activate easyfermi
+    
+    $ pip install easyfermi
+
+* (ONLY FOR WINDOWS) Install the libgl1 package:
+
+.. code-block:: console
+
+    $ sudo apt-get install libgl1
+    
+* If you want, you can set *easyfermi* as an environmental variable. For instance, if you use a Bash shell environment, you can open the .bashrc file in your home and set:
+
+.. code-block:: console
+
+    $ alias easyfermi="miniforge && mamba activate easyfermi && python -c 'import easyfermi'"
+    
+substituting miniforge and mamba by e.g. anaconda and conda if needed. This line of command depends on which distribution of Python you installed and how you set up the mamba/conda environment.
+
+Upgrading
 ----------------
 
-To retrieve a list of random ingredients,
-you can use the ``lumache.get_random_ingredients()`` function:
+You can check your currently installed version of easyfermi with pip show:
 
-.. autofunction:: lumache.get_random_ingredients
+.. code-block:: console
 
-The ``kind`` parameter should be either ``"meat"``, ``"fish"``,
-or ``"veggies"``. Otherwise, :py:func:`lumache.get_random_ingredients`
-will raise an exception.
+    $ pip show easyfermi
+    
+If you have **easyfermi 2.0.X** installed, upgrade your installation to the latest version by running the following command in the easyfermi environment:
 
-.. autoexception:: lumache.InvalidKindError
+.. code-block:: console
 
-For example:
+    $ pip install easyfermi --upgrade --no-deps
+    
+If instead, you have **easyfermi 1.X.X** installed, please install easyfermi V2 following section :ref:`installation`.
 
->>> import lumache
->>> lumache.get_random_ingredients()
-['shells', 'gorgonzola', 'parsley']
+Uninstalling
+----------------
+
+In the terminal, run:
+
+.. code-block:: console
+
+    $ mamba deactivate
+
+    $ mamba env remove --name easyfermi
+
+
+Running
+----------------
+
+If you defined the variable *easyfermi* in your shell environment (see Installing), simply type the following in the terminal:
+
+.. code-block:: console
+
+    $ easyfermi
+    
+Otherwise, type:
+
+.. code-block:: console
+
+    $ mamba activate easyfermi
+    $ python -c "import easyfermi"
+    
+Substituting mamba by conda if this is the case for you.
 
