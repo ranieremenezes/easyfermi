@@ -6,7 +6,7 @@ Light curves
 
 .. _Constant time bins:
 
-Constant-binned light curve
+Constant-binning light curve
 ---------------------------
 
 
@@ -40,7 +40,7 @@ Where the only difference is that for Mac OS we do not parallelize the computati
 
    **easyfermi** will look for preexisting light curves with the same number of time bins set up in the graphical interface. If, for instance, you already produced a light curve with 20 bins, and you are asking for a new light curve with 20 bins, **easyfermi** will give you a warning in the log, and skip the light curve computation.
 
-Adaptive-binned light curve
+Adaptive-binning light curve
 ----------------------------
 
 This method allows for the computation of a light curve with adaptive time bins, giving us much more information about the variability of the target. It requires a precomputed light curve with constant time bins, as show in the section `Constant time bins`_.
