@@ -52,4 +52,6 @@ Contents
 .. toctree::
 
    usage
+   Basic_analysis
+   lightcurve
    api

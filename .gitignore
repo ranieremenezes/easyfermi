@@ -37,7 +37,6 @@ distribute-*.tar.gz
 *.fits.gz
 *.npy
 *.xml
-*.png
 *.jpg
 *.par
 *.yml
