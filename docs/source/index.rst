@@ -1,5 +1,5 @@
 Welcome to easyfermi's documentation!
-===================================
+=====================================
 
 The graphical interface `easyfermi <https://github.com/ranieremenezes/easyfermi>`_ provides a user-friendly way to analyze *Fermi*-LAT data, making use of `fermipy <https://github.com/fermiPy/fermipy>`_, `gammapy <https://gammapy.org/>`_, `astropy <https://www.astropy.org/>`_, and `emcee <https://emcee.readthedocs.io/en/stable/>`_.
 
@@ -43,7 +43,7 @@ The EBL models adopted in *easyfermi* are from:
  - `Franceschini & Rodighiero 2017 <https://ui.adsabs.harvard.edu/abs/2017A%26A...603A..34F/abstract>`_.
  - `Saldana-Lopez et al. 2021 <https://ui.adsabs.harvard.edu/abs/2021MNRAS.507.5144S/abstract>`_.
 
-If you make use one of these models, please cite the corresponding paper.
+If you make use of one of these models in your publication, please cite the corresponding paper.
 
 
 Contents

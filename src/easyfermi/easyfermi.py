@@ -2045,8 +2045,10 @@ class Ui_mainWindow(QDialog):
             data_path = glob.glob("./spacecraft/*.fits")
             if len(data_path[0]) > 0:
                 self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Spacecraft file was downloaded to ./spacecraft/\n')
+                print("- Spacecraft file was downloaded to ./spacecraft/")
             else:
                 self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Spacecraft file was not downloaded. Please check your internet connection.\n')
+                print("- Spacecraft file was not downloaded. Please check your internet connection.")
 
     def popup_download_SC(self):
 
@@ -2150,8 +2152,10 @@ class Ui_mainWindow(QDialog):
             data_path = glob.glob("./Photons/*.fits")
             if len(data_path[0]) > 0:
                 self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Photon files were downloaded to ./Photons/\n')
+                print("- Photon files were downloaded to ./Photons/")
             else:
                 self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Photon files were not downloaded. Please check your internet connection.\n')
+                print("- Photon files were not downloaded. Please check your internet connection.")
 
     def popup_download_Photons(self):
 
@@ -2227,8 +2231,10 @@ class Ui_mainWindow(QDialog):
         elif self.radioButton_Standard.isChecked():
             self.pushButton_Download_diffuse.setEnabled(True)
             self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Diffise models were downloaded to ./Diffuse/\n')
+            print("- Diffise models were downloaded to ./Diffuse/")
         else:
             self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Diffise models were downloaded to ./Diffuse/\n')
+            print("- Diffise models were downloaded to ./Diffuse/")
 
     def popup_download_Diffuse(self):
 

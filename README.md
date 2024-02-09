@@ -129,7 +129,7 @@ The EBL models adopted in _easyfermi_ are from:
  - Franceschini & Rodighiero 2017 (https://ui.adsabs.harvard.edu/abs/2017A%26A...603A..34F/abstract)
  - Saldana-Lopez et al. 2021 (https://ui.adsabs.harvard.edu/abs/2021MNRAS.507.5144S/abstract)
 
-If you make use of EBL correction via _easyfermi_, please cite the papers corresponding to the adopted EBL models. The EBL data files in this repository were collected from the _gammapy_ repository at https://github.com/gammapy/gammapy-data/tree/main/ebl
+If you make use of EBL correction via _easyfermi_ in your publication, please cite the papers corresponding to the adopted EBL models. The EBL data files in this repository were collected from the _gammapy_ repository at https://github.com/gammapy/gammapy-data/tree/main/ebl
 
 I want to thank Clodomir Vianna for helping me design _easyfermi_, for making the _easyfermi_ logo, and for the several hours of discussion about this project. Clodomir is the one responsible for making _easyfermi_ user-friendly. Thanks to Fabio Cafardo, Lucas Costa Campos, and Raí Menezes for their help and strong support in this project. A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Matt Pui, and Romana Grossova, the first users/testers of _easyfermi_.
 

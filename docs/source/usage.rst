@@ -17,7 +17,6 @@ Then activate the environment and install **easyfermi**:
 .. code-block:: console
 
     $ mamba activate easyfermi
-    
     $ pip install easyfermi
 
 * (ONLY FOR WINDOWS) Install the libgl1 package:
@@ -59,7 +58,6 @@ In the terminal, run:
 .. code-block:: console
 
     $ mamba deactivate
-
     $ mamba env remove --name easyfermi
 
 
