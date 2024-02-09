@@ -1,18 +1,16 @@
-Light curve
-===========
+Light curves
+============
 
 .. image:: ./easyFermiLC.png
   :width: 700
 
 .. _Constant time bins:
 
-Constant time bins
------------------- 
+Constant-binned light curve
+---------------------------
 
 
-
-
-A constant-binning light curve (i.e. no adaptive-binning) is generated with the ``fermipy`` function `lightcurve() <https://fermipy.readthedocs.io/en/latest/advanced/lightcurve.html>`_ with the following configuration for Linux/WindowsWSL OS:
+A constant-binning light curve is generated with the ``fermipy`` function `lightcurve() <https://fermipy.readthedocs.io/en/latest/advanced/lightcurve.html>`_ with the following configuration for Linux/WindowsWSL OS:
 
 .. code-block::
 
@@ -28,7 +26,7 @@ And the following one for Mac OS:
     use_local_ltcube=True, use_scaled_srcmap=True, free_params=['norm','shape'],
     shape_ts_threshold=9)
     
-Where the only difference is that for Mac OS we do not parallelize the computation of the light curve. The input parameters of this function are:
+Where the only difference is that for Mac OS we do not parallelize the computation of the light curve. The input parameters for this function are:
 
 * **Target_Name**: This is the name of the target as listed in the adopted Fermi-LAT catalog or the target name written in the field "Target name" in the graphical interface.
 
@@ -42,7 +40,7 @@ Where the only difference is that for Mac OS we do not parallelize the computati
 
    **easyfermi** will look for preexisting light curves with the same number of time bins set up in the graphical interface. If, for instance, you already produced a light curve with 20 bins, and you are asking for a new light curve with 20 bins, **easyfermi** will give you a warning in the log, and skip the light curve computation.
 
-Adaptive binning light curve
+Adaptive-binned light curve
 ----------------------------
 
 This method allows for the computation of a light curve with adaptive time bins, giving us much more information about the variability of the target. It requires a precomputed light curve with constant time bins, as show in the section `Constant time bins`_.
@@ -76,7 +74,7 @@ This method of computing an adaptive-binning light curve is different from the m
 
 .. note::
 
-   We recommend setting :math:`TS_{Threshold} \geq 50`. With a smaller threshold you can achieve higher time resolution at the cost of a higher probability of running into upper limits.
+   We recommend setting :math:`TS_{Threshold} \geq 50`. With a smaller threshold values we can achieve higher time resolution, however, we increase the probability of running into upper limits.
 
 
 
