@@ -74,7 +74,7 @@ This method of computing an adaptive-binning light curve is different from the m
 
 .. note::
 
-   We recommend setting :math:`TS_{Threshold} \geq 50`. With a smaller threshold values we can achieve higher time resolution, however, we increase the probability of running into upper limits.
+   We recommend setting :math:`TS_{Threshold} \geq 50`. With smaller threshold values we can achieve higher time resolution, however, we increase the probability of running into upper limits.
 
 
 
