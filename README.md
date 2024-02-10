@@ -3,6 +3,12 @@
  <h1>easyfermi</h1>
 </p>
 
+<a href="https://easyfermi.readthedocs.io/en/latest/">
+ 
+![easyfermiDocsBadge](https://img.shields.io/badge/docs-easyfermi-green?style=for-the-badge&logo=googledocs&logoColor=white&labelColor=gray&color=blue)
+
+</a>
+
 ![ci](https://github.com/ranieremenezes/easyfermi/actions/workflows/ci.yml/badge.svg)
 
 The easiest way to analyze Fermi-LAT data.
