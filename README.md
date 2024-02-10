@@ -148,3 +148,9 @@ I want to thank Clodomir Vianna for helping me design _easyfermi_, for making th
 <p align="center" width="100%">
  <img height="200" src="https://github.com/clodoN1109/easyFermi/assets/104923248/a5fd6166-4dce-475b-92e6-78cbcbcd36af">
 </p> 
+
+# easyfermi community
+
+Want to be included in the map? Just fill out this short form: https://forms.gle/hcXoxwTHpdpHn24X8
+
+<a href="https://datawrapper.dwcdn.net/NRZy6/1/">![python](https://github.com/ranieremenezes/easyfermi/blob/main/docs/source/world-map_Feb_2024.png)</a>
