@@ -21,6 +21,11 @@ The easiest way to analyze Fermi-LAT data.
 
 _easyfermi_ is a solution to facilitate Fermi-LAT data analysis by providing an intuitive graphical interface to interact with the Fermi science tools.
 
+If you would like to support _easyfermi_'s maintenance, consider buying me a coffee:
+
+<a href="https://www.buymeacoffee.com/easyfermi" target="_blank"><img src="https://github.com/ranieremenezes/ranieremenezes/blob/main/bmc-button.png" alt="Buy Me A Coffee" style="height: 58px !important;width: 208px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
+
+
 # Requirements
 
 - Linux OS / Mac OS / Windows with <a href="https://learn.microsoft.com/en-us/windows/wsl/install">WSL (Windows Subsystem for Linux)</a>
