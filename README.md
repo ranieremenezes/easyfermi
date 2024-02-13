@@ -28,7 +28,7 @@ If you would like to support _easyfermi_'s maintenance, consider buying me a cof
 
 # Requirements
 
-- Linux OS / Mac OS / Windows with <a href="https://learn.microsoft.com/en-us/windows/wsl/install">WSL (Windows Subsystem for Linux)</a>
+- Linux OS / Mac OS (currently under test) / Windows with <a href="https://learn.microsoft.com/en-us/windows/wsl/install">WSL (Windows Subsystem for Linux)</a>
 - [Miniconda 3](https://docs.conda.io/projects/miniconda/en/latest/),
   [Anaconda 3](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) or [Miniforge](https://github.com/conda-forge/miniforge) (recommended) distribution.
 
