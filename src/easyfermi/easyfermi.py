@@ -2230,11 +2230,11 @@ class Ui_mainWindow(QDialog):
             self.pushButton_Download_diffuse.setEnabled(False)
         elif self.radioButton_Standard.isChecked():
             self.pushButton_Download_diffuse.setEnabled(True)
-            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Diffise models were downloaded to ./Diffuse/\n')
-            print("- Diffise models were downloaded to ./Diffuse/")
+            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Diffuse models were downloaded to ./Diffuse/\n')
+            print("- Diffuse models were downloaded to ./Diffuse/")
         else:
-            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Diffise models were downloaded to ./Diffuse/\n')
-            print("- Diffise models were downloaded to ./Diffuse/")
+            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+'- Diffuse models were downloaded to ./Diffuse/\n')
+            print("- Diffuse models were downloaded to ./Diffuse/")
 
     def popup_download_Diffuse(self):
 
@@ -3778,7 +3778,7 @@ class Ui_mainWindow(QDialog):
                             local_lc_table = glob.glob(f"{new_lc_bins}/Output/*_lightcurve.fits")[0]
                             Adaptive_binning_LC_tables[n] = Table.read(local_lc_table,format="fits", hdu=1)
                         else:
-                            os.system(f"cp -r {new_lc_bins} {self.OutputDir}Adaptive-binning_light_curve_{last_adaptive_LC}")
+                            os.system(f"mv {new_lc_bins} {self.OutputDir}Adaptive-binning_light_curve_{last_adaptive_LC}")
                             local_lc_table = glob.glob(f"{last_LC_directory}/*_lightcurve.fits")[0]
                             Adaptive_binning_LC_tables[n] = Table.read(local_lc_table,format="fits", hdu=1)[n]
                 
