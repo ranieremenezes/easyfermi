@@ -33,11 +33,11 @@ The following instructions assume an installation of `conda` or `mamba` (i.e. a 
 ### Conda-based installation 
 
 In the terminal, run:
-<pre><code>mamba create --name easyfermi -c conda-forge -c fermi python=3.9 "fermitools>=2.2.0" "healpy=1.16.1" "gammapy=1.1" "fermipy=v1.2" "scipy=1.11.4" "astropy=5.3.3" "pyqt=5.15.9" "astroquery=0.4.6" "psutil=5.9.8" "matplotlib=3.8.2" "emcee=3.1.4" "corner=2.2.2"</code></pre>
+<pre><code>mamba create --name easyfermi -c conda-forge -c fermi python=3.9 "fermitools>=2.2.0" "healpy=1.16.1" "gammapy=1.1" "scipy=1.11.4" "astropy=5.3.3" "pyqt=5.15.9" "astroquery=0.4.6" "psutil=5.9.8" "emcee=3.1.4" "corner=2.2.2"</code></pre>
 
 This will create the virtual environment and install all dependencies. Then activate the environment and install _easyfermi_:
 <pre><code>mamba activate easyfermi</code></pre>
-<pre><code>pip install easyfermi</code></pre>
+<pre><code>pip install fermipy easyfermi</code></pre>
 
 - (ONLY FOR WINDOWS) Install the `libgl1` package:
 <pre><code>sudo apt-get install libgl1</code></pre>
