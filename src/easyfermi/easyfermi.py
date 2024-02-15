@@ -548,7 +548,10 @@ class Ui_mainWindow(QDialog):
         self.label_Catalog.setGeometry(QtCore.QRect(40, 40, 61, 21))
         self.label_Catalog.setObjectName("label_Catalog")        
         self.comboBox_Catalog = QtWidgets.QComboBox(self.centralwidget)
-        self.comboBox_Catalog.setGeometry(QtCore.QRect(40, 60, 91, 25))
+        if OS_name == "Darwin":
+            self.comboBox_Catalog.setGeometry(QtCore.QRect(40, 60, 110, 25))
+        else:
+            self.comboBox_Catalog.setGeometry(QtCore.QRect(40, 60, 91, 25))
         self.comboBox_Catalog.setObjectName("comboBox_Catalog")
         self.comboBox_Catalog.addItem("")
         self.comboBox_Catalog.addItem("")
@@ -558,7 +561,10 @@ class Ui_mainWindow(QDialog):
         self.label_is_it_cataloged.setGeometry(QtCore.QRect(40, 90, 151, 21))
         self.label_is_it_cataloged.setObjectName("label_is_it_cataloged")
         self.comboBox_is_it_cataloged = QtWidgets.QComboBox(self.centralwidget)
-        self.comboBox_is_it_cataloged.setGeometry(QtCore.QRect(40, 110, 47, 25))
+        if OS_name == "Darwin":
+            self.comboBox_is_it_cataloged.setGeometry(QtCore.QRect(40, 110, 52, 25))
+        else:
+            self.comboBox_is_it_cataloged.setGeometry(QtCore.QRect(40, 110, 47, 25))
         self.comboBox_is_it_cataloged.setObjectName("comboBox_is_it_cataloged")
         self.comboBox_is_it_cataloged.addItem("")
         self.comboBox_is_it_cataloged.addItem("")
