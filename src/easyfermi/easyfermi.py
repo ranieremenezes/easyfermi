@@ -304,7 +304,10 @@ class Ui_mainWindow(QDialog):
         self.comboBox_redshift.setCurrentIndex(4)
         self.comboBox_MCMC = QtWidgets.QComboBox(self.groupBox_Science)
         self.comboBox_MCMC.setEnabled(True)
-        self.comboBox_MCMC.setGeometry(QtCore.QRect(40, 190, 80, 25))
+        if OS_name == "Darwin":
+            self.comboBox_MCMC.setGeometry(QtCore.QRect(40, 190, 90, 25))
+        else:
+            self.comboBox_MCMC.setGeometry(QtCore.QRect(40, 190, 80, 25))
         self.comboBox_MCMC.setObjectName("comboBox_MCMC")
         self.comboBox_MCMC.addItem("")
         self.comboBox_MCMC.addItem("")
@@ -562,7 +565,7 @@ class Ui_mainWindow(QDialog):
         self.label_is_it_cataloged.setObjectName("label_is_it_cataloged")
         self.comboBox_is_it_cataloged = QtWidgets.QComboBox(self.centralwidget)
         if OS_name == "Darwin":
-            self.comboBox_is_it_cataloged.setGeometry(QtCore.QRect(40, 110, 52, 25))
+            self.comboBox_is_it_cataloged.setGeometry(QtCore.QRect(40, 110, 57, 25))
         else:
             self.comboBox_is_it_cataloged.setGeometry(QtCore.QRect(40, 110, 47, 25))
         self.comboBox_is_it_cataloged.setObjectName("comboBox_is_it_cataloged")
@@ -2946,6 +2949,12 @@ class Ui_mainWindow(QDialog):
                 use_local_index = True
 
             self.sed = self.gta.sed(self.sourcename,loge_bins=ebins,make_plots=False,use_local_index=use_local_index,write_npy=False)
+
+            # The block of code below is useful only to fix an error in the Mac OS, where the TS column of the sed.fits file is empty.
+            NaNs_TSs = self.sed['ts'][np.isnan(self.sed['ts'])]
+            if len(NaNs_TSs) > 0:
+                for i in range(len(self.sed['ts'])):
+                    self.sed["ts"][i] = -2*self.sed['dloglike_scan'][i][1]
             
             self.Energy_data_points = self.sed['e_ctr'][self.sed['ts']>TSmin]
             self.e2dnde_data_points = self.sed['e2dnde'][self.sed['ts']>TSmin]
