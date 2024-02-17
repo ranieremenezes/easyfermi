@@ -2955,6 +2955,13 @@ class Ui_mainWindow(QDialog):
             if len(NaNs_TSs) > 0:
                 for i in range(len(self.sed['ts'])):
                     self.sed["ts"][i] = -2*self.sed['dloglike_scan'][i][1]
+
+                SED_file = glob.glob(self.OutputDir+"*_sed.fits")[0]
+                hdul = pyfits.open(SED_file)
+                hdul[1].data["ts"] = self.sed["ts"]
+                hdul.writeto(SED_file,overwrite=True)
+                hdul.close()
+
             
             self.Energy_data_points = self.sed['e_ctr'][self.sed['ts']>TSmin]
             self.e2dnde_data_points = self.sed['e2dnde'][self.sed['ts']>TSmin]
