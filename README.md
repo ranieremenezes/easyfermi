@@ -127,7 +127,7 @@ Check for tutorials on the _easyfermi_ YouTube channel:
 The documentation of _easyfermi_ can be found [here](https://easyfermi.readthedocs.io/en/latest/index.html).
 
 
-# Acknowledgements
+# Acknowledgments
 
 To acknowledge _easyfermi_ in a publication, please cite  [de Menezes, R (2022)](https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract).
 
