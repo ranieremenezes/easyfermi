@@ -2750,7 +2750,7 @@ class Ui_mainWindow(QDialog):
             self.gta.free_source(self.sourcename,free=False)
             self.gta.free_source(self.sourcename,pars='norm')
 
-        N_iter_adaptive_LC = self.spinBox_LC_N_time_bins.value()
+        N_iter_adaptive_LC = self.spinBox_N_iter.value()
         
         return N_iter_adaptive_LC
         

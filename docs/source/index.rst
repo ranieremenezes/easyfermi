@@ -24,9 +24,6 @@ The graphical interface `easyfermi <https://github.com/ranieremenezes/easyfermi>
 Check out the :doc:`usage` section for further information, including
 the GUI :ref:`installation`.
 
-.. note::
-
-   This project is under active development.
 
 
 Acknowledging *easyfermi*
@@ -54,4 +51,5 @@ Contents
    usage
    Basic_analysis
    lightcurve
+   SED
    api
