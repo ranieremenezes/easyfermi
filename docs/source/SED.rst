@@ -24,13 +24,14 @@ Where the input parameters are:
 
 * **use_local_index**: If the box **Use local index** is checked in the graphical interface, we use a power-law approximation to the shape of the global spectrum in each bin. If not checked, then a constant index, :math:`\gamma = 2`,  will be adopted for all energy bins.
 
-The parameters **make_plots** and **write_npy** are always set as False in **easyfermi**. For more details on them, see the `fermipy sed documentation <https://fermipy.readthedocs.io/en/latest/advanced/sed.html>`_.
+The parameters **make_plots** and **write_npy** are always set as **False** in **easyfermi**. For more details on them, see the `fermipy sed documentation <https://fermipy.readthedocs.io/en/latest/advanced/sed.html>`_.
 
 
 Extragalactic background light (EBL) absorption correction
 ----------------------------------------------------------
 
 This method corrects the EBL absorption observed in the highest energy bins in the SEDs of extragalactic targets using the ``gammapy`` class `EBLAbsorptionNormSpectralModel <https://docs.gammapy.org/dev/api/gammapy.modeling.models.EBLAbsorptionNormSpectralModel.html>`_. This correction will be applied to any analysis as long as the box **Redshift** has a value above zero. The user can then select which EBL absorption model to use, where the options are:
+
  - `Franceschini et al. 2008 <http://adsabs.harvard.edu/abs/2008A%26A...487..837F>`_.
  - `Finke et al. 2010 <http://adsabs.harvard.edu/abs/2009arXiv0905.1115F>`_.
  - `Dominguez et al. 2011 <http://adsabs.harvard.edu/cgi-bin/bib_query?arXiv:1007.1459>`_.
@@ -49,21 +50,21 @@ The estimation of parameters with MCMC in ``easyfermi`` is done with `emcee <htt
 
 :math:`\mathcal{L} = - \frac{1}{2}\sum_n\left[ \frac{(y_n - f(\vec\theta,x_n))^2}{\sigma_n^2} \right]`
 
-where the sum is performed over all data points with :math:`TS > 9`, :math:`y_n` and :math:`x_n` are the y (differential flux) and x (energy) values for each data point, :math:`\sigma_n` is the error associated with the :math:`y` component of each data point, and :math:`f(\theta,x_n)` is the adopted specral model feeded with a set of parameters :math:`\vec\theta`. 
+where the sum is performed over all data points with :math:`TS > 9`, :math:`y_n` and :math:`x_n` are the y (differential flux) and x (energy) values for each data point, :math:`\sigma_n` is the error associated with the :math:`y` component of each data point, and :math:`f(\vec\theta,x_n)` is the adopted specral model feeded with a set of parameters :math:`\vec\theta`. 
 
 The spectral models available for the MCMC are:
 
- - PowerLaw: :math:`\frac{dN}{dE} = N_0\left(\frac{E}{E_0} \right)^{-\alpha}`, classical power-law function, where :math:`\frac{dN}{dE}` is in units of cm-2 s-1, :math:`E` is in MeV, and priors -15 < :math:`\log(N_0)` < -8 and 0.5 < :math:`\alpha` < 5.0
+ - **PowerLaw**: :math:`\frac{dN}{dE} = N_0\left(\frac{E}{E_0} \right)^{-\alpha}`, i.e the classical power-law function, where :math:`\frac{dN}{dE}` is in units of :math:`\mathrm{cm}^{-2}\mathrm{s}^{-1}`, :math:`E` is in MeV, and the priors are -15 < :math:`\log(N_0)` < -8 and 0.5 < :math:`\alpha` < 5.0.
 
- - LogPar: :math:`\frac{dN}{dE} = N_0\left(\frac{E}{E_0} \right)^{-\alpha -\beta\log(E/E_0)}`, classical log-parabola function, where :math:`\frac{dN}{dE}` is in units of cm-2 s-1, :math:`E` is in MeV, and with priors set to -15 < :math:`\log(N_0)` < -8, 1.0 < :math:`\alpha` < 4.0, and -1 < :math:`\beta` < 1.0.
+ - **LogPar**: :math:`\frac{dN}{dE} = N_0\left(\frac{E}{E_0} \right)^{-\alpha -\beta\log(E/E_0)}`, i.e. the classical log-parabola function, where :math:`\frac{dN}{dE}` is in units of :math:`\mathrm{cm}^{-2}\mathrm{s}^{-1}`, :math:`E` is in MeV, and the priors are set to -15 < :math:`\log(N_0)` < -8, 1.0 < :math:`\alpha` < 4.0, and -1 < :math:`\beta` < 1.0.
 
- - LogPar2: :math:`S(E) = S_p10^{-\alpha\log^2_{10}(E/E_p)}`, another parametrization of the log-parabola, conveniently giving us the energy flux at the log-parabola peak, :math:`S(E)` [MeV cm-2 s-1], the value of the energy peak, :math:`E_p` [MeV], and the spectral curvature :math:`\alpha`. The priors are set as -7 < :math:`\log(S_p)` < -2, -1.0 < :math:`\alpha` < 1.0, and 2 < :math:`E_p` < 7.
+ - **LogPar2**: :math:`S(E) = S_p10^{-\alpha\log^2_{10}(E/E_p)}`, which is another parametrization of the log-parabola, conveniently giving us the differential energy flux at the log-parabola peak, :math:`S(E)` [MeV :math:`\mathrm{cm}^{-2}\mathrm{s}^{-1}`], the value of the energy peak, :math:`E_p` [MeV], and the spectral curvature :math:`\alpha`. The priors are set to -7 < :math:`\log(S_p)` < -2, -1.0 < :math:`\alpha` < 1.0, and 2 < :math:`E_p` < 7.
 
- - PLEC: :math:`\frac{dN}{dE} = N_0\left(\frac{E}{E_0} \right)^{-\alpha} e^{-(E/E_0)^b}`, a power-law with a super exponential cutoff, where :math:`\frac{dN}{dE}` is in units of cm-2 s-1 and :math:`E` is in MeV. The priors are set to -15 < :math:`\log(N_0)` < -8, 1.0 < :math:`\alpha` < 4.0, 3.0 < :math:`E_c` < 7.0, and 0.2 < :math:`b` < 3.0.
+ - **PLEC**: :math:`\frac{dN}{dE} = N_0\left(\frac{E}{E_0} \right)^{-\alpha} e^{-(E/E_0)^b}`, i.e. a power-law with a super exponential cutoff, where :math:`\frac{dN}{dE}` is in units of :math:`\mathrm{cm}^{-2}\mathrm{s}^{-1}` and :math:`E` is in MeV. The priors are set to -15 < :math:`\log(N_0)` < -8, 1.0 < :math:`\alpha` < 4.0, 3.0 < :math:`E_c` < 7.0, and 0.2 < :math:`b` < 3.0.
  
- - PLEC_bfix: same as above, but with :math:`b \equiv 1`.
+ - **PLEC_bfix**: same as above, but with :math:`b \equiv 1`.
 
-For all parameters, we adopt 300 walkers, and iterate it 500 times.
+Finally, we adopt 300 walkers, iterate them 500 times, and fix :math:`E_0 \equiv 2 E_{min}`, where :math:`E_{min}` is read from the graphical interface or from the customized configuration file.
 
 
 
