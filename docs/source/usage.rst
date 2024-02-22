@@ -6,18 +6,18 @@ Usage
 Installation
 ------------
 
-To use **easyfermi**, first install the fermitools environment using mamba (or conda):
+To use ``easyfermi``, first install the fermitools environment using mamba (or conda):
 
 .. code-block:: console
 
-   $ mamba create --name easyfermi -c conda-forge -c fermi python=3.9 "fermitools>=2.2.0" "healpy=1.16.1" "gammapy=1.1" "fermipy=v1.2" "scipy=1.11.4" "astropy=5.3.3" "pyqt=5.15.9" "astroquery=0.4.6" "psutil=5.9.8" "matplotlib=3.8.2" "emcee=3.1.4" "corner=2.2.2"
+   $ mamba create --name easyfermi -c conda-forge -c fermi python=3.9 "fermitools>=2.2.0" "healpy=1.16.1" "gammapy=1.1" "scipy=1.10.1" "astropy=5.3.3" "pyqt=5.15.9" "astroquery=0.4.6" "psutil=5.9.8" "emcee=3.1.4" "corner=2.2.2"
    
-Then activate the environment and install **easyfermi**:
+Then activate the environment and install ``fermipy`` and ``easyfermi``:
 
 .. code-block:: console
 
     $ mamba activate easyfermi
-    $ pip install easyfermi
+    $ pip install fermipy easyfermi
 
 * (ONLY FOR WINDOWS) Install the libgl1 package:
 
@@ -29,7 +29,7 @@ Then activate the environment and install **easyfermi**:
 
 .. code-block:: console
 
-    $ alias easyfermi="miniforge && mamba activate easyfermi && python -c 'import easyfermi'"
+    $ alias easyfermi="mamba activate easyfermi && python -c 'import easyfermi'"
     
 substituting miniforge and mamba by e.g. anaconda and conda if needed. This line of command depends on which distribution of Python you installed and how you set up the mamba/conda environment.
 
