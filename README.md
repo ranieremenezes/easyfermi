@@ -13,9 +13,9 @@ The easiest way to analyze Fermi-LAT data.
 
 </div>
 
-_easyfermi_ is a solution to facilitate Fermi-LAT data analysis by providing an intuitive graphical interface to interact with the Fermi science tools.
+`easyfermi` is a solution to facilitate Fermi-LAT data analysis by providing an intuitive graphical interface to interact with the Fermi science tools.
 
-If you would like to support _easyfermi_'s maintenance, consider buying me a coffee:
+If you would like to support `easyfermi`'s maintenance, consider buying us a coffee:
 
 <a href="https://www.buymeacoffee.com/easyfermi" target="_blank"><img src="https://github.com/ranieremenezes/ranieremenezes/blob/main/bmc-button.png" alt="Buy Me A Coffee" style="height: 58px !important;width: 208px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
@@ -43,32 +43,32 @@ This will create the virtual environment and install all dependencies. Then acti
 <pre><code>sudo apt-get install libgl1</code></pre>
 
 - If you want, you can set _easyfermi_ as an environmental variable. For instance, if you use a Bash shell environment, you can open the `.bashrc` file in your home and set:
-<pre><code>alias easyfermi="miniforge && mamba activate easyfermi && python -c 'import easyfermi'"</code></pre>
+<pre><code>alias easyfermi="mamba activate easyfermi && python -c 'import easyfermi'"</code></pre>
 substituting _miniforge_ and _mamba_ by e.g. _anaconda_ and _conda_ if needed. This line of command depends on which distribution of Python you installed and how you set up the _mamba/conda_ environment.
 
 ### Cloning the repository installation
 
-Another option to install _easyfermi_ is by cloning the GitHub repository:
+Another option to install `easyfermi` is by cloning the GitHub repository:
 <pre><code>git clone https://github.com/ranieremenezes/easyfermi.git</code></pre>
 
-Then change to the _easyfermi_ directory and create the environment:
+Then change to the `easyfermi` directory and create the environment:
 <pre><code>cd easyfermi</code></pre>
 <pre><code>mamba env create -f environment.yml</code></pre>
 <pre><code>mamba activate easyfermi</code></pre>
 
 #### For users:
 
-Install _easyfermi_:
+Install `easyfermi`:
 <pre><code>pip install --no-deps easyfermi</code></pre>
 
 #### For developers:
 
-Install _easyfermi_ in editable mode:
+Install `easyfermi` in editable mode:
 <pre><code>pip install -e .</code></pre>
 
 # Upgrading
 
-You can check your currently installed version of _easyfermi_ with _pip show_:
+You can check your currently installed version of `easyfermi` with _pip show_:
 <pre><code>pip show easyfermi</code></pre>
    
 If you have `easyfermi 2.0.X` installed, upgrade your installation to the latest version by running the following command in the _easyfermi_ environment:
@@ -101,7 +101,7 @@ The main window of _easyfermi_ looks like this:
 
 # Tutorials
 
-Check for tutorials on the _easyfermi_ YouTube channel:
+Check for tutorials on the `easyfermi` YouTube channel:
 
  <a href="https://www.youtube.com/channel/UCeLCfEoWasUKky6CPNN_opQ">
 
@@ -118,12 +118,12 @@ Check for tutorials on the _easyfermi_ YouTube channel:
 
 # Documentation
 
-The documentation of _easyfermi_ can be found [here](https://easyfermi.readthedocs.io/en/latest/index.html).
+The documentation of `easyfermi` can be found [here](https://easyfermi.readthedocs.io/en/latest/index.html).
 
 
 # Acknowledgements
 
-To acknowledge _easyfermi_ in a publication, please cite  [de Menezes, R (2022)](https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract).
+To acknowledge `easyfermi` in a publication, please cite  [de Menezes, R (2022)](https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract).
 
 Since _easyfermi_ relies on _fermipy_, _gammapy_, _astropy_, and _emcee_, please also cite [Wood et al. 2017](https://ui.adsabs.harvard.edu/abs/2017ICRC...35..824W/abstract), [Donath et al. 2023](https://ui.adsabs.harvard.edu/abs/2023A%26A...678A.157D/abstract), [Astropy Collaboration et al. 2018](https://ui.adsabs.harvard.edu/abs/2018AJ....156..123A/abstract), and [Foreman-Mackey et al. 2013](https://ui.adsabs.harvard.edu/abs/2013PASP..125..306F/abstract).
 
