@@ -2787,7 +2787,7 @@ class Ui_mainWindow(QDialog):
         if original_fit_quality == 3:
             self.fitquality = '- Fit quality: 3. Excellent fit! Full accurate covariance matrix.'
         else:
-            if self.gta.get_sources()[0]["ts"] < 25:
+            if self.gta.get_sources()[0]["ts"] < 16:
                 self.gta.delete_sources(minmax_ts=[None,0.99*self.gta.get_sources()[0]["ts"]])  # Here we delete the sources that have TS < TS_target and refit the model
                 fit_results = self.gta.fit(optimizer='NEWMINUIT')
                 if fit_results['fit_quality'] == 3:
@@ -2800,16 +2800,16 @@ class Ui_mainWindow(QDialog):
                     self.fitquality = f'- Original fit quality: {original_fit_quality}. As the TS of the target was only {self.gta.get_sources()[0]["ts"]}, we deleted all sources with TS < {self.gta.get_sources()[0]["ts"]} and performed the fit again.\n- Fit quality of the second try: 0. Bad fit. Error matrix not calculated.'
                 
             else:
-                self.gta.delete_sources(minmax_ts=[None,25])  # Here we delete the sources that have TS < 25 and refit the model
+                self.gta.delete_sources(minmax_ts=[None,16])  # Here we delete the sources that have TS < 16 and refit the model
                 fit_results = self.gta.fit(optimizer='NEWMINUIT')
                 if fit_results['fit_quality'] == 3:
-                    self.fitquality = f'- Original fit quality: {original_fit_quality}. We deleted all sources with TS < 25 and performed the fit again.\n- Fit quality of the second try: 3. Excellent fit! Full accurate covariance matrix.'
+                    self.fitquality = f'- Original fit quality: {original_fit_quality}. We deleted all sources with TS < 16 and performed the fit again.\n- Fit quality of the second try: 3. Excellent fit! Full accurate covariance matrix.'
                 elif fit_results['fit_quality'] == 2:
-                    self.fitquality = f'- Original fit quality: {original_fit_quality}. We deleted all sources with TS < 25 and performed the fit again.\n- Fit quality of the second try: 2. Reasonable fit. Full matrix, but forced positive-definite (i.e. not accurate).'
+                    self.fitquality = f'- Original fit quality: {original_fit_quality}. We deleted all sources with TS < 16 and performed the fit again.\n- Fit quality of the second try: 2. Reasonable fit. Full matrix, but forced positive-definite (i.e. not accurate).'
                 elif fit_results['fit_quality'] == 1:
-                    self.fitquality = f'- Original fit quality: {original_fit_quality}. We deleted all sources with TS < 25 and performed the fit again.\n- Fit quality of the second try: 1. Poor fit. Diagonal approximation only, not accurate.'
+                    self.fitquality = f'- Original fit quality: {original_fit_quality}. We deleted all sources with TS < 16 and performed the fit again.\n- Fit quality of the second try: 1. Poor fit. Diagonal approximation only, not accurate.'
                 else:
-                    self.fitquality = f'- Original fit quality: {original_fit_quality}. We deleted all sources with TS < 25 and performed the fit again.\n- Fit quality of the second try: 0. Bad fit. Error matrix not calculated.'
+                    self.fitquality = f'- Original fit quality: {original_fit_quality}. We deleted all sources with TS < 16 and performed the fit again.\n- Fit quality of the second try: 0. Bad fit. Error matrix not calculated.'
                 
 
         #Do plots:
