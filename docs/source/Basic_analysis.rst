@@ -1,6 +1,7 @@
 Basic Analysis
 ==============
 
+  
 .. _basic:
 
 Binned likelihood analysis
@@ -38,7 +39,7 @@ This function optimizes the RoI model in three sequential steps:
  - Individually fit the shape and normalization parameters of all sources with `TS > shape_ts_threshold` where TS is determined from the first two steps of the ROI optimization.
 
 
-After the optimization, we give the option to the user to call the ``fermipy`` function `find_sources() <https://fermipy.readthedocs.io/en/v1.2/advanced/detection.html>`_ (by checking the box **Find extra sources in the ROI**) with the following configuration:
+After the optimization, we give the option to the user to call the ``fermipy`` function `find_sources() <https://fermipy.readthedocs.io/en/v1.2/advanced/detection.html>`_ (by checking the box **Find extra sources in the ROI**, as shown in the figure below) with the following configuration:
 
 .. code-block::
     
@@ -46,14 +47,18 @@ After the optimization, we give the option to the user to call the ``fermipy`` f
     
 which will look for possible non-cataloged gamma-ray sources by generating a TS map for the RoI and identify peaks with :math:`\sqrt{TS} >` *Minimum_significance* and an angular separation of at least *Minimum_separation* from a higher amplitude peak in the TS map. This method can run several times until no sources with :math:`sqrt(TS) >` *Minimum_significance* are found.
 
+.. image:: ./easyfermi_find_sources.png
+  :width: 700
+
 The standard fit in ``easyfermi`` is done with the ``fermipy`` function `fit() <https://fermipy.readthedocs.io/en/0.6.8/fermipy.html#fermipy.gtanalysis.GTAnalysis.fit>`_ optimizer ``NewMinuit``, although this can be changed by the user in the checkbox **Change optimizer**. The radius within which the parameters of all sources are free to vary (normalization and spectral shape) is set as half the RoI width (see the second paragraph of this section), but can be changed by the user in the panel **Free source radius**, under the **Customized** button.
 
 If the fit does not converge, ``easyfermi``:
+
  - deletes all sources with TS < 16 from the RoI or...
  - deletes all sources with :math:`TS < TS_{target}` if :math:`TS_{target} < 16`.
  - reruns the fit.
 
-Even after that the fit does not converge, the user can freely modify the parameters in the panel **Fine-tuning the fit** and run the analysis again.
+If even after that the fit does not converge, the user can freely modify the parameters in the panel **Fine-tuning the fit** and run the analysis again.
 
 .. note::
 
@@ -64,8 +69,15 @@ Once the RoI fit is done, the results are saved in the output directory in the f
 Diagnostic plots
 ----------------
 
-The Sun and everything else
+If the box **Diagnostic plots** is checked (see figure below), all of the diagnostic plots created by ``fermipy`` are saved in the output directory, such as the model map, the excess map, the y and x counts profile, etc.
 
-TDB
+.. image:: ./easyfermi_diagnostic.png
+  :width: 700
+  
+The novelty diagnostic plot of ``easyfermi`` is the angular separation between the target and the Sun within the given time window. We compute this separation based on the data available in the *Fermi*-LAT spacecraft file and using the ``astropy`` class `SkyCoord() <https://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html>`_. This plot is useful, e.g., to look for possible solar contamination on your SED or light curve. In the figure below, we show the diagnostic plot for the angular separation between the target 1LHAASO J1219+2915 and the Sun over the period of ~3 years. 
+
+.. image:: ./Sun_path_1LHAASO_J1219+2915.png
+  :width: 700
+
 
 
