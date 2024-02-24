@@ -64,7 +64,7 @@ In the terminal, run:
 Running
 ----------------
 
-If you defined the variable *easyfermi* in your shell environment (see Installing), simply type the following in the terminal:
+If you defined the variable *easyfermi* in your shell environment (see :ref:`installation`), simply type the following in the terminal:
 
 .. code-block:: console
 
