@@ -76,7 +76,12 @@ This method of computing an adaptive-binning light curve is different from the m
 
    We recommend setting :math:`TS_{Threshold} \geq 50`. With smaller threshold values we can achieve higher time resolution, however, we increase the probability of running into upper limits.
 
+In the figures below, we show the constant- and adaptive-binned light curves for BL Lac from 04/08/2019 15:43:36 up to 14/01/2024 15:43:00 and in the energy range 100 MeV up to 300000 MeV, during some major flaring activity. Since in this especific case we have extraordinary statistics, we set :math:`TS_{Threshold} = 5000` and 2 iterations for the adaptive-binned light curve. We see that both light curves present the same overall behavior, although in the adaptive-binned case we can revocer much more information (in this specific case, the statistics is so high that we barely can see the error bars).
 
-
+.. image:: ./BLLac_cte.png
+  :width: 700
+  
+.. image:: ./BLLac_adaptive.png
+  :width: 700
 
 
