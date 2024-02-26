@@ -7,7 +7,7 @@ Basic Analysis
 Binned likelihood analysis
 --------------------------
 
-The `binned likelihood analysis <https://fermi.gsfc.nasa.gov/ssc/data/analysis/scitools/binned_likelihood_tutorial.html>`_ performed in ``easyfermi`` starts by instantiating the ``fermipy`` class `GTAnalysis <https://fermipy.readthedocs.io/en/latest/quickstart.html#creating-an-analysis-script>`_ and feeding it with a configuration file (i.e. `'config.yaml'`) generated with the information given by the user in the graphical interface. The standard event classification and event type are set as ``evclass=128`` and ``evtype=3``, but these values can be changed by the user by checking the box **Improve resolution** or if the analysis is done in the **Custom** mode. The 
+The `binned likelihood analysis <https://fermi.gsfc.nasa.gov/ssc/data/analysis/scitools/binned_likelihood_tutorial.html>`_ performed in ``easyfermi`` starts by instantiating the ``fermipy`` class `GTAnalysis <https://fermipy.readthedocs.io/en/latest/quickstart.html#creating-an-analysis-script>`_ and feeding it with a configuration file (i.e. `'config.yaml'`) generated with the information given by the user in the graphical interface. The standard event classification and event type are set as ``evclass=128`` and ``evtype=3``, but these values can be changed by the user by checking the box **Improve resolution** or if the analysis is done in the **Custom** mode. 
 
 The region of interest (RoI) width and zenith angle (:math:`z_{max}`) cut adopted in the **Standard** mode of ``easyfermi`` depend on the minimum energy set up in the graphical interface. In summary, if 
 
