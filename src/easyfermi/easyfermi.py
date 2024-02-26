@@ -387,13 +387,30 @@ class Ui_mainWindow(QDialog):
         self.groupBox_fit_finetune = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox_fit_finetune.setGeometry(QtCore.QRect(10, 190, 282, 331))
         self.groupBox_fit_finetune.setObjectName("groupBox_fit_finetune")
+        self.line_6 = QtWidgets.QFrame(self.centralwidget)
+        self.line_6.setGeometry(QtCore.QRect(142, 220, 20, 181))
+        self.line_6.setFrameShape(QtWidgets.QFrame.VLine)
+        self.line_6.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_6.setObjectName("line_6")
         
+
+        self.white_box_TS_cut_in_the_fit = QtWidgets.QLineEdit(self.groupBox_fit_finetune)
+        self.white_box_TS_cut_in_the_fit.setEnabled(True)
+        self.white_box_TS_cut_in_the_fit.setGeometry(QtCore.QRect(30, 28, 41, 21))
+        self.white_box_TS_cut_in_the_fit.setObjectName("white_box_TS_cut_in_the_fit")
+        self.label_TS_fit_cut = QtWidgets.QLabel(self.groupBox_fit_finetune)
+        self.label_TS_fit_cut.setGeometry(QtCore.QRect(75, 30, 141, 17))
+        self.label_TS_fit_cut.setObjectName("label_TS_fit_cut")
         self.checkBox_delete_sources = QtWidgets.QCheckBox(self.groupBox_fit_finetune)
-        self.checkBox_delete_sources.setGeometry(QtCore.QRect(10, 150, 141, 23))
+        self.checkBox_delete_sources.setGeometry(QtCore.QRect(10, 165, 141, 23))
         self.checkBox_delete_sources.setObjectName("checkBox_delete_sources")
+        self.white_box_list_of_sources_to_delete = QtWidgets.QLineEdit(self.groupBox_fit_finetune)
+        self.white_box_list_of_sources_to_delete.setEnabled(False)
+        self.white_box_list_of_sources_to_delete.setGeometry(QtCore.QRect(30, 190, 101, 21))
+        self.white_box_list_of_sources_to_delete.setObjectName("white_box_list_of_sources_to_delete")
         self.comboBox_change_model = QtWidgets.QComboBox(self.groupBox_fit_finetune)
         self.comboBox_change_model.setEnabled(False)
-        self.comboBox_change_model.setGeometry(QtCore.QRect(30, 110, 101, 25))
+        self.comboBox_change_model.setGeometry(QtCore.QRect(30, 135, 101, 25))
         self.comboBox_change_model.setObjectName("comboBox_change_model")
         self.comboBox_change_model.addItem("")
         self.comboBox_change_model.addItem("")
@@ -405,10 +422,9 @@ class Ui_mainWindow(QDialog):
         self.comboBox_change_model.addItem("")
         self.comboBox_change_model.addItem("")
         self.comboBox_change_model.addItem("")
-        self.white_box_list_of_sources_to_delete = QtWidgets.QLineEdit(self.groupBox_fit_finetune)
-        self.white_box_list_of_sources_to_delete.setEnabled(False)
-        self.white_box_list_of_sources_to_delete.setGeometry(QtCore.QRect(30, 180, 101, 21))
-        self.white_box_list_of_sources_to_delete.setObjectName("white_box_list_of_sources_to_delete")
+        self.checkBox_change_model = QtWidgets.QCheckBox(self.groupBox_fit_finetune)
+        self.checkBox_change_model.setGeometry(QtCore.QRect(10, 110, 131, 21))
+        self.checkBox_change_model.setObjectName("checkBox_change_model")
         self.checkBox_diagnostic_plots = QtWidgets.QCheckBox(self.groupBox_fit_finetune)
         self.checkBox_diagnostic_plots.setGeometry(QtCore.QRect(10, 300, 151, 23))
         self.checkBox_diagnostic_plots.setChecked(True)
@@ -435,15 +451,12 @@ class Ui_mainWindow(QDialog):
         self.label_min_significance = QtWidgets.QLabel(self.groupBox_fit_finetune)
         self.label_min_significance.setGeometry(QtCore.QRect(110, 242, 141, 17))
         self.label_min_significance.setObjectName("label_min_significance")
-        self.checkBox_change_model = QtWidgets.QCheckBox(self.groupBox_fit_finetune)
-        self.checkBox_change_model.setGeometry(QtCore.QRect(10, 90, 131, 21))
-        self.checkBox_change_model.setObjectName("checkBox_change_model")
         self.checkBox_minimizer = QtWidgets.QCheckBox(self.groupBox_fit_finetune)
-        self.checkBox_minimizer.setGeometry(QtCore.QRect(10, 30, 131, 21))
+        self.checkBox_minimizer.setGeometry(QtCore.QRect(10, 55, 131, 21))
         self.checkBox_minimizer.setObjectName("checkBox_minimizer")
         self.comboBox_minimizer = QtWidgets.QComboBox(self.groupBox_fit_finetune)
         self.comboBox_minimizer.setEnabled(False)
-        self.comboBox_minimizer.setGeometry(QtCore.QRect(30, 50, 101, 25))
+        self.comboBox_minimizer.setGeometry(QtCore.QRect(30, 80, 101, 25))
         self.comboBox_minimizer.setObjectName("comboBox_minimizer")
         self.comboBox_minimizer.addItem("")
         self.comboBox_minimizer.addItem("")
@@ -757,11 +770,7 @@ class Ui_mainWindow(QDialog):
 
 
 
-        self.line_6 = QtWidgets.QFrame(self.centralwidget)
-        self.line_6.setGeometry(QtCore.QRect(140, 220, 20, 181))
-        self.line_6.setFrameShape(QtWidgets.QFrame.VLine)
-        self.line_6.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line_6.setObjectName("line_6")
+        
         self.line_7 = QtWidgets.QFrame(self.centralwidget)
         self.line_7.setGeometry(QtCore.QRect(140, 480, 20, 41))
         self.line_7.setFrameShape(QtWidgets.QFrame.VLine)
@@ -905,7 +914,8 @@ class Ui_mainWindow(QDialog):
         self.toolButton_External_ltcube.setToolTip('Here you can select a txt file listing one or more ltcube files.\neasyfermi automatically saves this file as "ltcube_list.txt" once you run an analysis.')
 
         self.white_box_list_of_sources_to_delete.setToolTip("e.g.: 4FGL J1222.5+0414,4FGL J1219.7+0444,4FGL ...")
-        
+        self.white_box_TS_cut_in_the_fit.setToolTip("If the fit does not converge:\n1) All sources with TS < TS_cut will be deleted from the RoI model or...\n2) If the TS_target < TS_cut, all sources with TS < TS_target will be deleted from the RoI model.\nDefault value is TS_cut = 16.")
+        self.label_TS_fit_cut.setToolTip("If the fit does not converge:\n1) All sources with TS < TS_cut will be deleted from the RoI model or...\n2) If the TS_target < TS_cut, all sources with TS < TS_target will be deleted from the RoI model.\nDefault value is TS_cut = 16.")
         
         ###### Activating/deactivating options
         self.checkBox_LC.clicked.connect(self.activate)
@@ -957,6 +967,7 @@ class Ui_mainWindow(QDialog):
         self.white_box_TS_threshold.setToolTip("This is the average TS for each one of the adaptive time bins. We recommend keeping it > 50.")
         self.spinBox_N_iter.setToolTip("The greater the number of iterations, the greater the temporal resolution of the light curve.")
         self.white_box_target_name.setToolTip("Please insert a nickname for your target avoiding blank spaces.")
+        self.checkBox_delete_sources.setToolTip("Check this box if you want to manually delete one or more sources from the RoI model.")
 
 
     def retranslateUi(self, mainWindow):
@@ -1030,8 +1041,10 @@ class Ui_mainWindow(QDialog):
         self.comboBox_MCMC.setItemText(3, _translate("mainWindow", "PLEC"))
         self.comboBox_MCMC.setItemText(4, _translate("mainWindow", "PLEC_bfix"))
         self.white_box_list_of_sources_to_delete.setText(_translate("mainWindow", ""))
+        self.white_box_TS_cut_in_the_fit.setText(_translate("mainWindow", "16"))
         self.checkBox_diagnostic_plots.setText(_translate("mainWindow", "Diagnostic plots"))
         self.label_minimum_separation.setText(_translate("mainWindow", "Minimum separation (⁰)"))
+        self.label_TS_fit_cut.setText(_translate("mainWindow", "Fit TS cut"))
         self.checkBox_find_extra_sources.setText(_translate("mainWindow", "Find extra sources in the ROI:"))
         self.label_min_significance.setText(_translate("mainWindow", "Minimum significance"))
         self.checkBox_change_model.setText(_translate("mainWindow", "Change model:"))
@@ -1278,7 +1291,7 @@ class Ui_mainWindow(QDialog):
         if n == 10:
             self.progressBar.setProperty("value", 90)
 
-            if self.Compute_LC is False:
+            if self.Compute_LC is False and self.checkBox_LC.isChecked():
                 self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+f"- A light curve with {self.spinBox_LC_N_time_bins.value()} was already found. Skipping new light curve computation.\n")
 
             if self.adaptive:
@@ -1398,6 +1411,7 @@ class Ui_mainWindow(QDialog):
         state["which_model"] = self.comboBox_change_model.currentText()
         state["delete_sources"] = self.checkBox_delete_sources.isChecked()
         state["which_sources_deleted"] = self.white_box_list_of_sources_to_delete.text()
+        state["fit_TS_cut"] = self.white_box_TS_cut_in_the_fit.text()
         state["Free_radius_standard"] = self.radioButton_free_source_radius.isChecked()
         state["Free_radius_custom"] = self.radioButton_free_source_radius_customized.isChecked()
         state["free_radius"] = self.white_box_radius.text()
@@ -1503,6 +1517,9 @@ class Ui_mainWindow(QDialog):
         # Delete sources:    
         self.checkBox_delete_sources.setChecked(keys["delete_sources"])
         self.white_box_list_of_sources_to_delete.setText(keys["which_sources_deleted"])
+
+        # Fit TS cut:
+        self.white_box_TS_cut_in_the_fit.setText(keys["fit_TS_cut"])
         
         # Free source radius:
         self.radioButton_free_source_radius.setChecked(keys["Free_radius_standard"])
@@ -1652,6 +1669,11 @@ class Ui_mainWindow(QDialog):
                     self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Stop time must be set to a date after start time.\n")
             
                 list_of_photon_files = glob.glob(self.white_box_photon_dir.text()+"/*.fits")
+                if len(list_of_photon_files) == 0:
+                    check = check + 1
+                    print("No photon files found in the given directory.")
+                    self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- No photon files found in the given directory.\n")
+                
                 max_photon_energy= 0
                 for photon_file in list_of_photon_files:
                     max_energy_in_the_file = pyfits.open(photon_file)[1].data["ENERGY"].max()
@@ -2781,15 +2803,21 @@ class Ui_mainWindow(QDialog):
         else:
             optimizer = 'NEWMINUIT'
 
-        fit_results = self.gta.fit(optimizer=optimizer)
+        fit_results = self.gta.fit(optimizer=optimizer, min_fit_quality=2)
         original_fit_quality = fit_results['fit_quality']
+
+        try:
+            TS_fit_cut = float(self.white_box_TS_cut_in_the_fit.text())  # If the fit does not converge, we delete the sources with TS < TS_fit_cut (more details in the documentation).
+        except:
+            TS_fit_cut = 16
+            print("Fit TS cut is not a valid float. Resetting TS_cut = 16.")
 
         if original_fit_quality == 3:
             self.fitquality = '- Fit quality: 3. Excellent fit! Full accurate covariance matrix.'
         else:
-            if self.gta.get_sources()[0]["ts"] < 16:
+            if self.gta.get_sources()[0]["ts"] < TS_fit_cut:
                 self.gta.delete_sources(minmax_ts=[None,0.99*self.gta.get_sources()[0]["ts"]])  # Here we delete the sources that have TS < TS_target and refit the model
-                fit_results = self.gta.fit(optimizer='NEWMINUIT')
+                fit_results = self.gta.fit(optimizer=optimizer)
                 if fit_results['fit_quality'] == 3:
                     self.fitquality = f'- Original fit quality: {original_fit_quality}. As the TS of the target was only {self.gta.get_sources()[0]["ts"]}, we deleted all sources with TS < {self.gta.get_sources()[0]["ts"]} and performed the fit again.\n- Fit quality of the second try: 3. Excellent fit! Full accurate covariance matrix.'
                 elif fit_results['fit_quality'] == 2:
@@ -2800,16 +2828,16 @@ class Ui_mainWindow(QDialog):
                     self.fitquality = f'- Original fit quality: {original_fit_quality}. As the TS of the target was only {self.gta.get_sources()[0]["ts"]}, we deleted all sources with TS < {self.gta.get_sources()[0]["ts"]} and performed the fit again.\n- Fit quality of the second try: 0. Bad fit. Error matrix not calculated.'
                 
             else:
-                self.gta.delete_sources(minmax_ts=[None,16])  # Here we delete the sources that have TS < 16 and refit the model
-                fit_results = self.gta.fit(optimizer='NEWMINUIT')
+                self.gta.delete_sources(minmax_ts=[None,TS_fit_cut])  # Here we delete the sources that have TS < TS_fit_cut and refit the model
+                fit_results = self.gta.fit(optimizer=optimizer)
                 if fit_results['fit_quality'] == 3:
-                    self.fitquality = f'- Original fit quality: {original_fit_quality}. We deleted all sources with TS < 16 and performed the fit again.\n- Fit quality of the second try: 3. Excellent fit! Full accurate covariance matrix.'
+                    self.fitquality = f'- Original fit quality: {original_fit_quality}. We deleted all sources with TS < {TS_fit_cut} and performed the fit again.\n- Fit quality of the second try: 3. Excellent fit! Full accurate covariance matrix.'
                 elif fit_results['fit_quality'] == 2:
-                    self.fitquality = f'- Original fit quality: {original_fit_quality}. We deleted all sources with TS < 16 and performed the fit again.\n- Fit quality of the second try: 2. Reasonable fit. Full matrix, but forced positive-definite (i.e. not accurate).'
+                    self.fitquality = f'- Original fit quality: {original_fit_quality}. We deleted all sources with TS < {TS_fit_cut} and performed the fit again.\n- Fit quality of the second try: 2. Reasonable fit. Full matrix, but forced positive-definite (i.e. not accurate).'
                 elif fit_results['fit_quality'] == 1:
-                    self.fitquality = f'- Original fit quality: {original_fit_quality}. We deleted all sources with TS < 16 and performed the fit again.\n- Fit quality of the second try: 1. Poor fit. Diagonal approximation only, not accurate.'
+                    self.fitquality = f'- Original fit quality: {original_fit_quality}. We deleted all sources with TS < {TS_fit_cut} and performed the fit again.\n- Fit quality of the second try: 1. Poor fit. Diagonal approximation only, not accurate.'
                 else:
-                    self.fitquality = f'- Original fit quality: {original_fit_quality}. We deleted all sources with TS < 16 and performed the fit again.\n- Fit quality of the second try: 0. Bad fit. Error matrix not calculated.'
+                    self.fitquality = f'- Original fit quality: {original_fit_quality}. We deleted all sources with TS < {TS_fit_cut} and performed the fit again.\n- Fit quality of the second try: 0. Bad fit. Error matrix not calculated.'
                 
 
         #Do plots:
