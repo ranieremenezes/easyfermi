@@ -104,38 +104,41 @@ class Worker(QtCore.QObject):
     finished_download_photons = QtCore.pyqtSignal()
     progress = QtCore.pyqtSignal(int)
     
+    def __init__(self, ui):
+
+        self.ui = ui
     
     def run_gtsetup(self):
         """Long-running task."""
         self.starting.emit()
-        ui.setFermipy()
+        self.ui.setFermipy()
         self.progress.emit(0)  # These numbers 0, 1, 2 etc defined by emit() enter as "n" in the function reportProgress(self,n)
-        ui.gta.setup()
+        self.ui.gta.setup()
         self.progress.emit(1)
-        N_iter_adaptive_LC = ui.analysisBasics()
+        N_iter_adaptive_LC = self.ui.analysisBasics()
         self.progress.emit(2)
-        calculate_Sun = ui.fit_model()
+        calculate_Sun = self.ui.fit_model()
         if calculate_Sun:
             self.progress.emit(3)
-            ui.Sun_path()
+            self.ui.Sun_path()
 
         self.progress.emit(4)
-        ui.relocalize_the_target()
+        self.ui.relocalize_the_target()
         self.progress.emit(5)
-        ui.compute_TSmap()
+        self.ui.compute_TSmap()
         self.progress.emit(6)
-        ui.compute_Extension()
+        self.ui.compute_Extension()
         self.progress.emit(7)
-        ui.compute_SED()
+        self.ui.compute_SED()
         self.progress.emit(8)
-        ui.EBL_and_MCMC()
+        self.ui.EBL_and_MCMC()
         self.progress.emit(9)
-        ui.compute_LC()
-        ui.plot_LCs(adaptive=False)
+        self.ui.compute_LC()
+        self.ui.plot_LCs(adaptive=False)
         self.progress.emit(10)
         for i in range(N_iter_adaptive_LC):
-            ui.compute_LC_adaptive()
-        ui.plot_LCs(adaptive=True)
+            self.ui.compute_LC_adaptive()
+        self.ui.plot_LCs(adaptive=True)
         self.progress.emit(11)
         self.finished.emit()
 
@@ -1335,7 +1338,7 @@ class Ui_mainWindow(QDialog):
         
         if can_we_go:
             self.thread = QtCore.QThread()
-            self.worker = Worker()
+            self.worker = Worker(self)
             self.worker.moveToThread(self.thread)
         
             # Standard or custom analysis?
@@ -4022,17 +4025,20 @@ class Ui_mainWindow(QDialog):
 
     
 
+def main():
+    app = QtWidgets.QApplication(sys.argv)
+    mainWindow = QtWidgets.QMainWindow()
+    ui = Ui_mainWindow()
+    ui.setupUi(mainWindow)
+    mainWindow.show()
+    sys.exit(app.exec_())
 
 
 
+if __name__ == "__main__":
 
-#if __name__ == "__main__":
-app = QtWidgets.QApplication(sys.argv)
-mainWindow = QtWidgets.QMainWindow()
-ui = Ui_mainWindow()
-ui.setupUi(mainWindow)
-mainWindow.show()
-sys.exit(app.exec_())
+    main()
+
 
 
 
