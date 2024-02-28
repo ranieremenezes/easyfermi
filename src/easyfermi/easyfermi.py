@@ -914,7 +914,7 @@ class Ui_mainWindow(QDialog):
         self.toolButton_External_ltcube.setToolTip('Here you can select a txt file listing one or more ltcube files.\neasyfermi automatically saves this file as "ltcube_list.txt" once you run an analysis.')
 
         self.white_box_list_of_sources_to_delete.setToolTip("e.g.: 4FGL J1222.5+0414,4FGL J1219.7+0444,4FGL ...")
-        self.white_box_TS_cut_in_the_fit.setToolTip("If the fit does not converge:\n1) All sources with TS < TS_cut will be deleted from the RoI model or...\n2) If the TS_target < TS_cut, all sources with TS < TS_target will be deleted from the RoI model.\nDefault value is TS_cut = 16.")
+        self.white_box_TS_cut_in_the_fit.setToolTip("If the fit does not converge:\n1) All sources with TS < TS_cut will be deleted from the RoI model or...\n2) If the TS_target < TS_cut, all sources with TS < TS_target will be deleted from the RoI model.\n3) The fit is performed again.\nDefault value is TS_cut = 16.")
         self.label_TS_fit_cut.setToolTip("If the fit does not converge:\n1) All sources with TS < TS_cut will be deleted from the RoI model or...\n2) If the TS_target < TS_cut, all sources with TS < TS_target will be deleted from the RoI model.\nDefault value is TS_cut = 16.")
         
         ###### Activating/deactivating options
@@ -1603,6 +1603,7 @@ class Ui_mainWindow(QDialog):
             check = 0
             Coords = self.white_box_RAandDec.text().split(',')
             Energ = self.white_box_energy.text().split(',')
+            Energ = np.asarray(Energ).astype(float)
             date = self.dateTimeEdit.text()
             date2 = self.dateTimeEdit_2.text()
             times = [str(date[6:10])+'-'+str(date[3:5])+'-'+str(date[:2])+'T'+str(date[11:19]),    str(date2[6:10])+'-'+str(date2[3:5])+'-'+str(date2[:2])+'T'+str(date2[11:19])              ]
@@ -1631,12 +1632,28 @@ class Ui_mainWindow(QDialog):
                             if not os.path.exists(ltcube):
                                 check = check + 1
                                 self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+f"- The path {ltcube} does not exist. Maybe you renamed the directory containing the ltcube_list.txt file. Give it a check.\n")
-
                 
                 if (len(self.white_box_spacecraft_file.text().split(' ')) > 1) or (len(self.white_box_Diffuse_dir.text().split(' ')) > 1) or (len(self.white_box_photon_dir.text().split(' ')) > 1):
                     check = check + 1
                     self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- The data paths cannot contain blank spaces. Please fix this before proceeding.\n")
             
+                list_of_photon_files = glob.glob(self.white_box_photon_dir.text()+"/*.fits")
+                if len(list_of_photon_files) == 0:
+                    check = check + 1
+                    print("No photon files found in the given directory.")
+                    self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- No photon files found in the given directory.\n")
+                
+                max_photon_energy= 0
+                for photon_file in list_of_photon_files:
+                    max_energy_in_the_file = pyfits.open(photon_file)[1].data["ENERGY"].max()
+                    if max_energy_in_the_file > max_photon_energy:
+                        max_photon_energy = max_energy_in_the_file
+                
+                if max_photon_energy > 0 and Energ[1] > 1.1*max_photon_energy:
+                    check = check + 1
+                    self.max_energy_wanning = f"The maximum energy is set to {Energ[1]} MeV, however, the highest energy photon in the dataset has only {max_photon_energy} MeV.\n\nPlease set Emax <= {max_photon_energy} MeV before proceeding."
+
+
             try:
                 if len(Coords) == 1:
                     self.recover_coords_from_name = Simbad.query_object(Coords[0])
@@ -1657,7 +1674,6 @@ class Ui_mainWindow(QDialog):
                         check = check + 1
                         self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Invalid coordinates. Try 0 <= RA <= 360 and -90 <= Dec <= 90.\n")
 
-                Energ = np.asarray(Energ).astype(float)
                 if (Energ[0] < Energ[1]) & (Energ[0] > 20) & (Energ[1] <= 10000000):
                     pass
                 else:
@@ -1668,22 +1684,6 @@ class Ui_mainWindow(QDialog):
                     check = check + 1
                     self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Stop time must be set to a date after start time.\n")
             
-                list_of_photon_files = glob.glob(self.white_box_photon_dir.text()+"/*.fits")
-                if len(list_of_photon_files) == 0:
-                    check = check + 1
-                    print("No photon files found in the given directory.")
-                    self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- No photon files found in the given directory.\n")
-                
-                max_photon_energy= 0
-                for photon_file in list_of_photon_files:
-                    max_energy_in_the_file = pyfits.open(photon_file)[1].data["ENERGY"].max()
-                    if max_energy_in_the_file > max_photon_energy:
-                        max_photon_energy = max_energy_in_the_file
-                
-                if max_photon_energy > 0 and Energ[1] > 1.1*max_photon_energy:
-                    check = check + 1
-                    self.max_energy_wanning = f"The maximum energy is set to {Energ[1]} MeV, however, the highest energy photon in the dataset has only {max_photon_energy} MeV.\n\nPlease set Emax <= {max_photon_energy} MeV before proceeding."
-
                 if check == 0:
                     answer = True
                 else:
