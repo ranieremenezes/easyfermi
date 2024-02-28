@@ -104,41 +104,37 @@ class Worker(QtCore.QObject):
     finished_download_photons = QtCore.pyqtSignal()
     progress = QtCore.pyqtSignal(int)
     
-    def __init__(self, ui):
-
-        self.ui = ui
-    
     def run_gtsetup(self):
         """Long-running task."""
         self.starting.emit()
-        self.ui.setFermipy()
+        ui.setFermipy()
         self.progress.emit(0)  # These numbers 0, 1, 2 etc defined by emit() enter as "n" in the function reportProgress(self,n)
-        self.ui.gta.setup()
+        ui.gta.setup()
         self.progress.emit(1)
-        N_iter_adaptive_LC = self.ui.analysisBasics()
+        N_iter_adaptive_LC = ui.analysisBasics()
         self.progress.emit(2)
-        calculate_Sun = self.ui.fit_model()
+        calculate_Sun = ui.fit_model()
         if calculate_Sun:
             self.progress.emit(3)
-            self.ui.Sun_path()
+            ui.Sun_path()
 
         self.progress.emit(4)
-        self.ui.relocalize_the_target()
+        ui.relocalize_the_target()
         self.progress.emit(5)
-        self.ui.compute_TSmap()
+        ui.compute_TSmap()
         self.progress.emit(6)
-        self.ui.compute_Extension()
+        ui.compute_Extension()
         self.progress.emit(7)
-        self.ui.compute_SED()
+        ui.compute_SED()
         self.progress.emit(8)
-        self.ui.EBL_and_MCMC()
+        ui.EBL_and_MCMC()
         self.progress.emit(9)
-        self.ui.compute_LC()
-        self.ui.plot_LCs(adaptive=False)
+        ui.compute_LC()
+        ui.plot_LCs(adaptive=False)
         self.progress.emit(10)
         for i in range(N_iter_adaptive_LC):
-            self.ui.compute_LC_adaptive()
-        self.ui.plot_LCs(adaptive=True)
+            ui.compute_LC_adaptive()
+        ui.plot_LCs(adaptive=True)
         self.progress.emit(11)
         self.finished.emit()
 
@@ -4023,12 +4019,12 @@ class Ui_mainWindow(QDialog):
             else:
                 plt.savefig(self.OutputDir+f'Quickplot_LC_{len(lc["ts"])}_bins.'+output_format,bbox_inches='tight')
 
-    
+app = QtWidgets.QApplication(sys.argv)
+mainWindow = QtWidgets.QMainWindow()
+ui = Ui_mainWindow()
 
 def main():
-    app = QtWidgets.QApplication(sys.argv)
-    mainWindow = QtWidgets.QMainWindow()
-    ui = Ui_mainWindow()
+
     ui.setupUi(mainWindow)
     mainWindow.show()
     sys.exit(app.exec_())
