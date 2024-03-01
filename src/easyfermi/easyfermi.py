@@ -1201,7 +1201,8 @@ class Ui_mainWindow(QDialog):
         if n == 1:
             self.progressBar.setProperty("value", 25)
             self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Setup finished.\n")
-            os.system('ls '+self.OutputDir+'ltcube_*.fits > '+self.OutputDir+'ltcube_list.txt')
+            if not self.checkBox_External_ltcube.isChecked():
+                os.system('ls '+self.OutputDir+'ltcube_*.fits > '+self.OutputDir+'ltcube_list.txt')
             list_of_photon_files = glob.glob(self.white_box_output_dir.text()+"/ft1*.fits")
             max_photon_energy= 0
             for photon_file in list_of_photon_files:
@@ -3246,33 +3247,33 @@ class Ui_mainWindow(QDialog):
 
             def lnprior_PowerLaw(theta):
                 N0, alpha = theta
-                if -15 < N0 < -8 and 0.5 < alpha < 5.0:
+                if -15 < N0 < -7 and 0.5 < alpha < 5.0:
                     return 0.0
                 return -np.inf
             
             def lnprior_LogPar(theta):
                 N0, alpha, beta = theta
-                if -15 < N0 < -8 and 1.0 < alpha < 4.0 and -1 < beta < 1.0:
+                if -15 < N0 < -7 and 1.0 < alpha < 4.0 and -1 < beta < 1.0:
                     return 0.0
                 return -np.inf
             
             def lnprior_LogPar2(theta):
                 Splog, alpha, Ep = theta
-                if -7 < Splog < -2 and -1.0 < alpha < 1.0 and 2 < Ep < 7:
+                if -7 < Splog < -1 and -1.0 < alpha < 1.0 and 2 < Ep < 7:
                     return 0.0
                 return -np.inf
             
             def lnprior_PLEC(theta):
                 N0, alpha, Ec, b = theta
                 # N0, alpha, Ec = theta
-                if -15 < N0 < -8 and 1.0 < alpha < 4.0 and 3.0 < Ec < 7.0 and 0.2 < b < 3.0:
+                if -15 < N0 < -7 and 1.0 < alpha < 4.0 and 3.0 < Ec < 7.0 and 0.2 < b < 3.0:
                     return 0.0
                 return -np.inf
             
             def lnprior_PLEC_bfix(theta):
                 N0, alpha, Ec = theta
                 # N0, alpha, Ec = theta
-                if -15 < N0 < -8 and 1.0 < alpha < 4.0 and 3.0 < Ec < 7.0:
+                if -15 < N0 < -7 and 1.0 < alpha < 4.0 and 3.0 < Ec < 7.0:
                     return 0.0
                 return -np.inf
 
