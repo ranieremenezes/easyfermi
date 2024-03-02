@@ -105,9 +105,9 @@ The main window of _easyfermi_ looks like this:
  <img width="100%" height="100%" src="/src/easyfermi/resources/images/easyFermiWindow.png">
 </p> 
 
-# Tutorials
+# Tutorials and Documentation
 
-Check for tutorials on the `easyfermi` YouTube channel:
+Check our tutorials on the `easyfermi` YouTube channel:
 
  <a href="https://www.youtube.com/channel/UCeLCfEoWasUKky6CPNN_opQ">
 
@@ -119,9 +119,8 @@ Check for tutorials on the `easyfermi` YouTube channel:
 - [Saving time using an external ltcube.](https://www.youtube.com/watch?v=jaNKL3jUfy8&ab_channel=easyFermi)
 - [Loading a previous analysis.](https://www.youtube.com/watch?v=EnbeujVh6wA&ab_channel=easyFermi)
 - [Selecting specific time intervals when building the SED](https://www.youtube.com/watch?v=BG3ldxJv7t4&ab_channel=easyFermi)
+- [Going to the sensitivity limit of Fermi-LAT](https://www.youtube.com/watch?v=2TpgRcXf24M&ab_channel=easyFermi)
 
-  
-# Documentation
 
 The documentation of `easyfermi` can be found [here](https://easyfermi.readthedocs.io/en/latest/index.html).
 
