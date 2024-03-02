@@ -115,13 +115,12 @@ Check for tutorials on the `easyfermi` YouTube channel:
 
  </a> 
 
-- Learn how to analyze Fermi-LAT data in 10 min
-  
- [![Watch the video](https://img.youtube.com/vi/Ny7aA9EBRUs/hqdefault.jpg)](https://youtu.be/Ny7aA9EBRUs)
-- Goodness of fit and advanced configurations
-  
- [![Watch the video](https://img.youtube.com/vi/OPMOsheCId8/hqdefault.jpg)](https://youtu.be/OPMOsheCId8)
+- [Learn how to analyze Fermi-LAT data under 10 min.](https://www.youtube.com/watch?v=utwvFsl67_4&t=5s&ab_channel=easyFermi)
+- [Saving time using an external ltcube.](https://www.youtube.com/watch?v=jaNKL3jUfy8&ab_channel=easyFermi)
+- [Loading a previous analysis.](https://www.youtube.com/watch?v=EnbeujVh6wA&ab_channel=easyFermi)
+- [Selecting specific time intervals when building the SED](https://www.youtube.com/watch?v=BG3ldxJv7t4&ab_channel=easyFermi)
 
+  
 # Documentation
 
 The documentation of `easyfermi` can be found [here](https://easyfermi.readthedocs.io/en/latest/index.html).
