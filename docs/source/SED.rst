@@ -67,12 +67,30 @@ The spectral models available for the MCMC are:
 Finally, we adopt 300 walkers, iterate them 500 times, and fix :math:`E_0 \equiv 2 E_{min}`, where :math:`E_{min}` is read from the graphical interface or from the customized configuration file.
 
 
-
-
-
 .. note::
 
    The upper limits (i.e. any energy bin with TS < 9) are not included in the MCMC parameter estimation.
+
+
+
+VHE table format
+----------------
+
+The format of the VHE data table is a standard SED table produced with ``gammapy`` 1.1.
+
+It will work with any **.fits** table, as long as this table contains the following columns in the first extension HDU (e.g. hdul[1].data):
+
+- **e_ref**, **e_min**, and **e_max**, all in TeV
+- **e2dnde**, **e2dnde_err**, **e2dnde_ul**, all in TeV cm-2 s-1
+- **ts**
+
+In the figure below we show you how this table should look like (this is actually **fake** data for Mrk 421).
+
+.. image:: ./VHE_table.png
+  :width: 700
+
+
+
 
 
 
