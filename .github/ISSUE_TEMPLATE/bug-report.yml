@@ -13,9 +13,9 @@ body:
     id: what-happened
     attributes:
       label: What happened?
-      description: Also tell us, what did you expect to happen?
+      description: Please be sure to detail the issue.
       placeholder: Tell us what you see!
-      value: "A bug happened!"
+      value: "A bug happened for the target XXXX, coords RA-DEC, energy range XXX-XXXX, time interval XXX-XXX. I was expecting to find the result X, but I found Y!"
     validations:
       required: true
   - type: textarea
