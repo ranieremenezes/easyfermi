@@ -47,7 +47,7 @@ distribute-*.tar.gz
 !src/easyfermi/resources/images/*.png
 !src/easyfermi/resources/images/*.jpg
 !environment.yml
-!.github/workflows/*.yml
+!.github/**/*.yml
 
 # ignore version cache file
 easyfermi/_version_cache.py
