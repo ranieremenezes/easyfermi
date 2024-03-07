@@ -1,0 +1,13 @@
+name: Feature request
+description: Suggest an idea to make easyfermi better!
+title: "[Feature request]: "
+labels: ["enhancement", "suggestion"]
+
+body:
+- type: textarea
+  id: what
+  attributes:
+    label: Describe the solution you would like
+    description: A clear and concise description of why this feature is needed.
+  validations:
+    required: true
