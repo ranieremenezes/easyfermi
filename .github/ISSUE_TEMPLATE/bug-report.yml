@@ -15,7 +15,7 @@ body:
       label: What happened?
       description: Please be sure to detail the issue.
       placeholder: Tell us what you see!
-      value: "A bug happened for the target XXXX, coords RA-DEC, energy range XXX-XXXX, time interval XXX-XXX. I was expecting to find the result X, but I found Y!"
+      value: "A bug happened for the target XXXX, coords RA-DEC, energy range XXX-XXXX, time interval XXX-XXX. I was expecting to find the result X, but I found Y!\nI am also attaching a screenshot with the easyfermi window."
     validations:
       required: true
   - type: textarea
