@@ -32,7 +32,7 @@ If you would like to support `easyfermi`'s maintenance, consider buying us a cof
 
 The following instructions assume an installation of `conda` or `mamba` (i.e. a faster version of `conda`).
 
-### Conda-based installation 
+### Mamba-based installation 
 
 In the terminal, run:
 <pre><code>mamba create --name easyfermi -c conda-forge -c fermi python=3.9 "fermitools>=2.2.0" "healpy=1.16.1" "gammapy=1.1" "scipy=1.10.1" "astropy=5.3.3" "pyqt=5.15.9" "astroquery=0.4.6" "psutil=5.9.8" "emcee=3.1.4" "corner=2.2.2"</code></pre>
@@ -48,7 +48,7 @@ This will create the virtual environment and install all dependencies. Then acti
 <pre><code>alias easyfermi="mamba activate easyfermi && python -c 'import easyfermi'"</code></pre>
 substituting _miniforge_ and _mamba_ by e.g. _anaconda_ and _conda_ if needed. This line of command depends on which distribution of Python you installed and how you set up the _mamba/conda_ environment.
 
-### Cloning the repository installation
+### Installation for developers
 
 Another option to install `easyfermi` is by cloning the GitHub repository:
 <pre><code>git clone https://github.com/ranieremenezes/easyfermi.git</code></pre>
@@ -57,13 +57,6 @@ Then change to the `easyfermi` directory and create the environment:
 <pre><code>cd easyfermi</code></pre>
 <pre><code>mamba env create -f environment.yml</code></pre>
 <pre><code>mamba activate easyfermi</code></pre>
-
-#### For users:
-
-Install `easyfermi`:
-<pre><code>pip install --no-deps easyfermi</code></pre>
-
-#### For developers:
 
 Install `easyfermi` in editable mode:
 <pre><code>pip install -e .</code></pre>
