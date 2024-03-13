@@ -80,7 +80,7 @@ In the terminal, run:
 
 # Running
 
-If you defined the variable _easyfermi_ in your shell environment (see **Installing**), simply type the following in the terminal:
+If you defined the variable _easyfermi_ in your shell environment (see **Installation**), simply type the following in the terminal:
 <pre><code>easyfermi</code></pre>
 
 Otherwise, type:
