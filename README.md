@@ -38,8 +38,8 @@ In the terminal, run:
 <pre><code>mamba create --name easyfermi -c conda-forge -c fermi python=3.9 "fermitools>=2.2.0" "healpy=1.16.1" "gammapy=1.1" "scipy=1.10.1" "astropy=5.3.3" "pyqt=5.15.9" "astroquery=0.4.6" "psutil=5.9.8" "emcee=3.1.4" "corner=2.2.2"</code></pre>
 
 This will create the virtual environment and install all dependencies. Then activate the environment and install _fermipy_ and _easyfermi_:
-<pre><code>mamba activate easyfermi</code></pre>
-<pre><code>pip install fermipy easyfermi</code></pre>
+<pre><code>mamba activate easyfermi
+pip install fermipy easyfermi</code></pre>
 
 - (ONLY FOR WINDOWS) Install the `libgl1` package:
 <pre><code>sudo apt-get install libgl1</code></pre>
@@ -54,9 +54,9 @@ Another option to install `easyfermi` is by cloning the GitHub repository:
 <pre><code>git clone https://github.com/ranieremenezes/easyfermi.git</code></pre>
 
 Then change to the `easyfermi` directory and create the environment:
-<pre><code>cd easyfermi</code></pre>
-<pre><code>mamba env create -f environment.yml</code></pre>
-<pre><code>mamba activate easyfermi</code></pre>
+<pre><code>cd easyfermi
+mamba env create -f environment.yml
+mamba activate easyfermi</code></pre>
 
 Install `easyfermi` in editable mode:
 <pre><code>pip install -e .</code></pre>
