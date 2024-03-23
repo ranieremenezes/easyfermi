@@ -88,10 +88,26 @@ In the figure below we show you how this table should look like (this is actuall
 
 .. image:: ./VHE_table.png
   :width: 700
+  
+  
+Model selection with the Akaike information criterion 
+-----------------------------------------------------
 
+As a tool for model selection, ``easyfermi`` provides the `Akaike information criterion (AIC) <https://en.wikipedia.org/wiki/Akaike_information_criterion>`_. The AIC is printed in the ``easyfermi`` log and saved in the files *Target_results.txt* and *TARGET_NAME_sed.fits*.
 
+We use a slightly modified form of this method defined as:
 
+:math:`AIC = 2k + 2ln(-\mathcal{L}_{max})`,
 
+where *k* is the number of free parameters in the given model, and :math:`\mathcal{L}_{max}` is the maximized likelihood function defined above.
+
+Given a set of candidate models for the data, the preferred model is the one with the minimum AIC value. For the same dataset, two spectral models can be compared by the following expression:
+
+:math:`e^{(AIC_{min} − AIC_{test})/2}`.
+
+For instance, let's suppose that you have the spectral data for Mrk 421 and you try to fit this data with a power law (PL) and then with a log-parabola (LP). Let's also suppose that :math:`AIC_{PL} = 6.1` and :math:`AIC_{LP} = 7.5`. Since the minimum AIC is achieved for the PL model, this means that the LP model is
+
+:math:`e^{(6.1 − 8.5)/2} = 0.301` times as probable as the power-law model to minimize the information loss.
 
 
 
