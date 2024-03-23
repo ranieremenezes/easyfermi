@@ -957,7 +957,7 @@ class Ui_mainWindow(QDialog):
         self.label_dir_diffuse.setToolTip("Directory containing the diffuse emission files (e.g. gll_iem_v07.fits and iso_P8R3_SOURCE_V3_v1.txt).")
         self.label_RAandDec.setToolTip("J2000 coordinates in degrees.\nIf you are connected to the internet, you can type the target name, e.g.: M31 or NGC 1275.")
         self.checkBox_highest_resolution.setToolTip('Check this box to increase angular resolution at the cost of decreasing by nearly half the sensitivity.\nThis method will select only PSF 2 and 3 events.\nIf combined with the "Improve sensitivity" option below, it will select:\n- PSF 2 and 3 events below 500 MeV.\n- PSF 1, 2 and 3 events between 500 MeV and 1000 MeV.\n- All events above 1000 MeV.')
-        self.checkBox_high_sensitivity.setToolTip("Check this box to slightly improve sensitivity (less than 5%) at high energies at the cost of a longer analysis.\nThis will be useful as long as E_min < 1000 MeV.")
+        self.checkBox_high_sensitivity.setToolTip("Check this box to slightly improve sensitivity at high energies at the cost of a longer analysis.\nThis method uses a stacked component analysis with different zenith angle cuts for different energy ranges.\nThis method will be useful as long as E_min < 1000 MeV.")
         self.checkBox_diagnostic_plots.setToolTip("Check this box to compute a series of diagnostic plots (e.g.: distance between the target and the Sun).")
         self.checkBox_adaptive_binning.setToolTip("Check this box to compute an adaptive-binning light curve.\nThis process can take quite a long time.\nTry running it with more than 1 core.")
         self.checkBox_use_local_index.setToolTip("Check to use a power-law approximation to the shape of the global spectrum in each energy bin. If not checked, a constant index will be used.")
@@ -1286,6 +1286,10 @@ class Ui_mainWindow(QDialog):
             if self.include_VHE is False:
                 self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- VHE data not available.\n")
 
+            if self.allow_MCMC:
+                AIC = round(float(self.AIC),3)
+                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+f"- Akaike information criterion: {AIC}\n")
+
             if self.checkBox_LC.isChecked():
                 self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Computing light curve.\n")
         
@@ -1332,6 +1336,8 @@ class Ui_mainWindow(QDialog):
         window active even when the analysis is running.
         """
         
+        self.save_GUIstate()
+
         can_we_go = self.check_for_erros()
         
         if can_we_go:
@@ -1386,6 +1392,9 @@ class Ui_mainWindow(QDialog):
         in the output directory. The user can latter use this file to recover the
         state of the GUI.
         """
+
+        output_dir = Path(self.white_box_output_dir.text())
+        self.OutputDir = str(output_dir.parent.resolve())+'/'+output_dir.name+'/'
 
         state = {}
 
@@ -2979,6 +2988,53 @@ class Ui_mainWindow(QDialog):
 
             self.sed = self.gta.sed(self.sourcename,loge_bins=ebins,make_plots=False,use_local_index=use_local_index,write_npy=False)
 
+            #########################################################
+            ########### Looking for SED bins with less than 5 photons
+            #########################################################
+
+            # If the analysis goes over 10 GeV, we check the total number of photons per SED bin within a radius of 0.25 deg from the RoI center:
+            ebins_array = np.asarray(ebins)
+            ebins_array = ebins_array[ebins_array > 4]
+            if len(ebins_array) > 0: 
+                photon_file = glob.glob(self.white_box_output_dir.text()+"/ft1*.fits")[-1]  # Selecting only the highest energy photon file (supposing we only have one for E > 10GeV).
+                photon_energies = pyfits.open(photon_file)[1].data["ENERGY"]
+                photon_RA = pyfits.open(photon_file)[1].data["RA"][photon_energies>10000]
+                photon_DEC = pyfits.open(photon_file)[1].data["DEC"][photon_energies>10000]
+                photon_energies = photon_energies[photon_energies>10000]
+
+                target_RA = float(self.RA)
+                target_Dec = float(self.Dec)
+                Coords_target = SkyCoord(target_RA, target_Dec, frame='icrs', unit='deg')
+
+                self.few_photons_warning = np.zeros(len(ebins_array)-1)
+
+                for n in range(len(ebins_array[:-1])):
+                    indexes = np.where((photon_energies>10**ebins_array[n]) & (photon_energies<10**ebins_array[n+1]) & (photon_DEC > target_Dec-0.5) & (photon_DEC < target_Dec+0.5))[0]
+                    selection_photon_RA = photon_RA[indexes]
+                    selection_photon_DEC = photon_DEC[indexes]
+
+                    Coords_photons = SkyCoord(selection_photon_RA, selection_photon_DEC, frame='icrs', unit='deg')
+                    photon_separation = Coords_photons.separation(Coords_target).value  # Separation in degrees
+                    photon_separation = photon_separation[photon_separation < 0.5]
+                    if len(photon_separation) < 5:
+                        self.few_photons_warning[n] = 1  # This warns taht we have less than 5 photons in this bin.
+                
+                self.few_photons_warning = np.concatenate([np.zeros(len(ebins)-len(ebins_array)),self.few_photons_warning])
+
+                SED_file = glob.glob(self.OutputDir+"*_sed.fits")[0]
+                hdul = pyfits.open(SED_file)
+                original_data_cols = hdul[1].data.columns
+                new_col_warnings = pyfits.Column(name="Warning_few_photons",array=self.few_photons_warning,format="D",unit="")             
+                all_cols = pyfits.BinTableHDU.from_columns(original_data_cols + new_col_warnings)
+                hdul[1].data = all_cols.data
+                hdul[1].name = "SED"
+                hdul.writeto(SED_file,overwrite=True)
+                hdul.close()
+
+            #########################################################
+
+
+
             # The block of code below is useful only to fix an error in the Mac OS, where the TS column of the sed.fits file is empty.
             NaNs_TSs = self.sed['ts'][np.isnan(self.sed['ts'])]
             if len(NaNs_TSs) > 0:
@@ -2991,15 +3047,20 @@ class Ui_mainWindow(QDialog):
                 hdul.writeto(SED_file,overwrite=True)
                 hdul.close()
 
-            
+            # data points:            
             self.Energy_data_points = self.sed['e_ctr'][self.sed['ts']>TSmin]
             self.e2dnde_data_points = self.sed['e2dnde'][self.sed['ts']>TSmin]
             self.xerr_data_points = [self.sed['e_ctr'][self.sed['ts']>TSmin] - self.sed['e_min'][self.sed['ts']>TSmin], self.sed['e_max'][self.sed['ts']>TSmin] - self.sed['e_ctr'][self.sed['ts']>TSmin]]
             self.yerr_data_points = self.sed['e2dnde_err'][self.sed['ts']>TSmin]
+            # Upper limits:
             self.Energy_uplims = self.sed['e_ctr'][self.sed['ts']<=TSmin]
             self.e2dnde_uplims = self.sed['e2dnde_ul95'][self.sed['ts']<=TSmin]
             self.xerr_uplims = [self.sed['e_ctr'][self.sed['ts']<=TSmin] - self.sed['e_min'][self.sed['ts']<=TSmin], self.sed['e_max'][self.sed['ts']<=TSmin] - self.sed['e_ctr'][self.sed['ts']<=TSmin]]
             self.yerr_uplims = 0.3*self.sed['e2dnde_ul95'][self.sed['ts']<=TSmin]
+            # Warnings:
+            self.few_photons_warning = self.few_photons_warning[self.sed['ts']>TSmin]
+            self.energy_SED_warning = self.Energy_data_points[self.few_photons_warning > 0]
+            self.e2dnde_SED_warning = self.e2dnde_data_points[self.few_photons_warning > 0]
 
 
             f = plt.figure(figsize=(6,5),dpi=250)
@@ -3016,6 +3077,8 @@ class Ui_mainWindow(QDialog):
             plt.loglog(self.E, (self.E**2)*dnde_lo, 'k')
             plt.errorbar(self.Energy_data_points, self.e2dnde_data_points, xerr = self.xerr_data_points, yerr = self.yerr_data_points, color = "C0", markeredgecolor='black', fmt ='o', capsize=4)
             plt.errorbar(self.Energy_uplims, self.e2dnde_uplims, xerr = self.xerr_uplims, yerr = self.yerr_uplims, markeredgecolor='black', fmt='o', uplims=True, color='C0', capsize=4)
+            if len(self.energy_SED_warning) > 0:
+                plt.plot(self.energy_SED_warning,self.e2dnde_SED_warning,"mo",zorder=100,label="Less than 5 photons")
             plt.xlabel('Energy [MeV]')
             plt.ylabel(r'E$^{2}$ dN/dE [MeV cm$^{-2}$ s$^{-1}$]')
             plt.title(self.sourcename+' - SED')
@@ -3044,6 +3107,7 @@ class Ui_mainWindow(QDialog):
             
             plt.ylim(ymin,ymax)
             plt.xlim(self.Emin*0.8,self.Emax*1.2)
+            plt.legend()
             plt.tight_layout()
             plt.savefig(self.OutputDir+'Quickplot_SED_fermipy.'+output_format,bbox_inches='tight')
 
@@ -3409,6 +3473,8 @@ class Ui_mainWindow(QDialog):
             add_results.write("Model: "+self.comboBox_MCMC.currentText()+"\n")
             samples = sampler.flatchain
             theta_max = samples[np.argmax(sampler.flatlnprobability)]
+            self.AIC = 2*len(theta_max) + 2*np.log(-lnlike(theta_max, data[0], data[1], data[2]))  # Akaike information criterion
+
             if self.comboBox_MCMC.currentText() == "LogPar":
                 best_fit_model = LogPar(theta_max, x)
                 N0 = np.quantile(samples[:,0],q=[0.16,0.5,0.84])
@@ -3417,10 +3483,11 @@ class Ui_mainWindow(QDialog):
                 add_results.write(f"N0 (log scale): {N0[1]} - {N0[1]-N0[0]} + {N0[2]-N0[1]}\n")
                 add_results.write(f"Alpha: {Alpha[1]} - {Alpha[1]-Alpha[0]} + {Alpha[2]-Alpha[1]}\n")
                 add_results.write(f"Beta: {Beta[1]} - {Beta[1]-Beta[0]} + {Beta[2]-Beta[1]}\n")
-                c1 = np.array(["N0 (log scale)","Alpha","Beta","Ep=2*Emin (log scale)"])
-                c2 = np.array([N0[1],Alpha[1],Beta[1],np.log10(2*self.Emin)])
-                c3 = np.array([N0[1]-N0[0],Alpha[1]-Alpha[0],Beta[1]-Beta[0],0])
-                c4 = np.array([N0[2]-N0[1],Alpha[2]-Alpha[1],Beta[2]-Beta[1],0])
+                add_results.write(f"Akaike information criterion: {self.AIC}\n")
+                c1 = np.array(["N0 (log scale)","Alpha","Beta","Ep=2*Emin (log scale)", "Akaike_IC"])
+                c2 = np.array([N0[1],Alpha[1],Beta[1],np.log10(2*self.Emin),self.AIC])
+                c3 = np.array([N0[1]-N0[0],Alpha[1]-Alpha[0],Beta[1]-Beta[0],0,0])
+                c4 = np.array([N0[2]-N0[1],Alpha[2]-Alpha[1],Beta[2]-Beta[1],0,0])
                 c1 = pyfits.Column(name='Parameter', array=c1, format='22A')
                 c2 = pyfits.Column(name='Value', array=c2, format='D')
                 c3 = pyfits.Column(name='error_minus', array=c3, format='D')
@@ -3439,10 +3506,11 @@ class Ui_mainWindow(QDialog):
                 add_results.write(f"N0 (log scale): {N0[1]} - {N0[1]-N0[0]} + {N0[2]-N0[1]}\n")
                 add_results.write(f"Alpha: {Alpha[1]} - {Alpha[1]-Alpha[0]} + {Alpha[2]-Alpha[1]}\n")
                 add_results.write(f"Ep (log scale): {Ep[1]} - {Ep[1]-Ep[0]} + {Ep[2]-Ep[1]}\n")
-                c1 = np.array(["N0 (log scale)","Alpha","Ep (log scale)"])
-                c2 = np.array([N0[1],Alpha[1],Ep[1]])
-                c3 = np.array([N0[1]-N0[0],Alpha[1]-Alpha[0],Ep[1]-Ep[0]])
-                c4 = np.array([N0[2]-N0[1],Alpha[2]-Alpha[1],Ep[2]-Ep[1]])
+                add_results.write(f"Akaike information criterion: {self.AIC}\n")
+                c1 = np.array(["N0 (log scale)","Alpha","Ep (log scale)", "Akaike_IC"])
+                c2 = np.array([N0[1],Alpha[1],Ep[1],self.AIC])
+                c3 = np.array([N0[1]-N0[0],Alpha[1]-Alpha[0],Ep[1]-Ep[0],0])
+                c4 = np.array([N0[2]-N0[1],Alpha[2]-Alpha[1],Ep[2]-Ep[1],0])
                 c1 = pyfits.Column(name='Parameter', array=c1, format='22A')
                 c2 = pyfits.Column(name='Value', array=c2, format='D')
                 c3 = pyfits.Column(name='error_minus', array=c3, format='D')
@@ -3463,10 +3531,11 @@ class Ui_mainWindow(QDialog):
                 add_results.write(f"Alpha: {Alpha[1]} - {Alpha[1]-Alpha[0]} + {Alpha[2]-Alpha[1]}\n")
                 add_results.write(f"Ec: {Ec[1]} - {Ec[1]-Ec[0]} + {Ec[2]-Ec[1]}\n")
                 add_results.write(f"b: {b[1]} - {b[1]-b[0]} + {b[2]-b[1]}\n")
-                c1 = np.array(["N0 (log scale)","Alpha","Ec","b","Ep=2*Emin (log scale)"])
-                c2 = np.array([N0[1],Alpha[1],Ec[1],b[1],np.log10(2*self.Emin)])
-                c3 = np.array([N0[1]-N0[0],Alpha[1]-Alpha[0],Ec[1]-Ec[0],b[1]-b[0],0])
-                c4 = np.array([N0[2]-N0[1],Alpha[2]-Alpha[1],Ec[2]-Ec[1],b[2]-b[1],0])
+                add_results.write(f"Akaike information criterion: {self.AIC}\n")
+                c1 = np.array(["N0 (log scale)","Alpha","Ec","b","Ep=2*Emin (log scale)", "Akaike_IC"])
+                c2 = np.array([N0[1],Alpha[1],Ec[1],b[1],np.log10(2*self.Emin),self.AIC])
+                c3 = np.array([N0[1]-N0[0],Alpha[1]-Alpha[0],Ec[1]-Ec[0],b[1]-b[0],0,0])
+                c4 = np.array([N0[2]-N0[1],Alpha[2]-Alpha[1],Ec[2]-Ec[1],b[2]-b[1],0,0])
                 c1 = pyfits.Column(name='Parameter', array=c1, format='22A')
                 c2 = pyfits.Column(name='Value', array=c2, format='D')
                 c3 = pyfits.Column(name='error_minus', array=c3, format='D')
@@ -3487,10 +3556,11 @@ class Ui_mainWindow(QDialog):
                 add_results.write(f"Alpha: {Alpha[1]} - {Alpha[1]-Alpha[0]} + {Alpha[2]-Alpha[1]}\n")
                 add_results.write(f"Ec: {Ec[1]} - {Ec[1]-Ec[0]} + {Ec[2]-Ec[1]}\n")
                 add_results.write("b: 1\n")
-                c1 = np.array(["N0 (log scale)","Alpha","Ec","b","Ep=2*Emin (log scale)"])
-                c2 = np.array([N0[1],Alpha[1],Ec[1],1,np.log10(2*self.Emin)])
-                c3 = np.array([N0[1]-N0[0],Alpha[1]-Alpha[0],Ec[1]-Ec[0],0,0])
-                c4 = np.array([N0[2]-N0[1],Alpha[2]-Alpha[1],Ec[2]-Ec[1],0,0])
+                add_results.write(f"Akaike information criterion: {self.AIC}\n")
+                c1 = np.array(["N0 (log scale)","Alpha","Ec","b","Ep=2*Emin (log scale)", "Akaike_IC"])
+                c2 = np.array([N0[1],Alpha[1],Ec[1],1,np.log10(2*self.Emin),self.AIC])
+                c3 = np.array([N0[1]-N0[0],Alpha[1]-Alpha[0],Ec[1]-Ec[0],0,0,0])
+                c4 = np.array([N0[2]-N0[1],Alpha[2]-Alpha[1],Ec[2]-Ec[1],0,0,0])
                 c1 = pyfits.Column(name='Parameter', array=c1, format='22A')
                 c2 = pyfits.Column(name='Value', array=c2, format='D')
                 c3 = pyfits.Column(name='error_minus', array=c3, format='D')
@@ -3507,10 +3577,11 @@ class Ui_mainWindow(QDialog):
                 Alpha = np.quantile(samples[:,1],q=[0.16,0.5,0.84])
                 add_results.write(f"N0 (log scale): {N0[1]} - {N0[1]-N0[0]} + {N0[2]-N0[1]}\n")
                 add_results.write(f"Alpha: {Alpha[1]} - {Alpha[1]-Alpha[0]} + {Alpha[2]-Alpha[1]}\n")
-                c1 = np.array(["N0 (log scale)","Alpha","Ep=2*Emin (log scale)"])
-                c2 = np.array([N0[1],Alpha[1],np.log10(2*self.Emin)])
-                c3 = np.array([N0[1]-N0[0],Alpha[1]-Alpha[0],0])
-                c4 = np.array([N0[2]-N0[1],Alpha[2]-Alpha[1],0])
+                add_results.write(f"Akaike information criterion: {self.AIC}\n")
+                c1 = np.array(["N0 (log scale)","Alpha","Ep=2*Emin (log scale)", "Akaike_IC"])
+                c2 = np.array([N0[1],Alpha[1],np.log10(2*self.Emin),self.AIC])
+                c3 = np.array([N0[1]-N0[0],Alpha[1]-Alpha[0],0,0])
+                c4 = np.array([N0[2]-N0[1],Alpha[2]-Alpha[1],0,0])
                 c1 = pyfits.Column(name='Parameter', array=c1, format='22A')
                 c2 = pyfits.Column(name='Value', array=c2, format='D')
                 c3 = pyfits.Column(name='error_minus', array=c3, format='D')
@@ -3565,12 +3636,21 @@ class Ui_mainWindow(QDialog):
             ax.tick_params(bottom=True, top=True, left=True, right=True)
             ax.grid(linestyle=':',which='both')
 
+
             alpha_original_data = 1
             color_original_data = "C0"
             color_original_VHE_data = "C1"
             if self.redshift > 0.0:
+                # Warnings:
+                if self.include_VHE:
+                    self.e2dnde_SED_warning = dnde_data_points_deabsorbed[:-N_bins_VHE][self.few_photons_warning > 0]
+                else:
+                    self.e2dnde_SED_warning = dnde_data_points_deabsorbed[self.few_photons_warning > 0]
+                # Plots:
                 plt.errorbar(Energy_SED, dnde_data_points_deabsorbed*(Energy_SED**2), xerr=Energy_err_SED, yerr=dnde_error_deabsorbed*(Energy_SED**2), color="C0", markeredgecolor="black", ecolor="black", zorder = 130, fmt="o", label="Fermi-LAT EBL corrected")
                 plt.errorbar(self.Energy_uplims, e2dnde_uplims_deabsorbed, xerr=self.xerr_uplims, yerr=yerr_uplims_deabsorbed, uplims=True, color="C0", markeredgecolor="black", ecolor="black", zorder = 130, fmt="o")
+                if len(self.energy_SED_warning) > 0.0:
+                    plt.plot(self.energy_SED_warning,self.e2dnde_SED_warning*(self.energy_SED_warning**2),"mo", zorder = 131,label="Less than 5 photons")
                 if self.include_VHE:
                     plt.errorbar(Energy_SED[-N_bins_VHE:], dnde_data_points_deabsorbed[-N_bins_VHE:]*(Energy_SED[-N_bins_VHE:]**2), xerr=[Energy_err_SED[0][-N_bins_VHE:], Energy_err_SED[1][-N_bins_VHE:]], yerr=dnde_error_deabsorbed[-N_bins_VHE:]*(Energy_SED[-N_bins_VHE:]**2), color="C1", markeredgecolor="black", ecolor="black", zorder = 130, fmt="o", label="VHE EBL corrected")
                     plt.errorbar(self.Energy_uplims[-N_bins_VHE_UL:], e2dnde_uplims_deabsorbed[-N_bins_VHE_UL:], xerr=[self.xerr_uplims[0][-N_bins_VHE_UL:], self.xerr_uplims[1][-N_bins_VHE_UL:]], yerr=yerr_uplims_deabsorbed[-N_bins_VHE_UL:], uplims=True, color="C1", markeredgecolor="black", ecolor="black", zorder = 130, fmt="o")
@@ -3582,7 +3662,11 @@ class Ui_mainWindow(QDialog):
             plt.errorbar(Energy_SED, dnde_SED*(Energy_SED**2), xerr=Energy_err_SED, yerr=dnde_err_SED*(Energy_SED**2), color=color_original_data, alpha = alpha_original_data, zorder = 120, fmt="o", label="Fermi-LAT")
             if self.include_VHE:
                 plt.errorbar(Energy_SED[-N_bins_VHE:], dnde_SED[-N_bins_VHE:]*(Energy_SED[-N_bins_VHE:]**2), xerr=[Energy_err_SED[0][-N_bins_VHE:], Energy_err_SED[1][-N_bins_VHE:]], yerr=dnde_err_SED[-N_bins_VHE:]*(Energy_SED[-N_bins_VHE:]**2), color=color_original_VHE_data, alpha = alpha_original_data, zorder = 120, fmt="o", label="VHE instrument")
-            
+            if self.redshift == 0.0:
+                if len(self.energy_SED_warning) > 0.0:
+                    plt.plot(self.energy_SED_warning,self.e2dnde_SED_warning,"mo", zorder = 131,label="Less than 5 photons")
+
+
             plt.errorbar(self.Energy_uplims, self.e2dnde_uplims, xerr=self.xerr_uplims, yerr=self.yerr_uplims, uplims=True, color=color_original_data, alpha = alpha_original_data, zorder = 120, fmt="o")
             if self.include_VHE:
                 plt.errorbar(self.Energy_uplims[-N_bins_VHE_UL:], self.e2dnde_uplims[-N_bins_VHE_UL:], xerr=[self.xerr_uplims[0][-N_bins_VHE_UL:], self.xerr_uplims[1][-N_bins_VHE_UL:]], yerr=self.yerr_uplims[-N_bins_VHE_UL:], uplims=True, color=color_original_VHE_data, alpha = alpha_original_data, zorder = 120, fmt="o")
@@ -3617,7 +3701,10 @@ class Ui_mainWindow(QDialog):
                     ymin = (dnde_SED*(Energy_SED**2)).min()/5.0
                     
                 if len(self.e2dnde_uplims) > 0:
-                    yaux = self.e2dnde_uplims.max()
+                    if self.redshift > 0.0:
+                        yaux = e2dnde_uplims_deabsorbed.max()
+                    else:
+                        yaux = self.e2dnde_uplims.max()
                     if yaux > ymax:
                         ymax = 2*yaux
                         
