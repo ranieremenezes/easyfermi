@@ -32,7 +32,7 @@ Where the only difference is that for Mac OS we do not parallelize the computati
 
 * **N_Bins**: The number of time bins set up in the graphical interface as "**N° of time bins**".
 
-* **Radius**: All sources within this radius (centered on the target) are free to vary in the fit, and **easyfermi** always set this radius as half of the RoI width. See :ref:`basic`.
+* **Radius**: All sources within this radius (centered on the target) are free to vary in the fit. This radius is set as half of the RoI width (see :ref:`basic`) or defined by the user within the box "Radius" within the "Fine-tuning the fit" box.
 
 * **N_cores**: Number of cores read from the graphical interface as "**N° cores**".
 
