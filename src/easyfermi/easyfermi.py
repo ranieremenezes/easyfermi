@@ -3009,7 +3009,7 @@ class Ui_mainWindow(QDialog):
                 self.few_photons_warning = np.zeros(len(ebins_array)-1)
 
                 for n in range(len(ebins_array[:-1])):
-                    indexes = np.where((photon_energies>10**ebins_array[n]) & (photon_energies<10**ebins_array[n+1]) & (photon_DEC > target_Dec-0.5) & (photon_DEC < target_Dec+0.5))[0]
+                    indexes = np.where((photon_energies>10**ebins_array[n]) & (photon_energies<10**ebins_array[n+1]) & (photon_DEC > target_Dec-0.6) & (photon_DEC < target_Dec+0.6))[0]
                     selection_photon_RA = photon_RA[indexes]
                     selection_photon_DEC = photon_DEC[indexes]
 
@@ -3808,9 +3808,9 @@ class Ui_mainWindow(QDialog):
         if self.checkBox_LC.isChecked() and self.Compute_LC:
             #Running the LC in parallel cores is possible only in Linux systems:
             if OS_name != "Darwin":
-                self.gta.lightcurve(self.sourcename, nbins=self.spinBox_LC_N_time_bins.value(), free_radius=self.roiwidth/2,use_local_ltcube=True, use_scaled_srcmap=True, free_params=['norm','shape'], shape_ts_threshold=9, multithread=True, nthread=self.spinBox_N_cores_LC.value())
+                self.gta.lightcurve(self.sourcename, nbins=self.spinBox_LC_N_time_bins.value(), free_radius=self.freeradius,use_local_ltcube=True, use_scaled_srcmap=True, free_params=['norm','shape'], shape_ts_threshold=9, multithread=True, nthread=self.spinBox_N_cores_LC.value())
             else:
-                self.gta.lightcurve(self.sourcename, nbins=self.spinBox_LC_N_time_bins.value(), free_radius=self.roiwidth/2,use_local_ltcube=True, use_scaled_srcmap=True, free_params=['norm','shape'], shape_ts_threshold=9, multithread=False)
+                self.gta.lightcurve(self.sourcename, nbins=self.spinBox_LC_N_time_bins.value(), free_radius=self.freeradius,use_local_ltcube=True, use_scaled_srcmap=True, free_params=['norm','shape'], shape_ts_threshold=9, multithread=False)
             
             if not os.path.exists(self.OutputDir+"Light_curve_001"):
                 os.mkdir(self.OutputDir+"Light_curve_001")
