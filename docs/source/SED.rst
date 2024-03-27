@@ -110,5 +110,17 @@ For instance, let's suppose that you have the spectral data for Mrk 421 and you 
 :math:`e^{(6.1 − 8.5)/2} = 0.301` times as probable as the power-law model to minimize the information loss.
 
 
+Data points with less than 5 photons
+------------------------------------
+
+The likelihood ratio method adopted in the fermitools, fermipy and easyfermi attributes higher significance to higher energy photons, such that a couple of photons with energies > 100 GeV can easily reach TS > 25. For source detection, this is perfectly fine, since the background at these energies is relatively low and the photon/hadron separation and direction reconstructed by LAT are much better than at low energies (e.g. below 1 GeV). This means that if you detect 2 photons with more than 100 GeV coming from the same position in the sky, it is indeed very likely that there is a gamma-ray source there.
+
+There is, however, a subtle but important difference between being able to detect a source and being able to measure its flux. When trying to build an SED, for instance, the highest-energy bins may have only a few photons and still give you relatively high TSs. In the figure below, we show the spectrum of Mrk 421 observed over 2 months. We see that the highest-energy bins have TSs ~ 60, although we have only 2 or 3 photons for each bin. The differential flux measurements with such a low number of photons is prone to strong fluctuations that can possibly affect the modeling of the SED. Furthermore, we cannot trust statistical error bars if the measurement is not done in a statistically valid sample (i.e. a large number of counts).
+
+In easyfermi, we warn the users about this issue by checking how many photons within a radius of 0.5° from the RoI center are detected for all the SED bins with energies > 10 GeV. If a specific bin has less than 5 photons, it will apear as a magenta point in the SED quickplot. These warnings are saved in the column "Warning_few_photons" in the TARGET_NAME_sed.fits file and can help the users in the task of selecting or not these data points when trying to fit a model.
+
+.. image:: ./SED_Mrk421_GitHub.png
+  :width: 700
+
 
 
