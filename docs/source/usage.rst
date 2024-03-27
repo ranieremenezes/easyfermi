@@ -1,10 +1,14 @@
+=====
 Usage
 =====
 
 .. _installation:
 
 Installation
-------------
+============
+
+Users
+-----
 
 To use ``easyfermi``, first install the fermitools environment using mamba (or conda):
 
@@ -29,12 +33,22 @@ Then activate the environment and install ``fermipy`` and ``easyfermi``:
 
 .. code-block:: console
 
-    $ alias easyfermi="mamba activate easyfermi && python -c 'import easyfermi'"
+    $ alias easyfermi="mamba activate easyfermi && easyfermi"
     
 substituting miniforge and mamba by e.g. anaconda and conda if needed. This line of command depends on which distribution of Python you installed and how you set up the mamba/conda environment.
 
+Developers
+----------
+
+1. create and activate the conda/mamba environment as for a released installation
+
+2. install `easyfermi` in editable mode with the developer extras (``pip install -e .[dev]``)
+
 Upgrading
-----------------
+=========
+
+Users
+-----
 
 You can check your currently installed version of easyfermi with pip show:
 
@@ -50,8 +64,22 @@ If you have **easyfermi 2.0.X** installed, upgrade your installation to the late
     
 If instead, you have **easyfermi 1.X.X** installed, please install easyfermi V2 following section :ref:`installation`.
 
+Developers
+----------
+
+1. commit, stash or revert any pending changes
+2. switch to the default branch (``git switch main``)
+3. pull the latest changes (``git pull``)
+4. re-install the package in editable mode with the developer extras (``pip install -e .[dev]``)
+
+.. important::
+
+    If you are working from a forked repository
+    make sure to pull from the upstream default branch
+    and not yours.
+
 Uninstalling
-----------------
+============
 
 In the terminal, run:
 
@@ -62,7 +90,7 @@ In the terminal, run:
 
 
 Running
-----------------
+=======
 
 If you defined the variable *easyfermi* in your shell environment (see :ref:`installation`), simply type the following in the terminal:
 
@@ -75,7 +103,7 @@ Otherwise, type:
 .. code-block:: console
 
     $ mamba activate easyfermi
-    $ python -c "import easyfermi"
+    $ easyfermi
     
 Substituting mamba by conda if this is the case for you.
 
