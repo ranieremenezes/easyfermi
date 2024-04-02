@@ -52,4 +52,5 @@ Contents
    Basic_analysis
    lightcurve
    SED
-   api
+   localization
+   extension
