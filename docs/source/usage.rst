@@ -79,3 +79,9 @@ Otherwise, type:
     
 Substituting mamba by conda if this is the case for you.
 
+YouTube tutorials
+-----------------
+
+Please check the `easyfermi YouTube channel <https://www.youtube.com/channel/UCeLCfEoWasUKky6CPNN_opQ>`_ for details on how to use it.
+
+
