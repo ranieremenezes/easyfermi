@@ -66,8 +66,8 @@ Let's suppose you want to build the average SED for 3 specific time windows for 
 
 
 
-Customized resolution and better SED on the Galactic plane
-----------------------------------------------------------
+Customized resolution and better SED for a target on the Galactic plane
+-----------------------------------------------------------------------
 
 At the cost of decreasing the sensitivity, you can cut the photons with worst positional reconstruction from your dataset by selecting only the photons lying within the best PSF quartiles (`details here <https://fermi.gsfc.nasa.gov/ssc/data/analysis/documentation/Cicerone/Cicerone_Data/LAT_DP.html>`_.)
 
