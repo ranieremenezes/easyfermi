@@ -30,9 +30,11 @@ This method also generates two data files, namely "TARGET_NAME_ext.fits" and "TA
   :width: 700
 
 
+.. _Extension_advanced:
 
 Extension - Advanced
 --------------------
+
 
 If you want to use customized spatial models, you should use easyfermi in the "Custom" mode. The box "Extension" will not be useful for you in this case, so leave it unchecked.
 
