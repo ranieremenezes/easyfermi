@@ -54,3 +54,4 @@ Contents
    SED
    localization
    extension
+   custom_analysis

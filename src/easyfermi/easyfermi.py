@@ -1459,8 +1459,10 @@ class Ui_mainWindow(QDialog):
         state["output"] = self.white_box_output_dir.text()
         
         
+        if not os.path.exists(self.OutputDir):
+            os.system(f"mkdir {self.OutputDir}")
         
-        with open(self.OutputDir+"./GUI_status.yaml", 'w') as yaml_file:
+        with open(self.OutputDir+"GUI_status.yaml", 'w') as yaml_file:
             yaml_file.write( yaml.dump(state, default_flow_style=False))            
         
         
