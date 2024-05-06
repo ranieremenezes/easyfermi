@@ -25,11 +25,12 @@ Precise selection of time intervals
 
 `Tutorial available on YouTube <https://www.youtube.com/watch?v=BG3ldxJv7t4&ab_channel=easyFermi>`_.
 
-Let's suppose you want to build the average SED for 3 specific time windows for BL Lac. In this case, the only feature you need to add to the "config.yaml" file is the line "filter", as indicated below.
+Let's suppose you want to build the average SED for 3 specific time windows for BL Lac. In this case, the only feature you need to add to the "config.yaml" file is the line "filter", as indicated in the highlighted line below.
 
 
 .. code-block::
-
+    :emphasize-lines: 20
+    
     data:
       evfile : /home/user/Documentos/GUI/Tutorials/BLLac/Output/list.txt
       scfile : /home/user/Documentos/spacecraft/L240206050150320729A098_SC00.fits
@@ -71,6 +72,8 @@ Customized resolution and better SED on the Galactic plane
 At the cost of decreasing the sensitivity, you can cut the photons with worst positional reconstruction from your dataset by selecting only the photons lying within the best PSF quartiles (`details here <https://fermi.gsfc.nasa.gov/ssc/data/analysis/documentation/Cicerone/Cicerone_Data/LAT_DP.html>`_.)
 
 Below we give the example of a config.yaml file generated with the button "Generate config file" for Mrk 501, and then we discuss how you can modify it to analyze the data that better suits your goals.
+
+This config.yaml file was generated with the boxes "Improve resolution" and "Improve sensitivity" checked. Checking the box "Improve sensitivity" for such a large energy range (i.e. from 100 MeV up to 800 GeV), means that we will perform the Fermi-LAT analysis for three different energy components, tuned to improve sensitivity at the highest energies (see :doc:`Basic_analysis`). 
 
 .. note::
 
@@ -136,10 +139,10 @@ Below we give the example of a config.yaml file generated with the button "Gener
           zmax : 105
           evtype : 3
 
-Let's suppose you prefer to include all photons with more than 500 MeV in your analysis (in the configuration file above, we use only the 3 best PSF quartiles, i.e. only 75% of the photons, equivalent to setting `evtype : 56`). The only thing you need to do is to modify the following part of the file:
+We see that for the lowest-energy component (i.e. 100 MeV up to 500 MeV), we use only PSF 2 and 3 events (i.e. `evtype = 48`), equivalent to 50% of all photons detected in this energy range, while in the medium energy range (i.e. from 500 MeV up to 1 GeV), we use PSF 1, 2 and 3 (`evtype = 56`), equivalent to 75% of all photons detected in this energy band. So let's suppose you prefer to include all photons with more than 500 MeV in your analysis (i.e. `evtype : 3`). The only thing you need to do is to modify the highlighted line in the following part of the file:
 
 .. code-block:: yaml
-    :emphasize-lines: 7,9
+    :emphasize-lines: 9
     
     [...]
     - model:
@@ -152,6 +155,26 @@ Let's suppose you prefer to include all photons with more than 500 MeV in your a
           evtype : 3
     [...]
  
+But how do you know which `evtype` number to choose for different PSF selections? The detailed answer is provided `here <https://fermi.gsfc.nasa.gov/ssc/data/analysis/documentation/Cicerone/Cicerone_Data/LAT_DP.html>`_.
+ 
+You can also play with the zenith angle cut. The recommended zenith angle cuts (zmax in the config.yaml file) selections have been optimized to reduce the limb contamination to a negligible level (< 5% of the total diffuse emission at high latitudes). For diffuse analysis more restrictive selections may be required. For `evtype = 3`, the recommended zenith angle cuts are:
+
+* 80°, for :math:`E_{min} > 50` MeV
+* 90°, for :math:`E_{min} > 100` MeV
+* 95°, for :math:`E_{min} > 200` MeV
+* 100°, for :math:`E_{min} > 300` MeV
+* 100°, for :math:`E_{min} > 500` MeV
+
+For :math:`E_{min} > 1` GeV, it is common practice to set zmax = 105, but try avoiding zenith angle cuts larger than that.
+
+
+Customized extended emission
+----------------------------
+
+`easyfermi` provides the users with two simple spatial models for extended emission, which are a disk and a 2D Gaussian. If you want to do your own spatial model, please see :ref:`Extension_advanced`.
+
+
+
 
 
 
