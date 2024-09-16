@@ -3,15 +3,17 @@
  <h1>easyfermi</h1>
 </p>
 
+<a href="https://easyfermi.readthedocs.io/en/latest/">
+ 
+![easyfermiDocsBadge](https://img.shields.io/badge/docs-easyfermi-green?style=for-the-badge&logo=googledocs&logoColor=white&labelColor=gray&color=blue)
+
+</a>
+
 ![ci](https://github.com/ranieremenezes/easyfermi/actions/workflows/ci.yml/badge.svg)
 
 The easiest way to analyze Fermi-LAT data.
 
-<div align="center">
 
-![easyfermi-demo-rect-ezgif com-video-to-gif-converter](https://github.com/ranieremenezes/easyFermi/assets/104923248/6657b52f-9538-40ff-86c0-5b742dd6f2b0)
-
-</div>
 
 `easyfermi` is a solution to facilitate Fermi-LAT data analysis by providing an intuitive graphical interface to interact with the Fermi science tools.
 
@@ -22,7 +24,7 @@ If you would like to support `easyfermi`'s maintenance, consider buying us a cof
 
 # Requirements
 
-- Linux OS / Mac OS / Windows with <a href="https://learn.microsoft.com/en-us/windows/wsl/install">WSL (Windows Subsystem for Linux)</a>
+- Linux OS / Mac OS (currently under test) / Windows with <a href="https://learn.microsoft.com/en-us/windows/wsl/install">WSL (Windows Subsystem for Linux)</a>
 - [Miniconda 3](https://docs.conda.io/projects/miniconda/en/latest/),
   [Anaconda 3](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) or [Miniforge](https://github.com/conda-forge/miniforge) (recommended) distribution.
 
@@ -30,14 +32,14 @@ If you would like to support `easyfermi`'s maintenance, consider buying us a cof
 
 The following instructions assume an installation of `conda` or `mamba` (i.e. a faster version of `conda`).
 
-### Conda-based installation 
+### Mamba-based installation 
 
 In the terminal, run:
-<pre><code>mamba create --name easyfermi -c conda-forge -c fermi python=3.9 "fermitools>=2.2.0" "healpy=1.16.1" "gammapy=1.1" "scipy=1.10.1" "astropy=5.3.3" "pyqt=5.15.9" "astroquery=0.4.6" "psutil=5.9.8" "emcee=3.1.4" "corner=2.2.2"</code></pre>
+<pre><code>mamba create --name easyfermi -c conda-forge -c fermi python=3.9 "fermitools>=2.2.0" "healpy=1.16.1" "gammapy=1.1" "scipy=1.10.1" "astropy=5.3.3" "pyqt=5.15.9" "astroquery=0.4.6" "psutil=5.9.8" "emcee=3.1.4" "corner=2.2.2" "matplotlib=3.8.2" </code></pre>
 
 This will create the virtual environment and install all dependencies. Then activate the environment and install _fermipy_ and _easyfermi_:
-<pre><code>mamba activate easyfermi</code></pre>
-<pre><code>pip install fermipy easyfermi</code></pre>
+<pre><code>mamba activate easyfermi
+pip install fermipy easyfermi</code></pre>
 
 - (ONLY FOR WINDOWS) Install the `libgl1` package:
 <pre><code>sudo apt-get install libgl1</code></pre>
@@ -46,22 +48,15 @@ This will create the virtual environment and install all dependencies. Then acti
 <pre><code>alias easyfermi="mamba activate easyfermi && python -c 'import easyfermi'"</code></pre>
 substituting _miniforge_ and _mamba_ by e.g. _anaconda_ and _conda_ if needed. This line of command depends on which distribution of Python you installed and how you set up the _mamba/conda_ environment.
 
-### Cloning the repository installation
+### Installation for developers
 
 Another option to install `easyfermi` is by cloning the GitHub repository:
 <pre><code>git clone https://github.com/ranieremenezes/easyfermi.git</code></pre>
 
 Then change to the `easyfermi` directory and create the environment:
-<pre><code>cd easyfermi</code></pre>
-<pre><code>mamba env create -f environment.yml</code></pre>
-<pre><code>mamba activate easyfermi</code></pre>
-
-#### For users:
-
-Install `easyfermi`:
-<pre><code>pip install --no-deps easyfermi</code></pre>
-
-#### For developers:
+<pre><code>cd easyfermi
+mamba env create -f environment.yml
+mamba activate easyfermi</code></pre>
 
 Install `easyfermi` in editable mode:
 <pre><code>pip install -e .</code></pre>
@@ -85,7 +80,7 @@ In the terminal, run:
 
 # Running
 
-If you defined the variable _easyfermi_ in your shell environment (see **Installing**), simply type the following in the terminal:
+If you defined the variable _easyfermi_ in your shell environment (see **Installation**), simply type the following in the terminal:
 <pre><code>easyfermi</code></pre>
 
 Otherwise, type:
@@ -99,9 +94,9 @@ The main window of _easyfermi_ looks like this:
  <img width="100%" height="100%" src="/src/easyfermi/resources/images/easyFermiWindow.png">
 </p> 
 
-# Tutorials
+# Tutorials and Documentation
 
-Check for tutorials on the `easyfermi` YouTube channel:
+Check our tutorials on the `easyfermi` YouTube channel:
 
  <a href="https://www.youtube.com/channel/UCeLCfEoWasUKky6CPNN_opQ">
 
@@ -109,19 +104,17 @@ Check for tutorials on the `easyfermi` YouTube channel:
 
  </a> 
 
-- Learn how to analyze Fermi-LAT data in 10 min
-  
- [![Watch the video](https://img.youtube.com/vi/Ny7aA9EBRUs/hqdefault.jpg)](https://youtu.be/Ny7aA9EBRUs)
-- Goodness of fit and advanced configurations
-  
- [![Watch the video](https://img.youtube.com/vi/OPMOsheCId8/hqdefault.jpg)](https://youtu.be/OPMOsheCId8)
+- [Learn how to analyze Fermi-LAT data under 10 min.](https://www.youtube.com/watch?v=utwvFsl67_4&t=5s&ab_channel=easyFermi)
+- [Saving time using an external ltcube.](https://www.youtube.com/watch?v=jaNKL3jUfy8&ab_channel=easyFermi)
+- [Loading a previous analysis.](https://www.youtube.com/watch?v=EnbeujVh6wA&ab_channel=easyFermi)
+- [Selecting specific time intervals when building the SED](https://www.youtube.com/watch?v=BG3ldxJv7t4&ab_channel=easyFermi)
+- [Going to the sensitivity limit of Fermi-LAT](https://www.youtube.com/watch?v=2TpgRcXf24M&ab_channel=easyFermi)
 
-# Documentation
 
 The documentation of `easyfermi` can be found [here](https://easyfermi.readthedocs.io/en/latest/index.html).
 
 
-# Acknowledgements
+# Acknowledgments
 
 To acknowledge `easyfermi` in a publication, please cite  [de Menezes, R (2022)](https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract).
 
@@ -136,9 +129,15 @@ The EBL models adopted in _easyfermi_ are from:
 
 If you make use of EBL correction via _easyfermi_ in your publication, please cite the papers corresponding to the adopted EBL models. The EBL data files in this repository were collected from the _gammapy_ repository at https://github.com/gammapy/gammapy-data/tree/main/ebl
 
-I want to thank Clodomir Vianna for helping me design _easyfermi_, for making the _easyfermi_ logo, and for the several hours of discussion about this project. Clodomir is the one responsible for making _easyfermi_ user-friendly. Thanks to Fabio Cafardo, Lucas Costa Campos, and Raí Menezes for their help and strong support in this project. A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Matt Pui, and Romana Grossova, the first users/testers of _easyfermi_.
+I want to thank Clodomir Vianna for helping me with the design of _easyfermi_, for making the _easyfermi_ logo, and for the several hours of discussion about this project. Clodomir is the one responsible for making _easyfermi_ user-friendly. Thanks to Fabio Cafardo, Lucas Costa Campos, Raí Menezes, and Michele Peresano for their help and strong support to this project. A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Matt Pui, and Romana Grossova, the first users/testers of _easyfermi_.
 
  <br>
 <p align="center" width="100%">
  <img height="200" src="https://github.com/clodoN1109/easyFermi/assets/104923248/a5fd6166-4dce-475b-92e6-78cbcbcd36af">
 </p> 
+
+# easyfermi community
+
+Want to be included in the map? Just fill out this short form: https://forms.gle/hcXoxwTHpdpHn24X8
+
+<a href="https://datawrapper.dwcdn.net/NRZy6/5/">![python](https://github.com/ranieremenezes/easyfermi/blob/main/docs/source/world_map_september_2024.png)</a>
