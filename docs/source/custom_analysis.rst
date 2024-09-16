@@ -175,6 +175,99 @@ Customized extended emission
 
 
 
+Adjusting the parameter ranges of a spectral model
+--------------------------------------------------
 
 
+Let's say you want to modify the values and/or ranges for the parameters in a spectral model before performing the fit. Here are the steps you must follow:
 
+* If your target is listed in the adopted FGL catalog, you must delete it from the model using the check-box "Delete sources". E.g. if your RoI is centered on the source 4FGL J2202.7+4216, you can do as in the figure below:
+
+.. image:: ./easyfermi_window_delete_source.png
+  :width: 700
+  
+* Now manually add your target to the config.yaml file setting the parameter values and ranges as you prefer. In the figure below we show the example for a power-law model:
+
+.. code-block::
+    
+    data:
+      evfile : /home/user/Documentos/GUI/Tutorials/BLLac/Output/list.txt
+      scfile : /home/user/Documentos/spacecraft/L240206050150320729A098_SC00.fits
+
+    binning:
+      roiwidth   : 15
+      binsz      : 0.1
+      binsperdec : 8
+
+    selection :
+      emin : 100.0
+      emax : 300000.0
+      zmax    : 90
+      evclass : 128
+      evtype  : 3
+      ra: 330.68038041666665
+      dec: 42.277771944444446
+      tmin: 638496005
+      tmax: 655776005
+      filter: '((START>6.40997722E8) && (STOP<6.41582362E8)) || ((START>6.4909916E8) && (STOP<6.4943324E8))  || ((START>6.4943324E8) && (STOP<6.4976732E8))'
+
+    gtlike:
+      edisp : True
+      irfs : 'P8R3_SOURCE_V3'
+      edisp_disable : ['isodiff']
+      edisp_bins : -2
+
+    model:
+      src_roiwidth : 25
+      galdiff  : '/home/user/Documentos/Background_Models/gll_iem_v07.fits'
+      isodiff  : '/home/user/Documentos/Background_Models/iso_P8R3_SOURCE_V3_v1.txt'
+      catalogs : ['4FGL-DR3']
+      sources  :
+        - { name: 'SourceA', ra : 330.68038, dec : 42.27777,
+         SpectrumType : 'PowerLaw',
+         Prefactor : {value: 1.0, scale : !!float 1e-11, free : "1", max : "1000", min : "1e-03"},
+         Index : {value: 2.0, scale : "-1", free : "1", max : "3", min : "1.5"},
+         SpatialModel: 'PointSource' }
+
+* If instead of a power-law you are interested in a log-parabola or PLEC (equivalent to PLSuperExpCutoff in the LAT spectral models), you can change the last part of the configuration file to:
+
+.. code-block::
+    
+    [...]
+
+    model:
+      src_roiwidth : 25
+      galdiff  : '/home/user/Documentos/Background_Models/gll_iem_v07.fits'
+      isodiff  : '/home/user/Documentos/Background_Models/iso_P8R3_SOURCE_V3_v1.txt'
+      catalogs : ['4FGL-DR3']
+      sources  :
+        - { name: 'SourceA', ra : 330.68038, dec : 42.27777,
+         SpectrumType : 'LogParabola', 
+         norm : {value: 1.0, scale : !!float 1e-11, free : "1", max : "1000", min : "1e-03"},
+         alpha : {value: 2.0, scale : "1", free : "1", max : "3", min : "1.5"},
+         beta : {value: 0.1, scale : "1", free : "1", max : "1", min : "0"},
+         SpatialModel: 'PointSource' }
+         
+or 
+
+.. code-block::
+    
+    [...]
+
+    model:
+      src_roiwidth : 25
+      galdiff  : '/home/user/Documentos/Background_Models/gll_iem_v07.fits'
+      isodiff  : '/home/user/Documentos/Background_Models/iso_P8R3_SOURCE_V3_v1.txt'
+      catalogs : ['4FGL-DR3']
+      sources  :
+        - { name: 'SourceA', ra : 330.68038, dec : 42.27777,
+         SpectrumType : 'PLSuperExpCutoff', 
+         Prefactor : {value: 1.0, scale : !!float 1e-11, free : "1", max : "1000", min : "1e-03"},
+         Index1 : {value: 2.0, scale : "1", free : "1", max : "3", min : "1.5"},
+         Cutoff : {value: 1, scale : "1e+04", free : "1", max : "100", min : "0.01"},
+         Index2 : {value: 0.1, scale : "1", free : "1", max : "4", min : "0"},
+         SpatialModel: 'PointSource' }
+
+* For other spectral models you can follow the exact nomenclature of parameters found in the `LAT Source Model Definitions <https://fermi.gsfc.nasa.gov/ssc/data/analysis/scitools/source_models.html>`_. The equiavalencies between easyfermi and Fermitools spectral models are 'Power-law': 'PowerLaw', 'Power-law2': 'PowerLaw2', 'LogPar': 'LogParabola', 'PLEC': 'PLSuperExpCutoff', 'PLEC2': 'PLSuperExpCutoff2', 'PLEC3': 'PLSuperExpCutoff3', 'PLEC4': 'PLSuperExpCutoff4', 'BPL': 'BrokenPowerLaw', 'ExpCutOff-EBL': 'ExpCutoff'.
+
+* Now upload your modified configuration file under the button "Custom" and press "Go!". That's all. 
