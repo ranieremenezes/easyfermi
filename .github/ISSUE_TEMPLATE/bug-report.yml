@@ -1,0 +1,42 @@
+name: Bug Report
+description: File a bug report
+title: "[Bug]: "
+labels: ["bug", "triage"]
+assignees:
+  - ranieremenezes
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Please be sure to detail the issue.
+      placeholder: Tell us what you see!
+      value: "A bug happened for the target XXXX, coords RA-DEC, energy range XXX-XXXX, time interval XXX-XXX. I was expecting to find the result X, but I found Y!\nI am also attaching a screenshot with the easyfermi window."
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Environment
+      description: |
+        List any relevant information about your environment, for example:
+          - **OS**: Ubuntu 20.04
+          - **easyfermi**: vX.Y.Z
+          - **fermipy**: vX.Y.Z
+          - **fermitools**: vX.Y.Z
+      value: |
+          - OS:
+          - Node:
+          - npm:
+      render: markdown
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
