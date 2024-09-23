@@ -186,8 +186,7 @@ Let's say you want to modify the values and/or ranges for the parameters in a sp
 .. image:: ./easyfermi_window_delete_source.png
   :width: 700
   
-* Now manually add your target to the config.yaml file setting the parameter values and ranges as you prefer. In the figure below we show the example for a power-law model:
-
+* Now manually add your target to the config.yaml file setting the parameter values and ranges as you prefer. This name **cannot contain blank spaces** as e.g. "NGC 1022", **neither it can be listed in the adopted Fermi-LAT catalog**, as e.g. "Mkn_421", so please give it single name not listed in the LAT catalog, like "SourceA", "NGC_1022", "Super_duper_Mkn_421", or something else in this line. In the figure below we show the example for a power-law model:
 .. code-block::
     
     data:
