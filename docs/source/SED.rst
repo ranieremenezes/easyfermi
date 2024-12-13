@@ -58,13 +58,15 @@ The spectral models available for the MCMC are:
 
  - **LogPar**: :math:`\frac{dN}{dE} = N_0\left(\frac{E}{E_0} \right)^{-\alpha -\beta\log(E/E_0)}`, i.e. the classical log-parabola function, where :math:`\frac{dN}{dE}` is in units of :math:`\mathrm{cm}^{-2}\mathrm{s}^{-1}`, :math:`E` is in MeV, and the priors are set to -15 < :math:`\log(N_0)` < -8, 1.0 < :math:`\alpha` < 4.0, and -1 < :math:`\beta` < 1.0.
 
- - **LogPar2**: :math:`S(E) = S_p10^{-\alpha\log^2_{10}(E/E_p)}`, which is another parametrization of the log-parabola, conveniently giving us the differential energy flux at the log-parabola peak, :math:`S(E)` [MeV :math:`\mathrm{cm}^{-2}\mathrm{s}^{-1}`], the value of the energy peak, :math:`E_p` [MeV], and the spectral curvature :math:`\alpha`. The priors are set to -7 < :math:`\log(S_p)` < -2, -1.0 < :math:`\alpha` < 1.0, and 2 < :math:`E_p` < 7.
+ - **LogPar_MTT**: :math:`S(E) = S_p10^{-\alpha\log^2_{10}(E/E_p)}`, which is another parametrization of the log-parabola, conveniently giving us the differential energy flux at the log-parabola peak, :math:`S(E)` [MeV :math:`\mathrm{cm}^{-2}\mathrm{s}^{-1}`], the value of the energy peak, :math:`E_p` [MeV], and the spectral curvature :math:`\alpha`. The priors are set to -7 < :math:`\log(S_p)` < -1, -1.0 < :math:`\alpha` < 1.0, and 2 < :math:`E_p` < 7. The suffix "MTT" stands for Massaro et al. (2004), Tanihata et al. (2004), and Tramacere et al. (2007), which are the first works reporting this parametrization of the log-parabola curve.
 
  - **PLEC**: :math:`\frac{dN}{dE} = N_0\left(\frac{E}{E_0} \right)^{-\alpha} e^{-(E/E_0)^b}`, i.e. a power-law with a super exponential cutoff, where :math:`\frac{dN}{dE}` is in units of :math:`\mathrm{cm}^{-2}\mathrm{s}^{-1}` and :math:`E` is in MeV. The priors are set to -15 < :math:`\log(N_0)` < -8, 1.0 < :math:`\alpha` < 4.0, 3.0 < :math:`E_c` < 7.0, and 0.2 < :math:`b` < 3.0.
  
  - **PLEC_bfix**: same as above, but with :math:`b \equiv 1`.
+ 
+ - **PLEC_deMenezes**: :math:`S(E) = S_p\left(\frac{E_p}{E} \right)^{\alpha-2} e^{((2-\alpha)/b)(1-(E/E_p)^b)}`, which is a parametrization of the PLEC developed for ``easyfermi`` conveniently giving us the differential energy flux at the PLEC peak, :math:`S(E)` [MeV :math:`\mathrm{cm}^{-2}\mathrm{s}^{-1}`], the value of the energy peak, :math:`E_p` [MeV], the spectral curvature :math:`\alpha`, and the super-exponential index :math:`b`. With this model one can directly estimate :math:`S(E)`, :math:`E_p`, and their corresponding errors without recurring to huge error propagation formulas. If you use this parametrization in another context, please cite the ``easyfermi`` paper `de Menezes (2022) <https://ui.adsabs.harvard.edu/abs/2022A%26C....4000609D/abstract>`_ and this documentation. The priors are set to -8 < :math:`\log(S_p)` < -1, 0 < :math:`\alpha` < 4.0, 2.0 < :math:`E_p` < 7.0, and 0.01 < :math:`b` < 3.0.
 
-Finally, we adopt 300 walkers, iterate them 500 times, and fix :math:`E_0 \equiv 2 E_{min}`, where :math:`E_{min}` is read from the graphical interface or from the customized configuration file.
+Finally, we adopt 300 walkers, iterate them 500 times, and fix :math:`E_0 \equiv E_{min}`, where :math:`E_{min}` is read from the graphical interface or from the customized configuration file.
 
 
 .. note::

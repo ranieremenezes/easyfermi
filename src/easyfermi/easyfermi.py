@@ -314,6 +314,7 @@ class Ui_mainWindow(QDialog):
         self.comboBox_MCMC.addItem("")
         self.comboBox_MCMC.addItem("")
         self.comboBox_MCMC.addItem("")
+        self.comboBox_MCMC.addItem("")
         self.comboBox_MCMC.setCurrentIndex(1)
         self.label_MCMC = QtWidgets.QLabel(self.groupBox_Science)
         self.label_MCMC.setGeometry(QtCore.QRect(125, 190, 50, 21))
@@ -1037,9 +1038,10 @@ class Ui_mainWindow(QDialog):
         self.comboBox_MCMC.setAccessibleDescription(_translate("mainWindow", "MCMC_model"))
         self.comboBox_MCMC.setItemText(0, _translate("mainWindow", "PowerLaw"))
         self.comboBox_MCMC.setItemText(1, _translate("mainWindow", "LogPar"))
-        self.comboBox_MCMC.setItemText(2, _translate("mainWindow", "LogPar2"))
+        self.comboBox_MCMC.setItemText(2, _translate("mainWindow", "LogPar_MTT"))
         self.comboBox_MCMC.setItemText(3, _translate("mainWindow", "PLEC"))
         self.comboBox_MCMC.setItemText(4, _translate("mainWindow", "PLEC_bfix"))
+        self.comboBox_MCMC.setItemText(5, _translate("mainWindow", "PLEC_deMenezes"))
         self.white_box_list_of_sources_to_delete.setText(_translate("mainWindow", ""))
         self.white_box_TS_cut_in_the_fit.setText(_translate("mainWindow", "16"))
         self.checkBox_diagnostic_plots.setText(_translate("mainWindow", "Diagnostic plots"))
@@ -3255,12 +3257,14 @@ class Ui_mainWindow(QDialog):
                 for theta in samples[np.random.randint(len(samples), size=100)]:
                     if self.comboBox_MCMC.currentText() == "LogPar":
                         model = 10 ** (2 * x + LogPar(theta, x))
-                    elif self.comboBox_MCMC.currentText() == "LogPar2":
-                        model = 10 ** LogPar2(theta, x)
+                    elif self.comboBox_MCMC.currentText() == "LogPar_MTT":
+                        model = 10 ** LogPar_MTT(theta, x)
                     elif self.comboBox_MCMC.currentText() == "PLEC":
                         model = 10 ** (2 * x + PLEC(theta, x))
                     elif self.comboBox_MCMC.currentText() == "PLEC_bfix":
                         model = 10 ** (2 * x + PLEC_bfix(theta, x))
+                    elif self.comboBox_MCMC.currentText() == "PLEC_deMenezes":
+                        model = 10 ** PLEC_deMenezes(theta, x)
                     elif self.comboBox_MCMC.currentText() == "PowerLaw":
                         model = 10 ** (2 * x + PowerLaw(theta, x))
                     plt.plot(10**x, model, color="r", zorder=0, alpha=0.1)  # plotting with parameters in the posterior distribution
@@ -3272,40 +3276,47 @@ class Ui_mainWindow(QDialog):
 
             def PowerLaw(theta, x):
                 N0, alpha = theta
-                Ep = np.log10(2*self.Emin)
+                Ep = np.log10(self.Emin)
                 return N0 - alpha*(x - Ep)
             
             def LogPar(theta, x):
                 N0, alpha, beta = theta
-                Ep = np.log10(2*self.Emin)
+                Ep = np.log10(self.Emin)
                 return N0 + (-alpha - beta * np.log((10**x) / (10**Ep))) * (x - Ep)
             
-            def LogPar2(theta, x):
+            def LogPar_MTT(theta, x):
                 Splog, alpha, Ep = theta
                 return Splog + (-alpha*(np.log10((10**x)/(10**Ep))**2))
 
             def PLEC(theta, x):
-                Ep = np.log10(2*self.Emin)
+                Ep = np.log10(self.Emin)
                 N0, alpha, Ec, b = theta
                 # N0, alpha, Ec = theta
                 return N0 - alpha * (x - Ep) + np.log10(np.exp(-((10**x / (10**Ec)) ** b)))
 
             def PLEC_bfix(theta, x):
-                Ep = np.log10(2*self.Emin)
+                Ep = np.log10(self.Emin)
                 b = 1
                 N0, alpha, Ec = theta
                 # N0, alpha, Ec = theta
                 return N0 - alpha * (x - Ep) + np.log10(np.exp(-((10**x / (10**Ec)) ** b)))
 
+            ######################################
+            def PLEC_deMenezes(theta, x):
+                Sp, alpha, Ep, b = theta
+                return Sp + (alpha - 2)*(Ep - x) + np.log10(np.exp(((2-alpha)/b)*(1 - ((10**x)/(10**Ep))**b) ))
+
             def lnlike(theta, x, y, yerr):
                 if self.comboBox_MCMC.currentText() == "LogPar":
                     likelihood = -0.5 * np.sum(((y - LogPar(theta, x)) / yerr) ** 2)
-                elif self.comboBox_MCMC.currentText() == "LogPar2":
-                    likelihood = -0.5 * np.sum(((y - LogPar2(theta, x)) / yerr) ** 2)
+                elif self.comboBox_MCMC.currentText() == "LogPar_MTT":
+                    likelihood = -0.5 * np.sum(((y - LogPar_MTT(theta, x)) / yerr) ** 2)
                 elif self.comboBox_MCMC.currentText() == "PLEC":
                     likelihood = -0.5 * np.sum(((y - PLEC(theta, x)) / yerr) ** 2)
                 elif self.comboBox_MCMC.currentText() == "PLEC_bfix":
                     likelihood = -0.5 * np.sum(((y - PLEC_bfix(theta, x)) / yerr) ** 2)
+                elif self.comboBox_MCMC.currentText() == "PLEC_deMenezes":
+                    likelihood = -0.5 * np.sum(((y - PLEC_deMenezes(theta, x)) / yerr) ** 2)
                 elif self.comboBox_MCMC.currentText() == "PowerLaw":
                     likelihood = -0.5 * np.sum(((y - PowerLaw(theta, x)) / yerr) ** 2)
 
@@ -3323,7 +3334,7 @@ class Ui_mainWindow(QDialog):
                     return 0.0
                 return -np.inf
             
-            def lnprior_LogPar2(theta):
+            def lnprior_LogPar_MTT(theta):
                 Splog, alpha, Ep = theta
                 if -7 < Splog < -1 and -1.0 < alpha < 1.0 and 2 < Ep < 7:
                     return 0.0
@@ -3343,15 +3354,23 @@ class Ui_mainWindow(QDialog):
                     return 0.0
                 return -np.inf
 
+            def lnprior_PLEC_deMenezes(theta):
+                Sp, alpha, Ep, b = theta
+                if -8 < Sp < -1 and 0 < alpha < 4.0 and 2.0 < Ep < 7.0 and 0.01 < b < 3.0:
+                    return 0.0
+                return -np.inf
+
             def lnprob(theta, x, y, yerr):
                 if self.comboBox_MCMC.currentText() == "LogPar":
                     lp = lnprior_LogPar(theta)
-                elif self.comboBox_MCMC.currentText() == "LogPar2":
-                    lp = lnprior_LogPar2(theta)
+                elif self.comboBox_MCMC.currentText() == "LogPar_MTT":
+                    lp = lnprior_LogPar_MTT(theta)
                 elif self.comboBox_MCMC.currentText() == "PLEC":
                     lp = lnprior_PLEC(theta)
                 elif self.comboBox_MCMC.currentText() == "PLEC_bfix":
                     lp = lnprior_PLEC_bfix(theta)
+                elif self.comboBox_MCMC.currentText() == "PLEC_deMenezes":
+                    lp = lnprior_PLEC_deMenezes(theta)
                 elif self.comboBox_MCMC.currentText() == "PowerLaw":
                     lp = lnprior_PowerLaw(theta)
 
@@ -3361,13 +3380,13 @@ class Ui_mainWindow(QDialog):
 
 
             if self.redshift > 0.0:
-                if self.comboBox_MCMC.currentText() == "LogPar2":
+                if self.comboBox_MCMC.currentText() == "LogPar_MTT" or self.comboBox_MCMC.currentText() == "PLEC_deMenezes":
                     e2dnde_err = (1 / np.log(10)) * (1 / (dnde_data_points_deabsorbed*(Energy_SED**2))) * (dnde_error_deabsorbed*(Energy_SED**2))  # converting the errors to log scale
                     data = (Energy_SED_deabsorbed_log, dnde_data_points_deabsorbed_log + 2*Energy_SED_deabsorbed_log, e2dnde_err)
                 else:
                     data = (Energy_SED_deabsorbed_log, dnde_data_points_deabsorbed_log, dnde_error_deabsorbed_log)
             else:
-                if self.comboBox_MCMC.currentText() == "LogPar2":
+                if self.comboBox_MCMC.currentText() == "LogPar_MTT" or self.comboBox_MCMC.currentText() == "PLEC_deMenezes":
                     e2dnde_err = (1 / np.log(10)) * (1 / (dnde_SED*(Energy_SED**2))) * (dnde_err_SED*(Energy_SED**2))  # converting the errors to log scale
                     data = (Energy_SED_log, dnde_data_points_log + 2*Energy_SED_log, e2dnde_err)
                 else:
@@ -3377,12 +3396,14 @@ class Ui_mainWindow(QDialog):
             niter = 500
             if self.comboBox_MCMC.currentText() == "LogPar":
                 initial = np.array([-13, 1.7, 0.2])
-            elif self.comboBox_MCMC.currentText() == "LogPar2":
+            elif self.comboBox_MCMC.currentText() == "LogPar_MTT":
                 initial = np.array([-4.5, 0.2, 3.5])
             elif self.comboBox_MCMC.currentText() == "PLEC":
                 initial = np.array([-13, 1.7, 5, 1])
             elif self.comboBox_MCMC.currentText() == "PLEC_bfix":
                 initial = np.array([-13, 1.7, 5])
+            elif self.comboBox_MCMC.currentText() == "PLEC_deMenezes":
+                initial = np.array([-4, 1.7, 5, 1])
             elif self.comboBox_MCMC.currentText() == "PowerLaw":
                 initial = np.array([-13, 2.0])
 
@@ -3486,8 +3507,8 @@ class Ui_mainWindow(QDialog):
                 add_results.write(f"Alpha: {Alpha[1]} - {Alpha[1]-Alpha[0]} + {Alpha[2]-Alpha[1]}\n")
                 add_results.write(f"Beta: {Beta[1]} - {Beta[1]-Beta[0]} + {Beta[2]-Beta[1]}\n")
                 add_results.write(f"Akaike information criterion: {self.AIC}\n")
-                c1 = np.array(["N0 (log scale)","Alpha","Beta","Ep=2*Emin (log scale)", "Akaike_IC"])
-                c2 = np.array([N0[1],Alpha[1],Beta[1],np.log10(2*self.Emin),self.AIC])
+                c1 = np.array(["N0 (log scale)","Alpha","Beta","Ep=Emin (log scale)", "Akaike_IC"])
+                c2 = np.array([N0[1],Alpha[1],Beta[1],np.log10(self.Emin),self.AIC])
                 c3 = np.array([N0[1]-N0[0],Alpha[1]-Alpha[0],Beta[1]-Beta[0],0,0])
                 c4 = np.array([N0[2]-N0[1],Alpha[2]-Alpha[1],Beta[2]-Beta[1],0,0])
                 c1 = pyfits.Column(name='Parameter', array=c1, format='22A')
@@ -3500,8 +3521,8 @@ class Ui_mainWindow(QDialog):
                 c3_posterior = pyfits.Column(name='Beta distribution', array=samples[:,2], format='D')
                 table_hdu_posterior = pyfits.BinTableHDU.from_columns([c1_posterior, c2_posterior, c3_posterior])
 
-            elif self.comboBox_MCMC.currentText() == "LogPar2":
-                best_fit_model = LogPar2(theta_max, x)
+            elif self.comboBox_MCMC.currentText() == "LogPar_MTT":
+                best_fit_model = LogPar_MTT(theta_max, x)
                 N0 = np.quantile(samples[:,0],q=[0.16,0.5,0.84])
                 Alpha = np.quantile(samples[:,1],q=[0.16,0.5,0.84])
                 Ep = np.quantile(samples[:,2],q=[0.16,0.5,0.84])
@@ -3534,8 +3555,8 @@ class Ui_mainWindow(QDialog):
                 add_results.write(f"Ec: {Ec[1]} - {Ec[1]-Ec[0]} + {Ec[2]-Ec[1]}\n")
                 add_results.write(f"b: {b[1]} - {b[1]-b[0]} + {b[2]-b[1]}\n")
                 add_results.write(f"Akaike information criterion: {self.AIC}\n")
-                c1 = np.array(["N0 (log scale)","Alpha","Ec","b","Ep=2*Emin (log scale)", "Akaike_IC"])
-                c2 = np.array([N0[1],Alpha[1],Ec[1],b[1],np.log10(2*self.Emin),self.AIC])
+                c1 = np.array(["N0 (log scale)","Alpha","Ec","b","Ep=Emin (log scale)", "Akaike_IC"])
+                c2 = np.array([N0[1],Alpha[1],Ec[1],b[1],np.log10(self.Emin),self.AIC])
                 c3 = np.array([N0[1]-N0[0],Alpha[1]-Alpha[0],Ec[1]-Ec[0],b[1]-b[0],0,0])
                 c4 = np.array([N0[2]-N0[1],Alpha[2]-Alpha[1],Ec[2]-Ec[1],b[2]-b[1],0,0])
                 c1 = pyfits.Column(name='Parameter', array=c1, format='22A')
@@ -3559,8 +3580,8 @@ class Ui_mainWindow(QDialog):
                 add_results.write(f"Ec: {Ec[1]} - {Ec[1]-Ec[0]} + {Ec[2]-Ec[1]}\n")
                 add_results.write("b: 1\n")
                 add_results.write(f"Akaike information criterion: {self.AIC}\n")
-                c1 = np.array(["N0 (log scale)","Alpha","Ec","b","Ep=2*Emin (log scale)", "Akaike_IC"])
-                c2 = np.array([N0[1],Alpha[1],Ec[1],1,np.log10(2*self.Emin),self.AIC])
+                c1 = np.array(["N0 (log scale)","Alpha","Ec","b","Ep=Emin (log scale)", "Akaike_IC"])
+                c2 = np.array([N0[1],Alpha[1],Ec[1],1,np.log10(self.Emin),self.AIC])
                 c3 = np.array([N0[1]-N0[0],Alpha[1]-Alpha[0],Ec[1]-Ec[0],0,0,0])
                 c4 = np.array([N0[2]-N0[1],Alpha[2]-Alpha[1],Ec[2]-Ec[1],0,0,0])
                 c1 = pyfits.Column(name='Parameter', array=c1, format='22A')
@@ -3572,6 +3593,32 @@ class Ui_mainWindow(QDialog):
                 c2_posterior = pyfits.Column(name='Alpha distribution', array=samples[:,1], format='D')
                 c3_posterior = pyfits.Column(name='Ec distribution', array=samples[:,2], format='D')
                 table_hdu_posterior = pyfits.BinTableHDU.from_columns([c1_posterior, c2_posterior, c3_posterior])
+            
+            elif self.comboBox_MCMC.currentText() == "PLEC_deMenezes":
+                best_fit_model = PLEC_deMenezes(theta_max, x)
+                Sp = np.quantile(samples[:,0],q=[0.16,0.5,0.84])
+                Alpha = np.quantile(samples[:,1],q=[0.16,0.5,0.84])
+                Ep = np.quantile(samples[:,2],q=[0.16,0.5,0.84])
+                b = np.quantile(samples[:,3],q=[0.16,0.5,0.84])
+                add_results.write(f"Sp (log scale): {Sp[1]} - {Sp[1]-Sp[0]} + {Sp[2]-Sp[1]}\n")
+                add_results.write(f"Alpha: {Alpha[1]} - {Alpha[1]-Alpha[0]} + {Alpha[2]-Alpha[1]}\n")
+                add_results.write(f"Ep: {Ep[1]} - {Ep[1]-Ep[0]} + {Ep[2]-Ep[1]}\n")
+                add_results.write(f"b: {b[1]} - {b[1]-b[0]} + {b[2]-b[1]}\n")
+                add_results.write(f"Akaike information criterion: {self.AIC}\n")
+                c1 = np.array(["Sp (log scale)","Alpha","Ep","b", "Akaike_IC"])
+                c2 = np.array([Sp[1],Alpha[1],Ep[1],b[1],self.AIC])
+                c3 = np.array([Sp[1]-Sp[0],Alpha[1]-Alpha[0],Ep[1]-Ep[0],b[1]-b[0],0])
+                c4 = np.array([Sp[2]-Sp[1],Alpha[2]-Alpha[1],Ep[2]-Ep[1],b[2]-b[1],0])
+                c1 = pyfits.Column(name='Parameter', array=c1, format='22A')
+                c2 = pyfits.Column(name='Value', array=c2, format='D')
+                c3 = pyfits.Column(name='error_minus', array=c3, format='D')
+                c4 = pyfits.Column(name='error_plus', array=c4, format='D')
+                table_hdu = pyfits.BinTableHDU.from_columns([c1, c2, c3, c4])
+                c1_posterior = pyfits.Column(name='Sp distribution (log scale)', array=samples[:,0], format='D')
+                c2_posterior = pyfits.Column(name='Alpha distribution', array=samples[:,1], format='D')
+                c3_posterior = pyfits.Column(name='Ep distribution', array=samples[:,2], format='D')
+                c4_posterior = pyfits.Column(name='b distribution', array=samples[:,3], format='D')
+                table_hdu_posterior = pyfits.BinTableHDU.from_columns([c1_posterior, c2_posterior, c3_posterior, c4_posterior])
 
             elif self.comboBox_MCMC.currentText() == "PowerLaw":
                 best_fit_model = PowerLaw(theta_max, x)
@@ -3580,8 +3627,8 @@ class Ui_mainWindow(QDialog):
                 add_results.write(f"N0 (log scale): {N0[1]} - {N0[1]-N0[0]} + {N0[2]-N0[1]}\n")
                 add_results.write(f"Alpha: {Alpha[1]} - {Alpha[1]-Alpha[0]} + {Alpha[2]-Alpha[1]}\n")
                 add_results.write(f"Akaike information criterion: {self.AIC}\n")
-                c1 = np.array(["N0 (log scale)","Alpha","Ep=2*Emin (log scale)", "Akaike_IC"])
-                c2 = np.array([N0[1],Alpha[1],np.log10(2*self.Emin),self.AIC])
+                c1 = np.array(["N0 (log scale)","Alpha","Ep=Emin (log scale)", "Akaike_IC"])
+                c2 = np.array([N0[1],Alpha[1],np.log10(self.Emin),self.AIC])
                 c3 = np.array([N0[1]-N0[0],Alpha[1]-Alpha[0],0,0])
                 c4 = np.array([N0[2]-N0[1],Alpha[2]-Alpha[1],0,0])
                 c1 = pyfits.Column(name='Parameter', array=c1, format='22A')
@@ -3609,12 +3656,14 @@ class Ui_mainWindow(QDialog):
             # Corner plot:
             if self.comboBox_MCMC.currentText() == "LogPar":
                 labels = ["N0", "alpha", "beta"]
-            elif self.comboBox_MCMC.currentText() == "LogPar2":
+            elif self.comboBox_MCMC.currentText() == "LogPar_MTT":
                 labels = ["Sp_log", "alpha", "Ep_log"]
             elif self.comboBox_MCMC.currentText() == "PLEC":
                 labels = ["N0", "alpha", "Ec", "b"]
             elif self.comboBox_MCMC.currentText() == "PLEC_bfix":
                 labels = ["N0", "alpha", "Ec"]
+            elif self.comboBox_MCMC.currentText() == "PLEC_deMenezes":
+                labels = ["Sp_log", "alpha", "Ep", "b"]
             elif self.comboBox_MCMC.currentText() == "PowerLaw":
                 labels = ["N0", "alpha"]
 
@@ -3676,7 +3725,7 @@ class Ui_mainWindow(QDialog):
             plotter(sampler,x)
 
             plt.plot(self.E, self.dnde*(self.E**2), color="gray",alpha=0.9, zorder = 119, label="Fermipy fit")
-            if self.comboBox_MCMC.currentText() == "LogPar2":
+            if self.comboBox_MCMC.currentText() == "LogPar_MTT" or self.comboBox_MCMC.currentText() == "PLEC_deMenezes":
                 plt.plot(10**x, 10 ** best_fit_model, color="black", zorder = 119, label="Highest Likelihood MCMC")
             else:
                 plt.plot(10**x, 10 ** (2 * x + best_fit_model), color="black", zorder = 119, label="Highest Likelihood MCMC")
