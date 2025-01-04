@@ -9,7 +9,6 @@
 
 </a>
 
-![ci](https://github.com/ranieremenezes/easyfermi/actions/workflows/ci.yml/badge.svg)
 
 The easiest way to analyze Fermi-LAT data.
 
