@@ -9,6 +9,7 @@
 
 </a>
 
+<a href="https://ascl.net/2203.015"><img src="https://img.shields.io/badge/ascl-2203.015-blue.svg?colorB=262255" alt="ascl:2203.015" /></a>
 
 The easiest way to analyze Fermi-LAT data.
 
