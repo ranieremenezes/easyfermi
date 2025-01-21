@@ -2999,8 +2999,8 @@ class Ui_mainWindow(QDialog):
             # If the analysis goes over 10 GeV, we check the total number of photons per SED bin within a radius of 0.25 deg from the RoI center:
             ebins_array = np.asarray(ebins)
             ebins_array = ebins_array[ebins_array > 4]
-            self.few_photons_warning = np.zeros(len(ebins_array)-1)
             if len(ebins_array) > 0: 
+                self.few_photons_warning = np.zeros(len(ebins_array)-1)
                 photon_file = glob.glob(self.white_box_output_dir.text()+"/ft1*.fits")[-1]  # Selecting only the highest energy photon file (supposing we only have one for E > 10GeV).
                 photon_energies = pyfits.open(photon_file)[1].data["ENERGY"]
                 photon_RA = pyfits.open(photon_file)[1].data["RA"][photon_energies>10000]
@@ -3061,9 +3061,14 @@ class Ui_mainWindow(QDialog):
             self.xerr_uplims = [self.sed['e_ctr'][self.sed['ts']<=TSmin] - self.sed['e_min'][self.sed['ts']<=TSmin], self.sed['e_max'][self.sed['ts']<=TSmin] - self.sed['e_ctr'][self.sed['ts']<=TSmin]]
             self.yerr_uplims = 0.3*self.sed['e2dnde_ul95'][self.sed['ts']<=TSmin]
             # Warnings:
-            self.few_photons_warning = self.few_photons_warning[self.sed['ts']>TSmin]
-            self.energy_SED_warning = self.Energy_data_points[self.few_photons_warning > 0]
-            self.e2dnde_SED_warning = self.e2dnde_data_points[self.few_photons_warning > 0]
+            if len(ebins_array) > 0:
+                self.few_photons_warning = self.few_photons_warning[self.sed['ts']>TSmin]
+                self.energy_SED_warning = self.Energy_data_points[self.few_photons_warning > 0]
+                self.e2dnde_SED_warning = self.e2dnde_data_points[self.few_photons_warning > 0]
+            else:
+                self.energy_SED_warning = np.zeros(0)
+                self.e2dnde_SED_warning = np.zeros(0)
+                self.few_photons_warning = np.zeros(0)
             
 
 
