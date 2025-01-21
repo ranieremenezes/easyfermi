@@ -54,13 +54,13 @@ where the sum is performed over all data points with :math:`TS > 9`, :math:`y_n`
 
 The spectral models available for the MCMC are:
 
- - **PowerLaw**: :math:`\frac{dN}{dE} = N_0\left(\frac{E}{E_0} \right)^{-\alpha}`, i.e the classical power-law function, where :math:`\frac{dN}{dE}` is in units of :math:`\mathrm{cm}^{-2}\mathrm{s}^{-1}`, :math:`E` is in MeV, and the priors are -15 < :math:`\log(N_0)` < -8 and 0.5 < :math:`\alpha` < 5.0.
+ - **PowerLaw**: :math:`\frac{dN}{dE} = N_0\left(\frac{E}{E_0} \right)^{-\alpha}`, i.e the classical power-law function, where :math:`\frac{dN}{dE}` is in units of :math:`\mathrm{cm}^{-2}\mathrm{s}^{-1}\mathrm{MeV}^{-1}`, :math:`E` is in MeV, and the priors are -15 < :math:`\log(N_0)` < -8 and 0.5 < :math:`\alpha` < 5.0.
 
- - **LogPar**: :math:`\frac{dN}{dE} = N_0\left(\frac{E}{E_0} \right)^{-\alpha -\beta\log(E/E_0)}`, i.e. the classical log-parabola function, where :math:`\frac{dN}{dE}` is in units of :math:`\mathrm{cm}^{-2}\mathrm{s}^{-1}`, :math:`E` is in MeV, and the priors are set to -15 < :math:`\log(N_0)` < -8, 1.0 < :math:`\alpha` < 4.0, and -1 < :math:`\beta` < 1.0.
+ - **LogPar**: :math:`\frac{dN}{dE} = N_0\left(\frac{E}{E_0} \right)^{-\alpha -\beta\log(E/E_0)}`, i.e. the classical log-parabola function, where :math:`\frac{dN}{dE}` is in units of :math:`\mathrm{cm}^{-2}\mathrm{s}^{-1}\mathrm{MeV}^{-1}`, :math:`E` is in MeV, and the priors are set to -15 < :math:`\log(N_0)` < -8, 1.0 < :math:`\alpha` < 4.0, and -1 < :math:`\beta` < 1.0.
 
  - **LogPar_MTT**: :math:`S(E) = S_p10^{-\alpha\log^2_{10}(E/E_p)}`, which is another parametrization of the log-parabola, conveniently giving us the differential energy flux at the log-parabola peak, :math:`S(E)` [MeV :math:`\mathrm{cm}^{-2}\mathrm{s}^{-1}`], the value of the energy peak, :math:`E_p` [MeV], and the spectral curvature :math:`\alpha`. The priors are set to -7 < :math:`\log(S_p)` < -1, -1.0 < :math:`\alpha` < 1.0, and 2 < :math:`E_p` < 7. The suffix "MTT" stands for Massaro et al. (2004), Tanihata et al. (2004), and Tramacere et al. (2007), which are the first works reporting this parametrization of the log-parabola curve.
 
- - **PLEC**: :math:`\frac{dN}{dE} = N_0\left(\frac{E}{E_0} \right)^{-\alpha} e^{-(E/E_0)^b}`, i.e. a power-law with a super exponential cutoff, where :math:`\frac{dN}{dE}` is in units of :math:`\mathrm{cm}^{-2}\mathrm{s}^{-1}` and :math:`E` is in MeV. The priors are set to -15 < :math:`\log(N_0)` < -8, 1.0 < :math:`\alpha` < 4.0, 3.0 < :math:`E_c` < 7.0, and 0.2 < :math:`b` < 3.0.
+ - **PLEC**: :math:`\frac{dN}{dE} = N_0\left(\frac{E}{E_0} \right)^{-\alpha} e^{-(E/E_0)^b}`, i.e. a power-law with a super exponential cutoff, where :math:`\frac{dN}{dE}` is in units of :math:`\mathrm{cm}^{-2}\mathrm{s}^{-1}\mathrm{MeV}^{-1}` and :math:`E` is in MeV. The priors are set to -15 < :math:`\log(N_0)` < -8, 1.0 < :math:`\alpha` < 4.0, 3.0 < :math:`E_c` < 7.0, and 0.2 < :math:`b` < 3.0.
  
  - **PLEC_bfix**: same as above, but with :math:`b \equiv 1`.
  
