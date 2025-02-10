@@ -1,7 +1,8 @@
 <p align="left" width="100%">
- <img width="100%" height="250" src="https://github.com/clodoN1109/easyFermi/assets/104923248/d1a25a66-0fc6-4484-93fa-aaa8717f4276">
+ <img width="100%" height="100%" src="/docs/source/logo.jpg">
  <h1>easyfermi</h1>
 </p>
+
 
 <a href="https://easyfermi.readthedocs.io/en/latest/">
  
