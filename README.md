@@ -141,4 +141,4 @@ I want to thank Clodomir Vianna for helping me with the design of _easyfermi_, f
 
 Want to be included in the map? Just fill out this short form: https://forms.gle/hcXoxwTHpdpHn24X8
 
-<a href="https://datawrapper.dwcdn.net/NRZy6/5/">![python](https://github.com/ranieremenezes/easyfermi/blob/main/docs/source/world_map_september_2024.png)</a>
+<a href="https://datawrapper.dwcdn.net/NRZy6/9/">![python](docs/source/world_map_jan_2025.png)</a>
