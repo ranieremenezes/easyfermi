@@ -3005,7 +3005,7 @@ class Ui_mainWindow(QDialog):
             ebins_array = ebins_array[ebins_array > 4]
             if len(ebins_array) > 0: 
                 self.few_photons_warning = np.zeros(len(ebins_array)-1)
-                photon_file = glob.glob(self.white_box_output_dir.text()+"/ft1*.fits")[-1]  # Selecting only the highest energy photon file (supposing we only have one for E > 10GeV).
+                photon_file = np.sort(glob.glob(self.white_box_output_dir.text()+"/ft1*.fits"))[-1]  # Selecting only the highest energy photon file (supposing we only have one for E > 10GeV).
                 photon_energies = pyfits.open(photon_file)[1].data["ENERGY"]
                 photon_RA = pyfits.open(photon_file)[1].data["RA"][photon_energies>10000]
                 photon_DEC = pyfits.open(photon_file)[1].data["DEC"][photon_energies>10000]
