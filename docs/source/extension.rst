@@ -13,7 +13,7 @@ If the box "Extension" is checked, ``easyfermi`` will look for extended emission
 
 .. code-block::
 
-    extension(Target_Name,width=scan_list, spatial_model='RadialDisk')
+    extension(Target_Name,width=scan_list, spatial_model='RadialDisk', sqrt_ts_threshold = 3, update = True, make_plots = True)
     
 Where the input parameters for this function are:
 
@@ -24,6 +24,12 @@ Where the input parameters for this function are:
 * **spatial_model**: The spatial model is defined by the user in the graphical interface. It accepts only two models: 'RadialDisk' and 'RadialGaussian'.
 
 This method also generates two data files, namely "TARGET_NAME_ext.fits" and "TARGET_NAME_ext.npy", containing the extendend emission fit results, and a "Quickplot_extension" plot showing the delta log-likelihood profile as a function of the spatial model radius, the 68% containment radius :math:`R_{68}`, and :math:`TS_{ext}`, which tells us how significant is the extended model if compared with a point-like model. These files are saved in the output directory defined in the graphical interface. The figure below shows the "Quickplot_extension" plot for the Andromeda galaxy (M31) observed over ~ 15 years with the Fermi-LAT at energies above 1 GeV, where we can see a hint of extended emission.
+
+* **sqrt_ts_threshold**: The threshold on sqrt(TS_ext) that will be applied when update = True. This value is set as 3, meaning that the model will be updated only if the extended emission significance is above 3 sigma. 
+
+* **update**: Set as True. The RoI model will be updated with the extended fit if the significance of the extended source with respect to a poin-like source is above 3 sigma.
+
+* **make_plots**: Set by the user in the graphical interface. If the box "Diagnostic plots" is checked, then make_plots=True.
 
 
 .. image:: ./Extension_M31_above_1GeV.png
@@ -42,7 +48,7 @@ If you don't know how to use the "Custom" mode in easyfermi, take a look at this
 
 Ok, now that you know how to use the "Custom" mode, you need to follow only two steps:
 
-* Create the spatial map in the shape you prefer by following `this tutorial <https://fermi.gsfc.nasa.gov/ssc/data/p7rep/analysis/scitools/extended/extended.html>`_.
+* Create the spatial map in the shape you prefer by following `this tutorial <https://fermi.gsfc.nasa.gov/ssc/data/analysis/scitools/extended/extended.html>`_.
 
 * Open the config.yaml file and edit the **model** section as follows:
 
