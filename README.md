@@ -10,6 +10,9 @@
 
 </a>
 
+<a href="https://zenodo.org/records/17135824"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.17135824.svg" /></a>
+
+
 <a href="https://ascl.net/2203.015"><img src="https://img.shields.io/badge/ascl-2203.015-blue.svg?colorB=262255" alt="ascl:2203.015" /></a>
 
 [![CI](https://github.com/ranieremenezes/easyfermi/actions/workflows/ci.yml/badge.svg)](https://github.com/ranieremenezes/easyfermi/actions/workflows/ci.yml)
@@ -119,7 +122,7 @@ The documentation of `easyfermi` can be found [here](https://easyfermi.readthedo
 
 # Acknowledgments
 
-To acknowledge `easyfermi` in a publication, please cite  [de Menezes, R (2022)](https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract).
+To acknowledge `easyfermi` in a publication, please cite  [de Menezes, R (2022)](https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract) and [de Menezes et al. (2025)](https://doi.org/10.5281/zenodo.17135824).
 
 Since _easyfermi_ relies on _fermipy_, _gammapy_, _astropy_, and _emcee_, please also cite [Wood et al. 2017](https://ui.adsabs.harvard.edu/abs/2017ICRC...35..824W/abstract), [Donath et al. 2023](https://ui.adsabs.harvard.edu/abs/2023A%26A...678A.157D/abstract), [Astropy Collaboration et al. 2018](https://ui.adsabs.harvard.edu/abs/2018AJ....156..123A/abstract), and [Foreman-Mackey et al. 2013](https://ui.adsabs.harvard.edu/abs/2013PASP..125..306F/abstract).
 
