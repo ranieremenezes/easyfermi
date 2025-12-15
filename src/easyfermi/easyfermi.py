@@ -104,7 +104,6 @@ class Worker(QtCore.QObject):
     finished_download_photons = QtCore.pyqtSignal()
     progress = QtCore.pyqtSignal(int)
     
-    
     def run_gtsetup(self):
         """Long-running task."""
         self.starting.emit()
@@ -1348,7 +1347,7 @@ class Ui_mainWindow(QDialog):
         
         if can_we_go:
             self.thread = QtCore.QThread()
-            self.worker = Worker()
+            self.worker = Worker(self)
             self.worker.moveToThread(self.thread)
         
             # Standard or custom analysis?
@@ -4177,19 +4176,22 @@ class Ui_mainWindow(QDialog):
             else:
                 plt.savefig(self.OutputDir+f'Quickplot_LC_{len(lc["ts"])}_bins.'+output_format,bbox_inches='tight')
 
-    
-
-
-
-
-
-#if __name__ == "__main__":
 app = QtWidgets.QApplication(sys.argv)
 mainWindow = QtWidgets.QMainWindow()
 ui = Ui_mainWindow()
-ui.setupUi(mainWindow)
-mainWindow.show()
-sys.exit(app.exec_())
+
+def main():
+
+    ui.setupUi(mainWindow)
+    mainWindow.show()
+    sys.exit(app.exec_())
+
+
+
+if __name__ == "__main__":
+
+    main()
+
 
 
 

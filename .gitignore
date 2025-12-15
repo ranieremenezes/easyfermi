@@ -29,6 +29,10 @@ distribute-*.tar.gz
 # Mac OSX
 .DS_Store
 
+# Documentation build
+docs/build
+docs/generated
+
 # data files (should not be stored in git)
 **/wget*log*
 *.log
@@ -41,6 +45,9 @@ distribute-*.tar.gz
 *.par
 *.yml
 *.pdf
+Diffuse
+Photons
+spacecraft
 
 # Exclude from ignoring what we actually need
 !src/easyfermi/resources/ebl/*.fits.gz
