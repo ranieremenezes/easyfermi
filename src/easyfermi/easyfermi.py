@@ -3505,7 +3505,7 @@ class Ui_mainWindow(QDialog):
             add_results.write("Model: "+self.comboBox_MCMC.currentText()+"\n")
             samples = sampler.flatchain
             theta_max = samples[np.argmax(sampler.flatlnprobability)]
-            self.AIC = 2*len(theta_max) + 2*np.log(-lnlike(theta_max, data[0], data[1], data[2]))  # Akaike information criterion
+            self.AIC = 2*len(theta_max) - 2*lnlike(theta_max, data[0], data[1], data[2])  # Akaike information criterion
 
             if self.comboBox_MCMC.currentText() == "LogPar":
                 best_fit_model = LogPar(theta_max, x)
@@ -3809,20 +3809,11 @@ class Ui_mainWindow(QDialog):
         if self.checkBox_extension.isChecked():
             self.gta.config['extension']['width_min'] = 0.01
             if self.radioButton_disk.isChecked(): 
-                exten = self.gta.extension(self.sourcename,width=np.linspace(0.01,self.doubleSpinBox_extension_max_size.value(),20).tolist(), spatial_model='RadialDisk', sqrt_ts_threshold = 3, update = True, make_plots = self.checkBox_diagnostic_plots.isChecked())
+                exten = self.gta.extension(self.sourcename,width=np.linspace(0.01,self.doubleSpinBox_extension_max_size.value(),20).tolist(), spatial_model='RadialDisk')
             else:
-                exten = self.gta.extension(self.sourcename,width=np.linspace(0.01,self.doubleSpinBox_extension_max_size.value(),20).tolist(), spatial_model='RadialGaussian', sqrt_ts_threshold = 3, update = True, make_plots = self.checkBox_diagnostic_plots.isChecked())
-
-            if exten['ts_ext'] >= 9:
-                #Saving results
-                f = open(self.OutputDir+'Target_results.txt','w')
-                f.write(f"\n **Values below refer to the extened model of {self.sourcename}**\n\n")
-                f.write(str(self.gta.roi[self.sourcename]))
-                f.write('\nEnergy flux upper limit (MeV cm-2 s-1): '+str(self.gta.roi.sources[0]['eflux_ul95']))
-                f.write('\nPhoton flux upper limit (cm-2 s-1): '+str(self.gta.roi.sources[0]['flux_ul95']))
-                f.close()
-
-
+                exten = self.gta.extension(self.sourcename,width=np.linspace(0.01,self.doubleSpinBox_extension_max_size.value(),20).tolist(), spatial_model='RadialGaussian')
+                
+            self.gta.write_roi(self.sourcename+'_extension')            
             f = plt.figure(figsize=(6,5),dpi=250)
             ax = f.add_subplot(1,1,1)
             ax.xaxis.set_minor_locator(AutoMinorLocator(2))

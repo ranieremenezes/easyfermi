@@ -46,9 +46,9 @@ If this correction is applied, the MCMC estimation (see Section `MCMC`_) of para
 Markov Chain Monte Carlo (MCMC)
 -------------------------------
 
-The estimation of parameters with MCMC in ``easyfermi`` is done with `emcee <https://emcee.readthedocs.io/en/stable/>`_ and it requires a minimum number of 3 data points with :math:`TS > 9`. The likelihood function that we maximize in ``easyfermi`` is given by:
+The estimation of parameters with MCMC in ``easyfermi`` is done with `emcee <https://emcee.readthedocs.io/en/stable/>`_ and it requires a minimum number of 3 data points with :math:`TS > 9`. The log-likelihood function that we maximize in ``easyfermi`` is given by:
 
-:math:`\mathcal{L} = - \frac{1}{2}\sum_n\left[ \frac{(y_n - f(\vec\theta,x_n))^2}{\sigma_n^2} \right]`
+:math:`ln\mathcal{L} = - \frac{1}{2}\sum_n\left[ \frac{(y_n - f(\vec\theta,x_n))^2}{\sigma_n^2} \right]`
 
 where the sum is performed over all data points with :math:`TS > 9`, :math:`y_n` and :math:`x_n` are the y (differential flux) and x (energy) values for each data point, :math:`\sigma_n` is the error associated with the :math:`y` component of each data point, and :math:`f(\vec\theta,x_n)` is the adopted specral model feeded with a set of parameters :math:`\vec\theta`. 
 
@@ -99,7 +99,7 @@ As a tool for model selection, ``easyfermi`` provides the `Akaike information cr
 
 We use a slightly modified form of this method defined as:
 
-:math:`AIC = 2k + 2ln(-\mathcal{L}_{max})`,
+:math:`AIC = 2k - 2ln\mathcal{L}_{max}`,
 
 where *k* is the number of free parameters in the given model, and :math:`\mathcal{L}_{max}` is the maximized likelihood function defined above.
 
