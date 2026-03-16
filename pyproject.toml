@@ -62,7 +62,7 @@ where = ["src"]
 dev = ["easyfermi[docs]", "easyfermi[tests]", "ruff", "pre-commit"]
 
 [project.scripts]
-my-script = "my_package.module:function"
+easyfermi = "easyfermi.easyfermi:main"
 
 # ... other project metadata fields as listed in:
 #     https://packaging.python.org/en/latest/guides/writing-pyproject-toml/
