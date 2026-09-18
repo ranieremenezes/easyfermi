@@ -11,7 +11,7 @@ authors = [
 ]
 description = "The easiest way to analyze Fermi-LAT data"
 readme = "README.md"
-requires-python = ">=3.9,<3.10"
+requires-python = ">=3.12,<3.13"
 keywords = [
     "python",
     "fermi",
@@ -22,47 +22,49 @@ keywords = [
 ]
 license = { text = "BSD-3-Clause" }
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Astronomy",
     "License :: OSI Approved :: BSD License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: Implementation :: CPython",
     "Operating System :: Unix",
     "Operating System :: MacOS :: MacOS X",
 ]
 dependencies = [
-    "astropy==5.3.3",
+    "astropy==7.2.0",
     "astroquery==0.4.6",
-    "corner",
-    "emcee",
-    "fermipy==v1.2",
-    "gammapy==1.1",
-    "healpy==1.16.1",
-    'importlib-metadata; python_version<"3.10"',
-    "matplotlib==3.8.2",
+    "corner==2.2.2",
+    "emcee==3.1.4",
+    "fermitools==2.5.3",
+    "gammapy==2.1",
+    "healpy==1.20.0",
+    "matplotlib==3.11.2",
     "psutil==5.9.8",
     "PyQt5==5.15.9",
-    "scipy==1.11.4",
+    "scipy==1.17.1",
 ]
+
 dynamic = ["version"]
+
 
 [tool.setuptools_scm]
 write_to = "src/easyfermi/_version.py"
 
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
+
 [tool.setuptools.package-data]
-"resources.ebl" = ["*.fits.gz"]
-"reousrce.images" = ["*.png", "*.jpg"]
+"easyfermi.resources.ebl" = ["*.fits.gz"]
+"easyfermi.resources.images" = ["*.png", "*.jpg"]
+
 
 [project.optional-dependencies]
 dev = ["easyfermi[docs]", "easyfermi[tests]", "ruff", "pre-commit"]
 
+
 [project.scripts]
 my-script = "my_package.module:function"
-
-# ... other project metadata fields as listed in:
-#     https://packaging.python.org/en/latest/guides/writing-pyproject-toml/
