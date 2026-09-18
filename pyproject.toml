@@ -37,7 +37,6 @@ dependencies = [
     "astroquery==0.4.6",
     "corner==2.2.2",
     "emcee==3.1.4",
-    "fermitools==2.5.3",
     "gammapy==2.1",
     "healpy==1.20.0",
     "matplotlib==3.11.2",
@@ -66,5 +65,3 @@ where = ["src"]
 dev = ["easyfermi[docs]", "easyfermi[tests]", "ruff", "pre-commit"]
 
 
-[project.scripts]
-my-script = "my_package.module:function"
