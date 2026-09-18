@@ -8,11 +8,11 @@ on:
       - "**"
   pull_request:
 
-
 jobs:
 
   install:
     runs-on: ${{ matrix.os }}
+
     strategy:
       matrix:
         python-version: [3.12]
@@ -20,7 +20,6 @@ jobs:
 
     defaults:
       run:
-        # We need login shells (-l) for micromamba to work.
         shell: bash -leo pipefail {0}
 
     steps:
@@ -28,24 +27,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Prepare mamba installation
-        env:
-          PYTHON_VERSION: ${{ matrix.python-version }}
-        run: |
-          # Set the correct Python version
-          sed -i -e "s/- python=.*/- python=$PYTHON_VERSION/g" environment.yml
-
       - name: Mamba setup
         uses: mamba-org/setup-micromamba@v3
         with:
           environment-file: environment.yml
-          cache-downloads: true
+          cache-downloads: false
 
       - name: Install dependencies
-        env:
-          PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
           python --version
-          python --version | grep "Python ${PYTHON_VERSION}"
           python -m pip install -e .
           python -m pip freeze
