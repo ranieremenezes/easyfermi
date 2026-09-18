@@ -20,7 +20,7 @@ from astropy.coordinates import SkyCoord
 from astropy.table import Table, vstack
 import psutil  # Version: 5.9.8
 from scipy import interpolate
-from gammapy.modeling.models import EBLAbsorptionNormSpectralModel  # Version 0.20.1
+from gammapy.modeling.models import EBLAbsorptionNormSpectralModel, EBL_DATA_BUILTIN  # Version 0.20.1
 import emcee  # Version: 3.1.4
 import corner  # Version: 2.2.2
 from pathlib import Path
@@ -301,7 +301,8 @@ class Ui_mainWindow(QDialog):
         self.comboBox_redshift.addItem("")
         self.comboBox_redshift.addItem("")
         self.comboBox_redshift.addItem("")
-        self.comboBox_redshift.setCurrentIndex(4)
+        self.comboBox_redshift.addItem("")
+        self.comboBox_redshift.setCurrentIndex(5)
         self.comboBox_MCMC = QtWidgets.QComboBox(self.groupBox_Science)
         self.comboBox_MCMC.setEnabled(True)
         if OS_name == "Darwin":
@@ -1037,6 +1038,7 @@ class Ui_mainWindow(QDialog):
         self.comboBox_redshift.setItemText(2, _translate("mainWindow", "Dominguez et al. (2011)"))
         self.comboBox_redshift.setItemText(3, _translate("mainWindow", "Franceschini & Rodighiero (2017)"))
         self.comboBox_redshift.setItemText(4, _translate("mainWindow", "Saldana-Lopez et al. (2021)"))
+        self.comboBox_redshift.setItemText(5, _translate("mainWindow", "Finke et al. (2022) model A"))
         self.comboBox_MCMC.setAccessibleName(_translate("mainWindow", "MCMC_model"))
         self.comboBox_MCMC.setAccessibleDescription(_translate("mainWindow", "MCMC_model"))
         self.comboBox_MCMC.setItemText(0, _translate("mainWindow", "PowerLaw"))
@@ -3207,18 +3209,21 @@ class Ui_mainWindow(QDialog):
 
             if self.redshift > 0.0:
                 # Here we compute the EBL absorption model for a given redshift:
-                EBL_model = self.comboBox_redshift.currentText().split(" ")[0]
-                if EBL_model == "Dominguez":
+                EBL_model = self.comboBox_redshift.currentText()
+                if EBL_model == "Dominguez et al. (2011)":
                     EBL_model = "dominguez"
-                elif EBL_model == "Franceschini":
-                    if self.comboBox_redshift.currentText().split(" ")[1] == "et":
-                        EBL_model = "franceschini"
-                    else:
+                elif EBL_model == "Franceschini et al. (2008)":
+                    EBL_model = "franceschini"
+                elif EBL_model == "Franceschini & Rodighiero (2017)":
                         EBL_model = "franceschini17"
-                elif EBL_model == "Saldana-Lopez":
+                elif EBL_model == "Saldana-Lopez et al. (2021)":
                     EBL_model = "saldana-lopez21"
-                else:
+                elif EBL_model == "Finke et al. (2010)":
                     EBL_model = "finke"
+                elif EBL_model == "Finke et al. (2022) model A":
+                    EBL_model = "finke2022"
+                    EBL_DATA_BUILTIN["finke2022"] = '$GAMMAPY_DATA/ebl/ebl_finke22.fits.gz'
+
 
                 os.environ["GAMMAPY_DATA"] = str(EBLpath)  # gammapy will look for EBL models in this directory
                 absorption = EBLAbsorptionNormSpectralModel.read_builtin(EBL_model, redshift=self.redshift)

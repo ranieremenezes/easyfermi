@@ -41,7 +41,7 @@ The following instructions assume an installation of `conda` or `mamba` (i.e. a 
 ### Mamba-based installation 
 
 In the terminal, run:
-<pre><code>mamba create --name easyfermi -c conda-forge -c fermi python=3.9 "fermitools>=2.2.0" "healpy=1.16.1" "gammapy=1.1" "scipy=1.10.1" "astropy=5.3.3" "pyqt=5.15.9" "astroquery=0.4.6" "psutil=5.9.8" "emcee=3.1.4" "corner=2.2.2" "matplotlib=3.8.2" </code></pre>
+<pre><code>mamba create --name easyfermi -c conda-forge -c fermi python=3.12 "fermitools=2.5.3" "healpy=1.20.0" "gammapy=2.1" "scipy=1.17.1" "astropy=7.2.0" "pyqt=5.15.9" "astroquery=0.4.6" "psutil=5.9.8" "emcee=3.1.4" "corner=2.2.2" "matplotlib=3.11.2" </code></pre>
 
 This will create the virtual environment and install all dependencies. Then activate the environment and install _fermipy_ and _easyfermi_:
 <pre><code>mamba activate easyfermi
@@ -132,8 +132,9 @@ The EBL models adopted in _easyfermi_ are from:
  - Dominguez et al. 2011 (http://adsabs.harvard.edu/cgi-bin/bib_query?arXiv:1007.1459)
  - Franceschini & Rodighiero 2017 (https://ui.adsabs.harvard.edu/abs/2017A%26A...603A..34F/abstract)
  - Saldana-Lopez et al. 2021 (https://ui.adsabs.harvard.edu/abs/2021MNRAS.507.5144S/abstract)
+ - Finke et al. 2022, model A (https://ui.adsabs.harvard.edu/abs/2022ApJ...941...33F/abstract)
 
-If you make use of EBL correction via _easyfermi_ in your publication, please cite the papers corresponding to the adopted EBL models. The EBL data files in this repository were collected from the _gammapy_ repository at https://github.com/gammapy/gammapy-data/tree/main/ebl
+If you make use of EBL correction via _easyfermi_ in your publication, please cite the papers corresponding to the adopted EBL models. The EBL data files in this repository were collected from the _gammapy_ repository at https://github.com/gammapy/gammapy-data/tree/main/ebl and the _zenodo_ repository at https://zenodo.org/records/7023073
 
 I want to thank Clodomir Vianna for helping me with the design of _easyfermi_, for making the _easyfermi_ logo, and for the several hours of discussion about this project. Clodomir is the one responsible for making _easyfermi_ user-friendly. Thanks to Fabio Cafardo, Lucas Costa Campos, Raí Menezes, and Michele Peresano for their help and strong support to this project. A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Matt Pui, and Romana Grossova, the first users/testers of _easyfermi_.
 

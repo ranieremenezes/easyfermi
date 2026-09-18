@@ -39,6 +39,7 @@ The EBL models adopted in *easyfermi* are from:
  - `Dominguez et al. 2011 <http://adsabs.harvard.edu/cgi-bin/bib_query?arXiv:1007.1459>`_.
  - `Franceschini & Rodighiero 2017 <https://ui.adsabs.harvard.edu/abs/2017A%26A...603A..34F/abstract>`_.
  - `Saldana-Lopez et al. 2021 <https://ui.adsabs.harvard.edu/abs/2021MNRAS.507.5144S/abstract>`_.
+ - `Finke et al. 2022, model A <https://ui.adsabs.harvard.edu/abs/2022ApJ...941...33F/abstract>`_.
 
 If you make use of one of these models in your publication, please cite the corresponding paper.
 
