@@ -27,6 +27,8 @@ from pathlib import Path
 import yaml
 from yaml import Loader
 import warnings
+import shutil
+import re
 
 warnings.filterwarnings("ignore")
 
@@ -118,7 +120,7 @@ class Worker(QtCore.QObject):
         if calculate_Sun:
             self.progress.emit(3)
             ui.Sun_path()
-
+ 
         self.progress.emit(4)
         ui.relocalize_the_target()
         self.progress.emit(5)
@@ -126,17 +128,29 @@ class Worker(QtCore.QObject):
         self.progress.emit(6)
         ui.compute_Extension()
         self.progress.emit(7)
-        ui.compute_SED()
-        self.progress.emit(8)
-        ui.EBL_and_MCMC()
-        self.progress.emit(9)
+ 
+        # Light curves:
+        external_LC = ui.external_LC_selected()
         ui.compute_LC()
-        ui.plot_LCs(adaptive=False)
+        if not external_LC:  # with an external LC, no standard LC is computed
+            ui.plot_LCs(adaptive=False)
+        self.progress.emit(8)
+        if ui.adaptive_LC_requested():  # the adaptive-binning LC runs only if its checkbox is checked
+            for i in range(N_iter_adaptive_LC):
+                ui.compute_LC_adaptive()
+            ui.plot_LCs(adaptive=True)
+        self.progress.emit(9)
+        ui.compute_LC_bayesian_blocks()
+        ui.plot_LCs(adaptive=False, bayesian_blocks=True)
+ 
+        # SED and MCMC:
         self.progress.emit(10)
-        for i in range(N_iter_adaptive_LC):
-            ui.compute_LC_adaptive()
-        ui.plot_LCs(adaptive=True)
+        ui.compute_SED()
         self.progress.emit(11)
+        ui.EBL_and_MCMC()
+        self.progress.emit(12)
+ 
+        self.progress.emit(13)  # final summary in the log
         self.finished.emit()
 
 
@@ -186,12 +200,12 @@ class Ui_mainWindow(QDialog):
         Here we also set the tooltips and associate the buttons to their respective functions.  
         """
         mainWindow.setObjectName("mainWindow")
-        mainWindow.resize(1110, 595)
+        mainWindow.resize(1110, 695)
         mainWindow.setWindowOpacity(1.0)
         self.centralwidget = QtWidgets.QWidget(mainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
-        self.progressBar.setGeometry(QtCore.QRect(10, 530, 1090, 20))
+        self.progressBar.setGeometry(QtCore.QRect(10, 630, 1090, 20))
         self.progressBar.setProperty("value", 0)
         self.progressBar.setObjectName("progressBar")
         self.call_download_window = None  # The donwload window is off
@@ -211,12 +225,24 @@ class Ui_mainWindow(QDialog):
         self.radioButton_Standard.setAutoExclusive(True)
         self.radioButton_Standard.setObjectName("radioButton_Standard")
 
+        self.picture_cbpf = QtWidgets.QLabel(self.centralwidget)
+        self.picture_cbpf.setEnabled(True)
+        self.picture_cbpf.setGeometry(QtCore.QRect(5, 535, 288, 87)) #Original: (918, 145, 180, 54)
+        self.picture_cbpf.setFont(font)
+        self.picture_cbpf.setMouseTracking(False)
+        self.picture_cbpf.setAutoFillBackground(False)
+        self.picture_cbpf.setText("")
+        self.picture_cbpf.setPixmap(QtGui.QPixmap(str(libpath / "logo_cbpf.png")))
+        self.picture_cbpf.setScaledContents(True)
+        self.picture_cbpf.setWordWrap(False)
+        self.picture_cbpf.setObjectName("picture_cbpf")
+
         ##################################################################
         ######## Group box Science
         ##################################################################
 
         self.groupBox_Science = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_Science.setGeometry(QtCore.QRect(300, 190, 341, 331))
+        self.groupBox_Science.setGeometry(QtCore.QRect(300, 190, 341, 431))
         self.groupBox_Science.setObjectName("groupBox_Science")
 
         #LC:
@@ -244,10 +270,34 @@ class Ui_mainWindow(QDialog):
         self.spinBox_N_cores_LC.setProperty("value", 1)
         self.spinBox_N_cores_LC.setObjectName("spinBox_N_cores_LC")
         self.checkBox_adaptive_binning = QtWidgets.QCheckBox(self.groupBox_Science)
-        self.checkBox_adaptive_binning.setGeometry(QtCore.QRect(40, 65, 131, 23))
+        self.checkBox_adaptive_binning.setGeometry(QtCore.QRect(40, 65, 141, 23))
         self.checkBox_adaptive_binning.setObjectName("checkBox_adaptive_binning")
         self.checkBox_adaptive_binning.setChecked(False)
         self.checkBox_adaptive_binning.setEnabled(False)
+        self.checkBox_bayesian_blocks = QtWidgets.QCheckBox(self.groupBox_Science)
+        self.checkBox_bayesian_blocks.setGeometry(QtCore.QRect(40, 115, 141, 23))
+        self.checkBox_bayesian_blocks.setObjectName("checkBox_bayesian_blocks")
+        self.checkBox_bayesian_blocks.setChecked(False)
+        self.checkBox_bayesian_blocks.setEnabled(False)
+        self.comboBox_bayesian_blocks = QtWidgets.QComboBox(self.groupBox_Science)
+        self.comboBox_bayesian_blocks.setGeometry(QtCore.QRect(60, 135, 100, 21))
+        self.comboBox_bayesian_blocks.setObjectName("comboBox_bayesian_blocks")
+        self.comboBox_bayesian_blocks.addItem("")
+        self.comboBox_bayesian_blocks.addItem("")
+        self.comboBox_bayesian_blocks.setEnabled(False)
+        self.comboBox_bayesian_blocks.currentTextChanged.connect(self.activate)
+        self.white_box_bayesian_blocks = QtWidgets.QLineEdit(self.groupBox_Science)
+        self.white_box_bayesian_blocks.setGeometry(QtCore.QRect(200, 135, 48, 21))
+        self.white_box_bayesian_blocks.setObjectName("white_box_bayesian_blocks")
+        self.white_box_bayesian_blocks.setEnabled(False)
+        self.label_rho_bayesian_blocks = QtWidgets.QLabel(self.groupBox_Science)
+        self.label_rho_bayesian_blocks.setEnabled(False)
+        self.label_rho_bayesian_blocks.setGeometry(QtCore.QRect(252, 135, 20, 21))
+        self.label_rho_bayesian_blocks.setObjectName("label_rho_bayesian_blocks")
+        self.white_box_external_LC = QtWidgets.QLineEdit(self.groupBox_Science)
+        self.white_box_external_LC.setGeometry(QtCore.QRect(60, 160, 100, 21))
+        self.white_box_external_LC.setObjectName("white_box_bayesian_blocks")
+        self.white_box_external_LC.setEnabled(False)
         self.white_box_TS_threshold = QtWidgets.QLineEdit(self.groupBox_Science)
         self.white_box_TS_threshold.setGeometry(QtCore.QRect(60, 90, 48, 21))
         self.white_box_TS_threshold.setObjectName("white_box_TS_threshold")
@@ -266,35 +316,48 @@ class Ui_mainWindow(QDialog):
         self.label_N_iter.setEnabled(False)
         self.label_N_iter.setGeometry(QtCore.QRect(252, 90, 121, 21))
         self.label_N_iter.setObjectName("label_N_iter")
+        self.toolButton_external_LC = QtWidgets.QToolButton(self.groupBox_Science)
+        self.toolButton_external_LC.setGeometry(QtCore.QRect(165, 160, 26, 21))
+        self.toolButton_external_LC.setWhatsThis("")
+        self.toolButton_external_LC.setObjectName("toolButton_external_LC")
+        self.pushButton_quickplot_LC = QtWidgets.QPushButton(self.groupBox_Science)
+        self.pushButton_quickplot_LC.setGeometry(QtCore.QRect(200, 160, 100, 21))
+        self.pushButton_quickplot_LC.setObjectName("pushButton_quickplot_LC")
 
+
+        vertical_space = 100
 
         #SED:
         self.checkBox_SED = QtWidgets.QCheckBox(self.groupBox_Science)
-        self.checkBox_SED.setGeometry(QtCore.QRect(10, 110, 131, 23))
+        self.checkBox_SED.setGeometry(QtCore.QRect(10, 82 + vertical_space, 131, 23))
         self.checkBox_SED.setChecked(True)
         self.checkBox_SED.setObjectName("checkBox_SED")
+        self.checkBox_SED_per_bin = QtWidgets.QCheckBox(self.groupBox_Science)
+        self.checkBox_SED_per_bin.setGeometry(QtCore.QRect(40, 105 + vertical_space, 200, 23))
+        self.checkBox_SED_per_bin.setChecked(False)
+        self.checkBox_SED_per_bin.setObjectName("checkBox_SED_per_bin")
+        self.checkBox_SED_per_bin.setEnabled(False)
         self.label_N_energy_bins = QtWidgets.QLabel(self.groupBox_Science)
-        self.label_N_energy_bins.setGeometry(QtCore.QRect(95, 130, 121, 21))
+        self.label_N_energy_bins.setGeometry(QtCore.QRect(95, 130 + vertical_space, 121, 21))
         self.label_N_energy_bins.setObjectName("label_N_energy_bins")
         self.spinBox_SED_N_energy_bins = QtWidgets.QSpinBox(self.groupBox_Science)
-        self.spinBox_SED_N_energy_bins.setGeometry(QtCore.QRect(40, 130, 48, 26))
+        self.spinBox_SED_N_energy_bins.setGeometry(QtCore.QRect(40, 130 + vertical_space, 48, 26))
         self.spinBox_SED_N_energy_bins.setMinimum(3)
         self.spinBox_SED_N_energy_bins.setProperty("value", 10)
         self.spinBox_SED_N_energy_bins.setObjectName("spinBox_SED_N_energy_bins")
         self.checkBox_use_local_index = QtWidgets.QCheckBox(self.groupBox_Science)
-        self.checkBox_use_local_index.setGeometry(QtCore.QRect(210, 130, 131, 23))
-        self.checkBox_use_local_index.setChecked(True)
+        self.checkBox_use_local_index.setGeometry(QtCore.QRect(210, 130 + vertical_space, 131, 23))
         self.checkBox_use_local_index.setObjectName("checkBox_use_local_index")
         self.checkBox_use_local_index.setChecked(False)
         self.label_redshift = QtWidgets.QLabel(self.groupBox_Science)
-        self.label_redshift.setGeometry(QtCore.QRect(95, 160, 50, 21))
+        self.label_redshift.setGeometry(QtCore.QRect(95, 160 + vertical_space, 50, 21))
         self.label_redshift.setObjectName("label_redshift")
         self.white_box_redshift = QtWidgets.QLineEdit(self.groupBox_Science)
-        self.white_box_redshift.setGeometry(QtCore.QRect(40, 160, 48, 25))
+        self.white_box_redshift.setGeometry(QtCore.QRect(40, 160 + vertical_space, 48, 25))
         self.white_box_redshift.setObjectName("white_box_redshift")
         self.comboBox_redshift = QtWidgets.QComboBox(self.groupBox_Science)
         self.comboBox_redshift.setEnabled(True)
-        self.comboBox_redshift.setGeometry(QtCore.QRect(150, 160, 185, 25))
+        self.comboBox_redshift.setGeometry(QtCore.QRect(150, 160 + vertical_space, 185, 25))
         self.comboBox_redshift.setObjectName("comboBox_redshift")
         self.comboBox_redshift.addItem("")
         self.comboBox_redshift.addItem("")
@@ -306,9 +369,9 @@ class Ui_mainWindow(QDialog):
         self.comboBox_MCMC = QtWidgets.QComboBox(self.groupBox_Science)
         self.comboBox_MCMC.setEnabled(True)
         if OS_name == "Darwin":
-            self.comboBox_MCMC.setGeometry(QtCore.QRect(40, 190, 90, 25))
+            self.comboBox_MCMC.setGeometry(QtCore.QRect(40, 190 + vertical_space, 90, 25))
         else:
-            self.comboBox_MCMC.setGeometry(QtCore.QRect(40, 190, 80, 25))
+            self.comboBox_MCMC.setGeometry(QtCore.QRect(40, 190 + vertical_space, 80, 25))
         self.comboBox_MCMC.setObjectName("comboBox_MCMC")
         self.comboBox_MCMC.addItem("")
         self.comboBox_MCMC.addItem("")
@@ -318,41 +381,41 @@ class Ui_mainWindow(QDialog):
         self.comboBox_MCMC.addItem("")
         self.comboBox_MCMC.setCurrentIndex(1)
         self.label_MCMC = QtWidgets.QLabel(self.groupBox_Science)
-        self.label_MCMC.setGeometry(QtCore.QRect(125, 190, 50, 21))
+        self.label_MCMC.setGeometry(QtCore.QRect(125, 190 + vertical_space, 50, 21))
         self.label_MCMC.setObjectName("label_MCMC")
         self.white_box_VHE = QtWidgets.QLineEdit(self.groupBox_Science)
-        self.white_box_VHE.setGeometry(QtCore.QRect(170, 190, 135, 25))
+        self.white_box_VHE.setGeometry(QtCore.QRect(170, 190 + vertical_space, 135, 25))
         self.white_box_VHE.setObjectName("white_box_VHE")
         self.white_box_VHE.setText("Add VHE data?")
         self.toolButton_VHE = QtWidgets.QToolButton(self.groupBox_Science)
-        self.toolButton_VHE.setGeometry(QtCore.QRect(310, 190, 26, 24))
+        self.toolButton_VHE.setGeometry(QtCore.QRect(310, 190 + vertical_space, 26, 24))
         self.toolButton_VHE.setWhatsThis("")
         self.toolButton_VHE.setObjectName("toolButton_VHE")
 
 
         #Extension:
         self.checkBox_extension = QtWidgets.QCheckBox(self.groupBox_Science)
-        self.checkBox_extension.setGeometry(QtCore.QRect(10, 215, 131, 23))
+        self.checkBox_extension.setGeometry(QtCore.QRect(10, 215 + vertical_space, 131, 23))
         self.checkBox_extension.setObjectName("checkBox_extension")
         self.radioButton_disk = QtWidgets.QRadioButton(self.groupBox_Science)
         self.radioButton_disk.setEnabled(False)
-        self.radioButton_disk.setGeometry(QtCore.QRect(40, 235, 61, 23))
+        self.radioButton_disk.setGeometry(QtCore.QRect(40, 235 + vertical_space, 61, 23))
         self.radioButton_disk.setChecked(True)
         self.radioButton_disk.setAutoExclusive(True)
         self.radioButton_disk.setObjectName("radioButton_disk")
         self.radioButton_2D_Gauss = QtWidgets.QRadioButton(self.groupBox_Science)
         self.radioButton_2D_Gauss.setEnabled(False)
-        self.radioButton_2D_Gauss.setGeometry(QtCore.QRect(95, 235, 91, 23))
+        self.radioButton_2D_Gauss.setGeometry(QtCore.QRect(95, 235 + vertical_space, 91, 23))
         self.radioButton_2D_Gauss.setChecked(False)
         self.radioButton_2D_Gauss.setAutoExclusive(True)
         self.radioButton_2D_Gauss.setObjectName("radioButton_2D_Gauss")
         self.label_Extension_max_size = QtWidgets.QLabel(self.groupBox_Science)
         self.label_Extension_max_size.setEnabled(False)
-        self.label_Extension_max_size.setGeometry(QtCore.QRect(252, 230, 81, 31))
+        self.label_Extension_max_size.setGeometry(QtCore.QRect(252, 230 + vertical_space, 81, 31))
         self.label_Extension_max_size.setObjectName("label_Extension_max_size")
         self.doubleSpinBox_extension_max_size = QtWidgets.QDoubleSpinBox(self.groupBox_Science)
         self.doubleSpinBox_extension_max_size.setEnabled(False)
-        self.doubleSpinBox_extension_max_size.setGeometry(QtCore.QRect(200, 235, 48, 21))
+        self.doubleSpinBox_extension_max_size.setGeometry(QtCore.QRect(200, 235 + vertical_space, 48, 21))
         self.doubleSpinBox_extension_max_size.setProperty("value", 1.0)
         self.doubleSpinBox_extension_max_size.setMinimum(0.1)
         self.doubleSpinBox_extension_max_size.setObjectName("doubleSpinBox_extension_max_size")
@@ -360,24 +423,24 @@ class Ui_mainWindow(QDialog):
         
         #Relocalize and TS maps:
         self.checkBox_relocalize = QtWidgets.QCheckBox(self.groupBox_Science)
-        self.checkBox_relocalize.setGeometry(QtCore.QRect(10, 255, 131, 23))
+        self.checkBox_relocalize.setGeometry(QtCore.QRect(10, 255 + vertical_space, 131, 23))
         self.checkBox_relocalize.setObjectName("checkBox_relocalize")
 
         self.checkBox_TSmap = QtWidgets.QCheckBox(self.groupBox_Science)
-        self.checkBox_TSmap.setGeometry(QtCore.QRect(10, 280, 151, 23))
+        self.checkBox_TSmap.setGeometry(QtCore.QRect(10, 280 + vertical_space, 151, 23))
         self.checkBox_TSmap.setChecked(True)
         self.checkBox_TSmap.setObjectName("checkBox_TSmap")
         self.checkBox_residual_TSmap = QtWidgets.QCheckBox(self.groupBox_Science)
-        self.checkBox_residual_TSmap.setGeometry(QtCore.QRect(210, 300, 131, 23))
+        self.checkBox_residual_TSmap.setGeometry(QtCore.QRect(210, 300 + vertical_space, 131, 23))
         self.checkBox_residual_TSmap.setChecked(True)
         self.checkBox_residual_TSmap.setObjectName("checkBox_residual_TSmap")
         self.doubleSpinBox_Photon_index_TS = QtWidgets.QDoubleSpinBox(self.groupBox_Science)
-        self.doubleSpinBox_Photon_index_TS.setGeometry(QtCore.QRect(40, 300, 59, 26))
+        self.doubleSpinBox_Photon_index_TS.setGeometry(QtCore.QRect(40, 300 + vertical_space, 59, 26))
         self.doubleSpinBox_Photon_index_TS.setMinimum(0.5)
         self.doubleSpinBox_Photon_index_TS.setProperty("value", 2.0)
         self.doubleSpinBox_Photon_index_TS.setObjectName("doubleSpinBox_Photon_index_TS")
         self.label_photon_index_TS = QtWidgets.QLabel(self.groupBox_Science)
-        self.label_photon_index_TS.setGeometry(QtCore.QRect(105, 300, 90, 21))
+        self.label_photon_index_TS.setGeometry(QtCore.QRect(105, 300 + vertical_space, 90, 21))
         self.label_photon_index_TS.setObjectName("label_photon_index_TS")
         
         
@@ -387,7 +450,7 @@ class Ui_mainWindow(QDialog):
         ##################################################################
         
         self.groupBox_fit_finetune = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_fit_finetune.setGeometry(QtCore.QRect(10, 190, 282, 331))
+        self.groupBox_fit_finetune.setGeometry(QtCore.QRect(10, 190, 282, 341))
         self.groupBox_fit_finetune.setObjectName("groupBox_fit_finetune")
         self.line_6 = QtWidgets.QFrame(self.centralwidget)
         self.line_6.setGeometry(QtCore.QRect(142, 220, 20, 181))
@@ -528,14 +591,15 @@ class Ui_mainWindow(QDialog):
 
         logbox_position = 650
         self.large_white_box_Log = QtWidgets.QPlainTextEdit(self.centralwidget)
-        self.large_white_box_Log.setGeometry(QtCore.QRect(logbox_position, 210, 450, 261))
+        self.large_white_box_Log.setGeometry(QtCore.QRect(logbox_position, 210, 450, 361))
         self.large_white_box_Log.setObjectName("large_white_box_Log")
+        self.large_white_box_Log.setReadOnly(True)  # the text can be selected and copied, but not typed, cut or pasted
         self.label_Log = QtWidgets.QLabel(self.centralwidget)
         self.label_Log.setGeometry(QtCore.QRect(logbox_position, 190, 71, 20))
         self.label_Log.setObjectName("label_Log")
         self.picture = QtWidgets.QLabel(self.centralwidget)
         self.picture.setEnabled(True)
-        self.picture.setGeometry(QtCore.QRect(logbox_position+110, 230, 231, 231))
+        self.picture.setGeometry(QtCore.QRect(logbox_position+110, 280, 231, 231))
         self.picture.setFont(font)
         self.picture.setMouseTracking(False)
         self.picture.setAutoFillBackground(False)
@@ -544,17 +608,20 @@ class Ui_mainWindow(QDialog):
         self.picture.setScaledContents(True)
         self.picture.setWordWrap(False)
         self.picture.setObjectName("picture")
+        # The Fermi logo is drawn on top of the log box. Without this line it captures the mouse events
+        # (wheel, clicks), so the log cannot be scrolled or selected where the logo is:
+        self.picture.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
         self.pushButton_Go = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_Go.setGeometry(QtCore.QRect(logbox_position+260, 480, 191, 41))
+        self.pushButton_Go.setGeometry(QtCore.QRect(logbox_position+260, 580, 191, 41))
         self.pushButton_Go.setObjectName("pushButton_Go")
         self.label_output_dir = QtWidgets.QLabel(self.centralwidget)
-        self.label_output_dir.setGeometry(QtCore.QRect(logbox_position, 470, 131, 20))
+        self.label_output_dir.setGeometry(QtCore.QRect(logbox_position, 570, 131, 20))
         self.label_output_dir.setObjectName("label_output_dir")
         self.toolButton_output_dir = QtWidgets.QToolButton(self.centralwidget)
-        self.toolButton_output_dir.setGeometry(QtCore.QRect(logbox_position+110, 490, 26, 24))
+        self.toolButton_output_dir.setGeometry(QtCore.QRect(logbox_position+110, 590, 26, 24))
         self.toolButton_output_dir.setObjectName("toolButton_output_dir")
         self.white_box_output_dir = QtWidgets.QLineEdit(self.centralwidget)
-        self.white_box_output_dir.setGeometry(QtCore.QRect(logbox_position, 490, 101, 25))
+        self.white_box_output_dir.setGeometry(QtCore.QRect(logbox_position, 590, 101, 25))
         self.white_box_output_dir.setObjectName("white_box_output_dir")
         
 
@@ -784,6 +851,7 @@ class Ui_mainWindow(QDialog):
 
         self.pushButton_Go.raise_()
         self.pushButton_config.raise_()
+        self.pushButton_quickplot_LC.raise_()
         self.pushButton_Download_SC.raise_()
         self.pushButton_Download_Photons.raise_()
         self.pushButton_Download_diffuse.raise_()
@@ -811,6 +879,8 @@ class Ui_mainWindow(QDialog):
         self.white_box_output_dir.raise_()
         self.white_box_redshift.raise_()
         self.white_box_TS_threshold.raise_()
+        self.white_box_external_LC.raise_()
+        self.white_box_bayesian_blocks.raise_()
         self.white_box_photon_dir.raise_()
         self.white_box_spacecraft_file.raise_()
         self.white_box_VHE.raise_()
@@ -821,6 +891,7 @@ class Ui_mainWindow(QDialog):
         self.toolButton_photons.raise_()
         self.toolButton_Custom.raise_()
         self.toolButton_VHE.raise_()
+        self.toolButton_external_LC.raise_()
         self.label_energy.raise_()
         self.white_box_energy.raise_()
         self.label_Catalog.raise_()
@@ -883,6 +954,8 @@ class Ui_mainWindow(QDialog):
         self.pushButton_Go.clicked.connect(self.runLongTask)
         self.pushButton_config.setToolTip('Click to generate the yaml configuration file (optional).')
         self.pushButton_config.clicked.connect(self.click_to_generateConfig)
+        self.pushButton_quickplot_LC.setToolTip('Click to plot the external LC data overlaid with Bayesian Blocks.')
+        self.pushButton_quickplot_LC.clicked.connect(self.click_to_plot_the_bayesian_blocks)
         self.pushButton_Download_SC.setToolTip('Click to download the spacecraft data file.')
         self.pushButton_Download_SC.clicked.connect(self.popup_download_SC)
         self.pushButton_Download_Photons.setToolTip('Click to download the photon data files.')
@@ -911,10 +984,13 @@ class Ui_mainWindow(QDialog):
         self.toolButton_output_dir.clicked.connect(self.browsefiles)
         self.toolButton_External_ltcube.setCheckable(True)
         self.toolButton_External_ltcube.clicked.connect(self.browsefiles)
+        self.toolButton_External_ltcube.setToolTip('Here you can select a txt file listing one or more ltcube files.\neasyfermi automatically saves this file as "ltcube_list.txt" once you run an analysis.')
         self.toolButton_VHE.setCheckable(True)
         self.toolButton_VHE.clicked.connect(self.browsefiles)
-        self.toolButton_VHE.setToolTip('Here you can select a fits table with the VHE data. This is not mandatory for the MCMC.\nCheck the GitHub of easyfermi for details on the format of this table.')
-        self.toolButton_External_ltcube.setToolTip('Here you can select a txt file listing one or more ltcube files.\neasyfermi automatically saves this file as "ltcube_list.txt" once you run an analysis.')
+        self.toolButton_VHE.setToolTip('Here you can select a fits table with the VHE data. This is not mandatory for the MCMC.\nThis file will be used only for the full-time-range SED and ignored for the SEDs per LC bin.\nCheck the GitHub of easyfermi for details on the format of this table.')
+        self.toolButton_external_LC.setCheckable(True)
+        self.toolButton_external_LC.clicked.connect(self.browsefiles)
+        self.toolButton_external_LC.setToolTip('Here you can select a fits or csv table with the LC data.\nFor a csv file, it must be in the format available in the Fermi LCR.')
 
         self.white_box_list_of_sources_to_delete.setToolTip("e.g.: 4FGL J1222.5+0414,4FGL J1219.7+0444,4FGL ...")
         self.white_box_TS_cut_in_the_fit.setToolTip("If the fit does not converge:\n1) All sources with TS < TS_cut will be deleted from the RoI model or...\n2) If the TS_target < TS_cut, all sources with TS < TS_target will be deleted from the RoI model.\n3) The fit is performed again.\nDefault value is TS_cut = 16.")
@@ -923,7 +999,9 @@ class Ui_mainWindow(QDialog):
         ###### Activating/deactivating options
         self.checkBox_LC.clicked.connect(self.activate)
         self.checkBox_adaptive_binning.clicked.connect(self.activate)
+        self.checkBox_bayesian_blocks.clicked.connect(self.activate)
         self.checkBox_SED.clicked.connect(self.activate)
+        self.checkBox_SED_per_bin.clicked.connect(self.activate)
         self.checkBox_extension.clicked.connect(self.activate)
         self.checkBox_TSmap.clicked.connect(self.activate)
         self.checkBox_find_extra_sources.clicked.connect(self.activate)
@@ -945,6 +1023,7 @@ class Ui_mainWindow(QDialog):
         self.comboBox_change_model.setToolTip("Select a spectral model for your target.")
         self.comboBox_minimizer.setToolTip("Select an optimizer for the fit.")
         self.comboBox_redshift.setToolTip("Select an EBL absorption model.")
+        self.comboBox_bayesian_blocks.setToolTip("You can compute the Bayesian blocks LC using either the local LC file or an external dataset.\ne.g., a CSV from the Fermi LCR or a FITS table from a previous analysis.")
         self.comboBox_MCMC.setToolTip("Choose a spectral model for the MCMC.\n\nWalkers = 300\nIterations = 500")
         self.comboBox_output_format.setToolTip("Select the output format for the main plots (i.e. SED, light curve etc).")
         self.checkBox_only_norm.setToolTip("Check if you wish that only the normalizations can vary.")
@@ -964,11 +1043,16 @@ class Ui_mainWindow(QDialog):
         self.checkBox_high_sensitivity.setToolTip("Check this box to slightly improve sensitivity at high energies at the cost of a longer analysis.\nThis method uses a stacked component analysis with different zenith angle cuts for different energy ranges.\nThis method will be useful as long as E_min < 1000 MeV.")
         self.checkBox_diagnostic_plots.setToolTip("Check this box to compute a series of diagnostic plots (e.g.: distance between the target and the Sun).")
         self.checkBox_adaptive_binning.setToolTip("Check this box to compute an adaptive-binning light curve.\nThis process can take quite a long time.\nTry running it with more than 1 core.")
+        self.checkBox_bayesian_blocks.setToolTip("Check this box to compute a bayesian blocks light curve.\nYou can use a light curve from the Fermi LCR as a starting point.")
         self.checkBox_use_local_index.setToolTip("Check to use a power-law approximation to the shape of the global spectrum in each energy bin. If not checked, a constant index will be used.")
+        self.checkBox_use_local_index.setToolTip("Check to use a power-law approximation to the shape of the global spectrum in each energy bin. If not checked, a constant index will be used.")
+        self.checkBox_SED_per_bin.setToolTip("Priority order:\n1) Latest modified Bayesian Blocks LC\n2) Latest modified Adaptive Binning LC\n3) Latest modified Standard LC")
         self.label_redshift.setToolTip("If you want to take EBL absorption into account, you can put the cosmological redshift of the target here.\nIf z = 0.0, the EBL absorption correction is not applied.")
         self.white_box_redshift.setToolTip("If you want to take EBL absorption into account, you can put the cosmological redshift of the target here.\nIf z = 0.0, the EBL absorption correction is not applied.")
-        self.white_box_VHE.setToolTip('Optional feature:\nHere you can select a fits table with the VHE data.\nCheck the GitHub of easyfermi for details on the format of this table.')
+        self.white_box_VHE.setToolTip('Optional feature:\nHere you can select a fits table with the VHE data.\nThis file will be used only for the full-time-range SED.\nCheck the GitHub of easyfermi for details on the format of this table.')
         self.white_box_TS_threshold.setToolTip("This is the average TS for each one of the adaptive time bins. We recommend keeping it > 50.")
+        self.white_box_bayesian_blocks.setToolTip("False-alarm probability of the Bayesian blocks (Scargle et al. 2013). Lower p0 -> fewer blocks.")
+        self.white_box_external_LC.setToolTip("Please select an external LC file.\nIt can be a fits file from easyfermi/fermipy or a csv file from the Fermi LCR.")
         self.spinBox_N_iter.setToolTip("The greater the number of iterations, the greater the temporal resolution of the light curve.")
         self.white_box_target_name.setToolTip("Please insert a nickname for your target avoiding blank spaces.")
         self.checkBox_delete_sources.setToolTip("Check this box if you want to manually delete one or more sources from the RoI model.")
@@ -986,6 +1070,7 @@ class Ui_mainWindow(QDialog):
         mainWindow.setWindowTitle(_translate("mainWindow", "easyfermi"))
         self.pushButton_Go.setText(_translate("mainWindow", "Go!"))
         self.pushButton_config.setText(_translate("mainWindow", "Generate config file"))
+        self.pushButton_quickplot_LC.setText(_translate("mainWindow", "Quick plot"))
         self.pushButton_Download_SC.setText(_translate("mainWindow", ""))
         self.pushButton_Download_Photons.setText(_translate("mainWindow", ""))
         self.pushButton_Download_diffuse.setText(_translate("mainWindow", ""))
@@ -994,9 +1079,11 @@ class Ui_mainWindow(QDialog):
         self.radioButton_disk.setText(_translate("mainWindow", "Disk"))
         self.label_N_time_bins_LC.setText(_translate("mainWindow", "N° of time bins"))
         self.checkBox_extension.setText(_translate("mainWindow", "Extension:"))
-        self.checkBox_adaptive_binning.setText(_translate("mainWindow", "Adaptive-binning"))
+        self.checkBox_adaptive_binning.setText(_translate("mainWindow", "Adaptive-binning LC"))
+        self.checkBox_bayesian_blocks.setText(_translate("mainWindow", "Bayesian blocks LC"))
         self.label_N_cores_LC.setText(_translate("mainWindow", "N° of cores"))
         self.label_TS_threshold.setText(_translate("mainWindow", "TS threshold"))
+        self.label_rho_bayesian_blocks.setText(_translate("mainWindow", "ρ<sub>0</sub>"))
         self.label_N_iter.setText(_translate("mainWindow", "N° iterations"))
         self.label_N_energy_bins.setText(_translate("mainWindow", "N⁰ of energy bins"))
         self.label_redshift.setText(_translate("mainWindow", "Redshift"))
@@ -1004,6 +1091,7 @@ class Ui_mainWindow(QDialog):
         self.checkBox_LC.setText(_translate("mainWindow", "Light curve:"))
         self.label_Extension_max_size.setText(_translate("mainWindow", "Max. radius"))
         self.checkBox_SED.setText(_translate("mainWindow", "SED:"))
+        self.checkBox_SED_per_bin.setText(_translate("mainWindow", "Compute SEDs for LC bins"))
         self.checkBox_use_local_index.setText(_translate("mainWindow", "Use local index"))
         self.radioButton_2D_Gauss.setText(_translate("mainWindow", "2D-Gauss"))
         self.checkBox_residual_TSmap.setText(_translate("mainWindow", "Residuals TS map"))
@@ -1039,6 +1127,10 @@ class Ui_mainWindow(QDialog):
         self.comboBox_redshift.setItemText(3, _translate("mainWindow", "Franceschini & Rodighiero (2017)"))
         self.comboBox_redshift.setItemText(4, _translate("mainWindow", "Saldana-Lopez et al. (2021)"))
         self.comboBox_redshift.setItemText(5, _translate("mainWindow", "Finke et al. (2022) model A"))
+        self.comboBox_bayesian_blocks.setAccessibleName(_translate("mainWindow", "BB_combo"))
+        self.comboBox_bayesian_blocks.setAccessibleDescription(_translate("mainWindow", "BB_combo"))
+        self.comboBox_bayesian_blocks.setItemText(0, _translate("mainWindow", "Local LC"))
+        self.comboBox_bayesian_blocks.setItemText(1, _translate("mainWindow", "External LC"))
         self.comboBox_MCMC.setAccessibleName(_translate("mainWindow", "MCMC_model"))
         self.comboBox_MCMC.setAccessibleDescription(_translate("mainWindow", "MCMC_model"))
         self.comboBox_MCMC.setItemText(0, _translate("mainWindow", "PowerLaw"))
@@ -1086,6 +1178,7 @@ class Ui_mainWindow(QDialog):
         self.white_box_output_dir.setText(_translate("mainWindow", "./Output"))
         self.white_box_redshift.setText(_translate("mainWindow", "0.0"))
         self.white_box_TS_threshold.setText(_translate("mainWindow", "50.0"))
+        self.white_box_bayesian_blocks.setText(_translate("mainWindow", "0.05"))
         self.label_dir_photons.setText(_translate("mainWindow", "Photon files directory:"))
         self.label_dir_spacecraft.setText(_translate("mainWindow", "Spacecraft file:"))
         self.label_output_dir.setText(_translate("mainWindow", "Output directory:"))
@@ -1094,6 +1187,7 @@ class Ui_mainWindow(QDialog):
         self.toolButton_photons.setText(_translate("mainWindow", "..."))
         self.toolButton_Custom.setText(_translate("mainWindow", "..."))
         self.toolButton_VHE.setText((_translate("mainWindow", "...")))
+        self.toolButton_external_LC.setText((_translate("mainWindow", "...")))
         self.label_energy.setText(_translate("mainWindow", "<html><head/><body><p>E<span style=\" vertical-align:sub;\">min</span>, E<span style=\" vertical-align:sub;\">max</span> (MeV):</p></body></html>"))
         self.white_box_energy.setText(_translate("mainWindow", "100, 300000"))
         self.label_Catalog.setText(_translate("mainWindow", "Catalog:"))
@@ -1130,23 +1224,54 @@ class Ui_mainWindow(QDialog):
         self.actionSee_credits.setText(_translate("mainWindow", "See credits"))
         self.actionLoad_state.setText(_translate("mainWindow", "Load GUI state"))
 
+    def write_log(self, text):
+ 
+        """
+        Appends text to the log box and scrolls to the end.
+        Unlike setPlainText(toPlainText() + text), it keeps the current text selection of the user
+        and does not rewrite the whole log every time.
+        """
+ 
+        cursor = QtGui.QTextCursor(self.large_white_box_Log.document())
+        cursor.movePosition(QtGui.QTextCursor.End)
+        cursor.insertText(text)
+        scrollbar = self.large_white_box_Log.verticalScrollBar()
+        scrollbar.setValue(scrollbar.maximum())
+ 
+ 
+    def external_LC_selected(self):
+ 
+        """True if the Bayesian-blocks LC is computed from an external light curve (no standard/adaptive LC is computed)."""
+ 
+        return (self.checkBox_LC.isChecked() and self.checkBox_bayesian_blocks.isChecked()
+                and self.comboBox_bayesian_blocks.currentText() == "External LC")
+ 
+ 
+    def adaptive_LC_requested(self):
+ 
+        """True if the adaptive-binning LC must be computed."""
+ 
+        return (self.checkBox_LC.isChecked() and self.checkBox_adaptive_binning.isChecked()
+                and not self.external_LC_selected())
+ 
+ 
     def reportProgress(self, n):
-
+ 
         """
         This function is called only from a secondary thread where the class Worker() is running.
         The goal of this function is to print updates about the Fermi-LAT analysis in the easyfermi Log box.
-
+ 
         Parameters
         ----------
         self: instance of the class Ui_mainWindow
             This parameter contains all the variables read from the Graphical interface.
         n: int
             An integer number emitted by pyqtsignal from the Worker() class.
-
+ 
         Returns
         -------
         """
-
+ 
         #Making Fermi logo transparent:
         new_pix = QtGui.QPixmap(str(libpath/"fermi.png"))
         new_pix.fill(QtCore.Qt.transparent)
@@ -1155,32 +1280,48 @@ class Ui_mainWindow(QDialog):
         painter.drawPixmap(QtCore.QPoint(), QtGui.QPixmap(str(libpath/"fermi.png")))
         painter.end()
         self.picture.setPixmap(new_pix)
-        self.picture.setGeometry(QtCore.QRect(760, 230, 231, 231))
-
+        self.picture.setGeometry(QtCore.QRect(760, 280, 231, 231))
+ 
+        LC_checked = self.checkBox_LC.isChecked()
+        SED_checked = self.checkBox_SED.isChecked()
+        external_LC = self.external_LC_selected()
+ 
+        def newest_file(pattern, only_this_run=False):
+            """Newest file matching the pattern in the output directory (optionally only if created during this analysis)."""
+            files = glob.glob(self.OutputDir + pattern)
+            if only_this_run:
+                start = getattr(self, "analysis_start_time", 0.0)
+                files = [f for f in files if os.path.getmtime(f) >= start]
+            return max(files, key=os.path.getmtime) if files else None
+ 
+        def relative(path):
+            return os.path.relpath(path, self.OutputDir)
+ 
         if n == -3:
-            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Downloading Diffuse model files...\n")
+            self.write_log("- Downloading Diffuse model files...\n")
         
         if n == -2:
-            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Downloading Photon files...\n")
-
+            self.write_log("- Downloading Photon files...\n")
+ 
         if n == -1:
-            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Downloading spacecraft file...\n")
-
+            self.write_log("- Downloading spacecraft file...\n")
+ 
         if n == 0:
+            self.analysis_start_time = Time.now().unix  # used to identify the files created during this analysis
             self.progressBar.setProperty("value", 5)
-
+ 
             if self.white_box_list_of_sources_to_delete.text() != '':
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Deleting source(s): "+self.white_box_list_of_sources_to_delete.text()+".\n")
+                self.write_log("- Deleting source(s): "+self.white_box_list_of_sources_to_delete.text()+".\n")
                 
-            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"------------------------\n- Running the setup.\n")
-
+            self.write_log("------------------------\n- Running the setup.\n")
+ 
             try:
                 # Here we check if the computer is connected to power
                 if psutil.sensors_battery()[2] is False:
-                    self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- WARNING: Your computer is running on battery. Plugging it to power will make the analysis significantly faster.\n")
+                    self.write_log("- WARNING: Your computer is running on battery. Plugging it to power will make the analysis significantly faster.\n")
             except:
                 pass
-
+ 
             if (self.IsThereLtcube is None) & (self.IsThereLtcube3==0) & (self.checkBox_External_ltcube.isChecked() is False):
                 if self.checkBox_high_sensitivity.isChecked():
                     if self.Emin < 500 and self.Emax > 1000:
@@ -1194,144 +1335,182 @@ class Ui_mainWindow(QDialog):
                 else:
                     multiplication_factor = 1
         
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- It will take about ~"+str(multiplication_factor*int(self.Time_intervMJD*206/(30.0*60)))+" min to run the ltcube.\n")
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- (Don't worry, this really takes some time...)\n")
+                self.write_log("- It will take about ~"+str(multiplication_factor*int(self.Time_intervMJD*206/(30.0*60)))+" min to run the ltcube.\n")
+                self.write_log("- (Don't worry, this really takes some time...)\n")
                 try:
                     if psutil.sensors_battery()[2] is False:
-                        self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- WARNING: Since your computer is running on battery power, this process can actually take much longer.\n")
+                        self.write_log("- WARNING: Since your computer is running on battery power, this process can actually take much longer.\n")
                 except:
                     pass
-
+ 
             else:
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Using precomputed ltcube.\n")
+                self.write_log("- Using precomputed ltcube.\n")
             
             
         if n == 1:
             self.progressBar.setProperty("value", 25)
-            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Setup finished.\n")
+            self.write_log("- Setup finished.\n")
             if not self.checkBox_External_ltcube.isChecked():
                 os.system('ls '+self.OutputDir+'ltcube_*.fits > '+self.OutputDir+'ltcube_list.txt')
             list_of_photon_files = glob.glob(self.white_box_output_dir.text()+"/ft1*.fits")
             max_photon_energy= 0
             for photon_file in list_of_photon_files:
-                max_energy_in_the_file = pyfits.open(photon_file)[1].data["ENERGY"].max()
+                with pyfits.open(photon_file) as photon_hdul:
+                    max_energy_in_the_file = photon_hdul[1].data["ENERGY"].max()
                 if max_energy_in_the_file > max_photon_energy:
                     max_photon_energy = max_energy_in_the_file
             
             highest_energy_photon_RoI = round(max_photon_energy/1000,2)
-            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Highest energy photon in the RoI: "+str(highest_energy_photon_RoI)+" GeV.\n")
-            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Optimizing the RoI...\n")
+            self.write_log("- Highest energy photon in the RoI: "+str(highest_energy_photon_RoI)+" GeV.\n")
+            self.write_log("- Optimizing the RoI...\n")
         
         if n == 2:
             self.progressBar.setProperty("value", 30)
-            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Optimization is done.\n")
-            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+f"- Target spectral type: {self.gta.roi.sources[0]['SpectrumType']}.\n")
-
+            self.write_log("- Optimization is done.\n")
+            self.write_log(f"- Target spectral type: {self.gta.roi.sources[0]['SpectrumType']}.\n")
+ 
             if self.freeradiusalert != 'ok':
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+self.freeradiusalert+"\n")
-
-            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Performing the fit...\n")
+                self.write_log(self.freeradiusalert+"\n")
+ 
+            self.write_log("- Performing the fit...\n")
         
         if n == 3:
             self.progressBar.setProperty("value", 40)
-            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+self.fitquality+"\n")
-            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Main results (flux, spectral index, TS, etc) saved in Target_results.txt\n")
-            self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Computing distance from the Sun...\n")
-
+            self.write_log(self.fitquality+"\n")
+            self.write_log("- Main results (flux, spectral index, TS, etc) saved in Target_results.txt\n")
+            self.write_log("- Computing distance from the Sun...\n")
+ 
         if n == 4:
             self.progressBar.setProperty("value", 50)
-
+ 
             if self.checkBox_diagnostic_plots.isChecked():
                 rounded_separation = round(self.Solar_separation.min(),2)
                 if rounded_separation < 15:
-                    self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+
-                                                          "- Minimum separation between the target and the Sun: "+str(rounded_separation)+
-                                                          "°.\nPlease be aware that the Sun can affect your observations.\nYou can check the time ranges when the Sun is nearby in the diagnostic plots.\n")
+                    self.write_log("- Minimum separation between the target and the Sun: "+str(rounded_separation)+
+                                   "°.\nPlease be aware that the Sun can affect your observations.\nYou can check the time ranges when the Sun is nearby in the diagnostic plots.\n")
                 else:
-                    self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Minimum separation between the target and the Sun: "+
-                                                          str(rounded_separation)+"°.\n")
+                    self.write_log("- Minimum separation between the target and the Sun: "+str(rounded_separation)+"°.\n")
                 
                 if len(self.Solar_separation) < 10:
-                    self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+
-                                                          '- Time window is too short for computing the target-Sun separation plot. Minimum window required is 4 days.\n')
+                    self.write_log('- Time window is too short for computing the target-Sun separation plot. Minimum window required is 4 days.\n')
             else:
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+self.fitquality+"\n")
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+
-                                                      "- Main results (flux, spectral index, TS, etc) saved in Target_results.txt\n")
+                self.write_log(self.fitquality+"\n")
+                self.write_log("- Main results (flux, spectral index, TS, etc) saved in Target_results.txt\n")
                     
             if self.checkBox_relocalize.isChecked():
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Relocalizing target...\n")
-
+                self.write_log("- Relocalizing target...\n")
+ 
         if n == 5:
-            self.progressBar.setProperty("value", 55)
+            self.progressBar.setProperty("value", 50)
             if self.checkBox_TSmap.isChecked():
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Computing TS maps...\n")
-
+                self.write_log("- Computing TS maps...\n")
+ 
         if n == 6:
-            self.progressBar.setProperty("value", 60)
+            self.progressBar.setProperty("value", 55)
             if self.checkBox_extension.isChecked():
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Looking for extended emission...\n")
-
+                self.write_log("- Looking for extended emission...\n")
+ 
         if n == 7:
-            self.progressBar.setProperty("value", 70)
-            if self.checkBox_SED.isChecked():
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Computing SED.\n")
-
+            self.progressBar.setProperty("value", 60)
+            if LC_checked:
+                if external_LC:
+                    self.write_log("- External LC selected: the standard light curve will not be computed.\n")
+                elif getattr(self, "Compute_LC", True) is False:
+                    self.write_log(f"- A light curve with {self.spinBox_LC_N_time_bins.value()} bins was already found. Skipping new light curve computation.\n")
+                else:
+                    self.write_log("- Computing light curve...\n")
+ 
         if n == 8:
+            self.progressBar.setProperty("value", 70)
+            if self.adaptive_LC_requested():
+                self.write_log("- Computing adaptive-binning light curve...\n")
+ 
+        if n == 9: 
             self.progressBar.setProperty("value", 75)
-            if self.checkBox_SED.isChecked():
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Starting MCMC...\n")
-
-        if n == 9:
-            self.progressBar.setProperty("value", 80)
-            try:
-                if self.allow_MCMC is False:
-                    self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+
-                                                      "- MCMC not allowed. We require at least 3 LAT data points with TS > 9 in the SED to proceed.\n")
-            except:
-                pass
-
-            if self.include_VHE is False:
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- VHE data not available.\n")
-
-            if self.allow_MCMC:
-                AIC = round(float(self.AIC),3)
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+f"- Akaike information criterion: {AIC}\n")
-
-            if self.checkBox_LC.isChecked():
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Computing light curve.\n")
-        
+            if LC_checked and self.checkBox_bayesian_blocks.isChecked():
+                self.write_log("- Computing Bayesian Blocks light curve...\n")
+ 
         if n == 10:
-            self.progressBar.setProperty("value", 90)
-
-            if self.Compute_LC is False and self.checkBox_LC.isChecked():
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+f"- A light curve with {self.spinBox_LC_N_time_bins.value()} was already found. Skipping new light curve computation.\n")
-
-            if self.adaptive:
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Computing adaptive-binning light curve.\n")
-                
+            self.progressBar.setProperty("value", 85)
+            if SED_checked:
+                self.write_log("- Computing full-time-range SED...\n")
+                if self.checkBox_SED_per_bin.isChecked():
+                    self.write_log("- The SEDs of the light-curve bins will also be computed.\n")
+ 
         if n == 11:
+            self.progressBar.setProperty("value", 90)
+            if SED_checked:
+                self.write_log("- Starting MCMC...\n")
+ 
+        if n == 12:
+            self.progressBar.setProperty("value", 95)
+            if SED_checked:
+                if getattr(self, "allow_MCMC", False):
+                    AIC = round(float(self.AIC),3)
+                    self.write_log(f"- Akaike information criterion: {AIC}\n")
+                    VHE_given = self.white_box_VHE.text().split('.')[-1] == 'fits'
+                    if VHE_given and not getattr(self, "include_VHE", False):
+                        self.write_log("- WARNING: the VHE file could not be read. VHE data were not used.\n")
+                else:
+                    self.write_log("- MCMC not allowed. We require at least 3 LAT data points with TS > 9 in the SED to proceed.\n")
+ 
+                if self.checkBox_SED_per_bin.isChecked():
+                    results = getattr(self, "MCMC_per_bin_results", None)
+                    if results:
+                        n_done = sum(r["status"] == "done" for r in results)
+                        self.write_log(f"- MCMC per LC bin: {n_done} of {len(results)} time bins fitted.\n")
+                    else:
+                        self.write_log("- WARNING: no SED per LC bin was available. The MCMC per LC bin was not performed.\n")
+ 
+        if n == 13:
             self.progressBar.setProperty("value", 99)
+            output_format = self.comboBox_output_format.currentText()
+ 
             if self.checkBox_relocalize.isChecked():
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- New position: RA = "+str(round(self.locRA,3))+
-                                                      ", Dec = "+str(round(self.locDec,3))+", r_95 = "+str(round(self.locr95,3))+"\n")
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Localization results saved in "+self.sourcename+"_loc.fits\n")        
+                self.write_log("- New position: RA = "+str(round(self.locRA,3))+", Dec = "+str(round(self.locDec,3))+
+                               ", r_95 = "+str(round(self.locr95,3))+"\n")
+                self.write_log("- Localization results saved in "+self.sourcename+"_loc.fits\n")
             if self.checkBox_TSmap.isChecked():
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- TS maps saved as figures and fits files.\n")
-            if self.checkBox_SED.isChecked():
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- SED data saved in "+self.sourcename+"_sed.fits\n")
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Preliminar SED shown in figure Quickplot_SED\n")
+                self.write_log("- TS maps saved as figures and fits files.\n")
+            if SED_checked:
+                self.write_log("- Full-time-range SED data saved in "+self.sourcename+"_sed.fits\n")
+                self.write_log("- Preliminary full-time-range SED shown in figure Quickplot_SED_fermipy."+output_format+"\n")
+                if getattr(self, "allow_MCMC", False):
+                    self.write_log("- MCMC SED shown in figure Quickplot_SED_MCMC."+output_format+"\n")
                 try:
-                    self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+self.redshift_error)
+                    self.write_log(self.redshift_error)
                     del self.redshift_error
                 except:
                     pass
             if self.checkBox_extension.isChecked():
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Extension data saved in "+self.sourcename+"_ext.fits\n")
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- Extension is shown in figure Quickplot_extension\n")
-            if self.checkBox_LC.isChecked():
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- LC saved in file "+self.sourcename+"_lightcurve.fits\n")
-                self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+"- LC is shown in figure Quickplot_LC\n")
+                self.write_log("- Extension data saved in "+self.sourcename+"_ext.fits\n")
+                self.write_log("- Extension is shown in figure Quickplot_extension."+output_format+"\n")
+ 
+            if LC_checked:
+                # Standard LC (computed now or already available):
+                if not external_LC:
+                    LC_file = newest_file("Light_curve_*/*_lightcurve.fits")
+                    if LC_file is not None:
+                        self.write_log("- LC saved in "+relative(LC_file)+"\n")
+                        self.write_log("- LC is shown in figure Quickplot_LC_*_bins."+output_format+"\n")
+ 
+                # Adaptive-binning LC (only if created in this analysis):
+                if self.adaptive_LC_requested():
+                    LC_file = newest_file("Adaptive-binning_light_curve_*/*_lightcurve.fits", only_this_run=True)
+                    if LC_file is not None:
+                        self.write_log("- Adaptive-binning LC saved in "+relative(LC_file)+"\n")
+                        self.write_log("- Adaptive-binning LC is shown in figure Quickplot_adaptive-binning_LC_*_bins."+output_format+"\n")
+                    else:
+                        self.write_log("- No adaptive-binning LC was computed in this analysis (no time bin with TS > 2 x TS threshold).\n")
+ 
+                # Bayesian-blocks LC (only if created in this analysis):
+                if self.checkBox_bayesian_blocks.isChecked():
+                    LC_file = newest_file("Bayesian_blocks_light_curve*/bayesian_blocks_lightcurve.fits", only_this_run=True)
+                    if LC_file is not None:
+                        self.write_log("- Bayesian-blocks LC saved in "+relative(LC_file)+"\n")
+                        self.write_log(f"- Bayesian-blocks LC is shown in figure Quickplot_Bayesian_blocks_p={self.white_box_bayesian_blocks.text()}_LC_*_bins."+output_format+"\n")
+                    else:
+                        self.write_log("- WARNING: the Bayesian-blocks LC was not computed. Please check the terminal for details.\n")
                         
         
         
@@ -1447,15 +1626,20 @@ class Ui_mainWindow(QDialog):
         state["LC_Nbins"] = self.spinBox_LC_N_time_bins.value()
         state["LC_Ncores"] = self.spinBox_N_cores_LC.value()
         state["adaptive_binning"] = self.checkBox_adaptive_binning.isChecked()
+        state["bayesian_blocks"] = self.checkBox_bayesian_blocks.isChecked()
         state["TS_threshold"] = self.white_box_TS_threshold.text()
+        state["rho0_bayesian_blocks"] = self.white_box_bayesian_blocks.text()
+        state["External_LC"] = self.white_box_external_LC.text()
         state["N_iter"] = self.spinBox_N_iter.value()
         state["SED"] = self.checkBox_SED.isChecked()
+        state["SED_per_bin"] = self.checkBox_SED_per_bin.isChecked()
         state["SED_Nbins"] = self.spinBox_SED_N_energy_bins.value()
         state["VHE"] = self.white_box_VHE.text()
         state["use_local_index"] = self.checkBox_use_local_index.isChecked()
         state["which_MCMC_model"] = self.comboBox_MCMC.currentText()
         state["redshift_value"] = self.white_box_redshift.text()
         state["EBL_model"] = self.comboBox_redshift.currentText()
+        state["Bayesian_block_file"] = self.comboBox_bayesian_blocks.currentText()
         state["extension"] = self.checkBox_extension.isChecked()
         state["Disk"] = self.radioButton_disk.isChecked()
         state["Gauss2D"] = self.radioButton_2D_Gauss.isChecked()
@@ -1565,18 +1749,24 @@ class Ui_mainWindow(QDialog):
         # LC:
         self.checkBox_LC.setChecked(keys["LC"])
         self.checkBox_adaptive_binning.setChecked(keys["adaptive_binning"])
+        self.checkBox_bayesian_blocks.setChecked(keys["bayesian_blocks"])
         self.spinBox_LC_N_time_bins.setProperty("value", int(keys["LC_Nbins"]))     
         self.spinBox_N_cores_LC.setProperty("value", int(keys["LC_Ncores"]))  
         self.spinBox_N_iter.setProperty("value", int(keys["N_iter"]))  
         self.white_box_TS_threshold.setText(keys["TS_threshold"])
+        self.white_box_bayesian_blocks.setText(keys["rho0_bayesian_blocks"])
+        self.white_box_external_LC.setText(keys["External_LC"])
         
         # SED:
         self.checkBox_SED.setChecked(keys["SED"])
+        self.checkBox_SED_per_bin.setChecked(keys["SED_per_bin"])
         self.spinBox_SED_N_energy_bins.setProperty("value", int(keys["SED_Nbins"]))
         self.checkBox_use_local_index.setChecked(keys["use_local_index"])
         self.white_box_redshift.setText(keys["redshift_value"])
         aux = self.comboBox_redshift.findText(keys["EBL_model"], QtCore.Qt.MatchFixedString)
         self.comboBox_redshift.setCurrentIndex(aux)
+        aux = self.comboBox_bayesian_blocks.findText(keys["Bayesian_block_file"], QtCore.Qt.MatchFixedString)
+        self.comboBox_bayesian_blocks.setCurrentIndex(aux)
         aux = self.comboBox_MCMC.findText(keys["which_MCMC_model"], QtCore.Qt.MatchFixedString)
         self.comboBox_MCMC.setCurrentIndex(aux)
         self.white_box_VHE.setText(keys["VHE"])
@@ -1671,7 +1861,7 @@ class Ui_mainWindow(QDialog):
                 
                 if max_photon_energy > 0 and Energ[1] > 1.1*max_photon_energy:
                     check = check + 1
-                    self.max_energy_wanning = f"The maximum energy is set to {Energ[1]} MeV, however, the highest energy photon in the dataset has only {max_photon_energy} MeV.\n\nPlease set Emax <= {max_photon_energy} MeV before proceeding."
+                    self.max_energy_warnning = f"The maximum energy is set to {Energ[1]} MeV, however, the highest energy photon in the dataset has only {max_photon_energy} MeV.\n\nPlease set Emax <= {max_photon_energy} MeV before proceeding."
 
 
             try:
@@ -1727,6 +1917,13 @@ class Ui_mainWindow(QDialog):
                 answer = True
             else:
                 answer = False
+
+        if self.comboBox_bayesian_blocks.currentText() == "External LC" and self.checkBox_bayesian_blocks.isChecked() and self.checkBox_LC.isChecked():
+            input_file = self.white_box_external_LC.text().strip()
+            if not input_file or not os.path.isfile(input_file):
+                self.external_LC_warnning = "The external light curve file in the 'Bayesian blocks LC' does not exist. Please check the file path."
+                answer = False
+
         return answer
     
 
@@ -1797,6 +1994,30 @@ class Ui_mainWindow(QDialog):
         can_we_go = self.generateConfig()
         if can_we_go:
             self.large_white_box_Log.setPlainText(self.large_white_box_Log.toPlainText()+f"- The file config.yaml was saved in {self.OutputDir}\n")
+
+    def click_to_plot_the_bayesian_blocks(self):
+
+        """
+        Fucntion that calls the quickplot_BB() 
+        """
+
+        self.reportProgress(n=None)
+        can_we_go = True
+        if self.comboBox_bayesian_blocks.currentText() == "External LC" and self.checkBox_bayesian_blocks.isChecked() and self.checkBox_LC.isChecked():
+            input_file = self.white_box_external_LC.text().strip()
+            if not input_file or not os.path.isfile(input_file):
+                self.external_LC_warnning = "The external light curve file in the 'Bayesian blocks LC' does not exist. Please check the file path."
+                can_we_go = False
+
+        if can_we_go:
+            self.quickplot_BB()
+        else:
+            self.popup_go()
+            try:
+                del self.external_LC_warnning
+            except:
+                pass
+
 
         
     def generateConfig(self):
@@ -2016,8 +2237,12 @@ class Ui_mainWindow(QDialog):
         msg = QtWidgets.QMessageBox()
         msg.setWindowTitle("Something is wrong")
         try:
-            msg.setText(self.max_energy_wanning)
-            del self.max_energy_wanning
+            if hasattr(self, 'external_LC_warnning'):
+                msg.setText(self.external_LC_warnning)
+                del self.external_LC_warnning
+            else:
+                msg.setText(self.max_energy_warnning)
+                del self.max_energy_warnning
         except:
             if self.radioButton_Standard.isChecked():
                 msg.setText("One of the mandatory fields under 'Standard' is not properly filled. Check the Log for more details.")
@@ -2360,6 +2585,10 @@ class Ui_mainWindow(QDialog):
             fname = QFileDialog.getOpenFileName(self, 'Open file', './', '(*.fits)')
             self.white_box_VHE.setText(fname[0])
             self.toolButton_VHE.setChecked(False)
+        if self.toolButton_external_LC.isChecked():
+            fname = QFileDialog.getOpenFileName(self, 'Open file', './', 'LC data files (*.fits *.csv)')
+            self.white_box_external_LC.setText(fname[0])
+            self.toolButton_external_LC.setChecked(False)
         
        
     def activate(self):
@@ -2367,14 +2596,17 @@ class Ui_mainWindow(QDialog):
         """ This function activates/deactivates the entries in the main window"""
 
         if self.checkBox_LC.isChecked():
-            self.spinBox_LC_N_time_bins.setEnabled(True)
+            external_LC = (self.checkBox_bayesian_blocks.isChecked()
+                           and self.comboBox_bayesian_blocks.currentText() == "External LC")
+
+            self.spinBox_LC_N_time_bins.setEnabled(not external_LC)
             if OS_name != "Darwin":
                 self.spinBox_N_cores_LC.setEnabled(True)
                 self.label_N_cores_LC.setEnabled(True)
-            self.label_N_time_bins_LC.setEnabled(True)
-            self.checkBox_adaptive_binning.setEnabled(True)
-            self.white_box_TS_threshold.setEnabled(True)
-            if self.checkBox_adaptive_binning.isChecked():
+            self.label_N_time_bins_LC.setEnabled(not external_LC)
+            self.checkBox_adaptive_binning.setEnabled(not external_LC)
+            self.checkBox_bayesian_blocks.setEnabled(True)
+            if self.checkBox_adaptive_binning.isChecked() and not external_LC:
                 self.white_box_TS_threshold.setEnabled(True)
                 self.label_TS_threshold.setEnabled(True)
                 self.spinBox_N_iter.setEnabled(True)
@@ -2384,17 +2616,43 @@ class Ui_mainWindow(QDialog):
                 self.label_TS_threshold.setEnabled(False)
                 self.spinBox_N_iter.setEnabled(False)
                 self.label_N_iter.setEnabled(False)
-            
+            if self.checkBox_bayesian_blocks.isChecked():
+                self.comboBox_bayesian_blocks.setEnabled(True)
+                self.white_box_bayesian_blocks.setEnabled(True)
+                self.label_rho_bayesian_blocks.setEnabled(True)
+                if self.comboBox_bayesian_blocks.currentText() == "External LC":
+                    self.white_box_external_LC.setEnabled(True)
+                    self.toolButton_external_LC.setEnabled(True)
+                    self.pushButton_quickplot_LC.setEnabled(True)
+                else:
+                    self.white_box_external_LC.setEnabled(False)
+                    self.toolButton_external_LC.setEnabled(False)
+                    self.pushButton_quickplot_LC.setEnabled(False)
+            else:
+                self.comboBox_bayesian_blocks.setEnabled(False)
+                self.white_box_bayesian_blocks.setEnabled(False)
+                self.label_rho_bayesian_blocks.setEnabled(False)
+                self.white_box_external_LC.setEnabled(False)
+                self.toolButton_external_LC.setEnabled(False)
+                self.pushButton_quickplot_LC.setEnabled(False)
+
         else:
             self.spinBox_LC_N_time_bins.setEnabled(False)
             self.spinBox_N_cores_LC.setEnabled(False)
             self.label_N_time_bins_LC.setEnabled(False)
             self.label_N_cores_LC.setEnabled(False)
             self.checkBox_adaptive_binning.setEnabled(False)
+            self.checkBox_bayesian_blocks.setEnabled(False)
             self.white_box_TS_threshold.setEnabled(False)
             self.label_TS_threshold.setEnabled(False)
             self.spinBox_N_iter.setEnabled(False)
             self.label_N_iter.setEnabled(False)
+            self.comboBox_bayesian_blocks.setEnabled(False)
+            self.white_box_bayesian_blocks.setEnabled(False)
+            self.label_rho_bayesian_blocks.setEnabled(False)
+            self.white_box_external_LC.setEnabled(False)
+            self.toolButton_external_LC.setEnabled(False)
+            self.pushButton_quickplot_LC.setEnabled(False)
             
         if self.checkBox_SED.isChecked():
             self.spinBox_SED_N_energy_bins.setEnabled(True)
@@ -2407,6 +2665,7 @@ class Ui_mainWindow(QDialog):
             self.label_MCMC.setEnabled(True)
             self.white_box_VHE.setEnabled(True)
             self.toolButton_VHE.setEnabled(True)
+            self.checkBox_SED_per_bin.setEnabled(True)
         else:
             self.spinBox_SED_N_energy_bins.setEnabled(False)
             self.label_N_energy_bins.setEnabled(False)
@@ -2418,6 +2677,7 @@ class Ui_mainWindow(QDialog):
             self.label_MCMC.setEnabled(False)
             self.white_box_VHE.setEnabled(False)
             self.toolButton_VHE.setEnabled(False)
+            self.checkBox_SED_per_bin.setEnabled(False)
 
             
         if self.checkBox_extension.isChecked():
@@ -2952,6 +3212,664 @@ class Ui_mainWindow(QDialog):
             #Below we compute the excess, significance, model, and data maps:
             self.gta.residmap('Excess_'+self.sourcename,model=model,make_plots=True, write_fits=True, write_npy=False)
         
+
+    def compute_LC(self):
+        
+        """
+        This function calls fermipy to compute the target light curve (under request by the user).
+        
+        Parameters
+        ----------
+        self: instance of the class Ui_mainWindow
+            This parameter contains all the variables read from the Graphical interface.
+
+        Returns
+        -------
+        TARGET_NAME_lightcurve.fits and TARGET_NAME_lightcurve.npy:
+            Data files with all the information regarding the energy-flux and photon-flux light curves.
+            
+        """
+        
+        self.Compute_LC = True   
+
+        if os.path.exists(self.OutputDir+"Light_curve_001"):
+            last_LC_directory = np.sort(glob.glob(self.OutputDir+"Light_curve_*"))[-1]
+            last_number_of_bins = np.sort(glob.glob(last_LC_directory+"/lightcurve_*"))
+            if len(last_number_of_bins) == self.spinBox_LC_N_time_bins.value():
+                self.Compute_LC = False
+
+
+        if self.checkBox_bayesian_blocks.isChecked() and self.comboBox_bayesian_blocks.currentText() == "External LC":  #If an external LC file is provided, no LC is computed.
+            self.Compute_LC = False
+            
+        if self.checkBox_LC.isChecked() and self.Compute_LC:
+            #Running the LC in parallel cores is possible only in Linux systems:
+            if OS_name != "Darwin":
+                self.gta.lightcurve(self.sourcename, nbins=self.spinBox_LC_N_time_bins.value(), free_radius=self.freeradius,use_local_ltcube=True, use_scaled_srcmap=True, free_params=['norm','shape'], shape_ts_threshold=9, multithread=True, nthread=self.spinBox_N_cores_LC.value())
+            else:
+                self.gta.lightcurve(self.sourcename, nbins=self.spinBox_LC_N_time_bins.value(), free_radius=self.freeradius,use_local_ltcube=True, use_scaled_srcmap=True, free_params=['norm','shape'], shape_ts_threshold=9, multithread=False)
+            
+            if not os.path.exists(self.OutputDir+"Light_curve_001"):
+                os.mkdir(self.OutputDir+"Light_curve_001")
+                os.system(f"mv {self.OutputDir}*lightcurve* {self.OutputDir}Light_curve_001")
+            else:
+                last_LC = int(np.sort(glob.glob(self.OutputDir+"Light_curve_*"))[-1].split("_")[-1]) + 1  # Taking the number corresponding to the last light curve computed and adding 1
+                last_LC = "{:03d}".format(last_LC)
+                os.mkdir(self.OutputDir+f"Light_curve_{last_LC}")
+                os.system(f"mv {self.OutputDir}*lightcurve* {self.OutputDir}Light_curve_{last_LC}")
+
+
+    def compute_LC_adaptive(self):
+        
+        """
+        This function calls fermipy to compute the target light curve with adaptive binning.
+        
+        Parameters
+        ----------
+        self: instance of the class Ui_mainWindow
+            This parameter contains all the variables read from the Graphical interface.
+
+        Returns
+        -------
+        Adaptive-binning_lightcurve.fits:
+            Data file with all the information regarding the energy-flux and photon-flux adaptive-binning light curves.
+            
+        """
+        
+        
+        if self.checkBox_adaptive_binning.isChecked() and self.checkBox_LC.isChecked():
+            try:
+                TS_Threshold = float(self.white_box_TS_threshold.text())
+                if TS_Threshold > 0.0:
+                    self.adaptive = True
+            except:
+                print("Invalid TS threshold value.")
+        else:
+            self.adaptive = False
+
+        if self.checkBox_bayesian_blocks.isChecked() and self.comboBox_bayesian_blocks.currentText() == "External LC":   #If an external LC file is provided, no adaptive LC is computed.
+            self.adaptive = False
+
+        if self.adaptive:
+
+            Adaptive_binning_LC_tables = {}
+
+            if os.path.exists(self.OutputDir+"Adaptive-binning_light_curve_001"):
+                last_LC_directory = np.sort(glob.glob(self.OutputDir+"Adaptive-binning_light_curve_*"))[-1]
+            else:
+                last_LC_directory = np.sort(glob.glob(self.OutputDir+"Light_curve_*"))[-1]
+
+            last_LC_bins_directories = np.sort(glob.glob(last_LC_directory+"/lightcurve_*"))
+
+            LC_last_data_file = glob.glob(last_LC_directory+"/*_lightcurve.fits")[0]
+            hdul = pyfits.open(LC_last_data_file)
+            TS_at_each_time_bin = hdul[1].data["ts"]
+            High_TS_bins = np.where(TS_at_each_time_bin > 2*TS_Threshold)[0]
+            if len(High_TS_bins) > 0:
+                for high_TS_index in High_TS_bins:
+                    number_of_subBins = int(TS_at_each_time_bin[high_TS_index]/TS_Threshold)
+                    if number_of_subBins > 1:
+                        os.chdir(last_LC_bins_directories[high_TS_index])  # Here we enter in the directory of each LC bin with TS > 2*TS_Threshold
+                        stream = open("./config.yaml", 'r')
+                        data = yaml.load(stream,Loader)
+                        data["fileio"]["workdir"] = "./"
+                        data["fileio"]["outdir"] = "./Output"
+                        data["fileio"]["logfile"] = "./Output"
+                        data["components"][0]["gtlike"]["srcmap_base"] = "./srcmap_00.fits"
+                        data["components"][0]["gtlike"]["bexpmap_roi_base"] = "./bexpmap_roi_00.fits"
+                        data["components"][0]["gtlike"]["bexpmap_base"] = "./bexpmap_00.fits"
+                        data["components"][0]["data"]["evfile"] = "./ft1_00.fits"
+                        with open("./config.yaml", 'w') as yaml_file:
+                            yaml_file.write( yaml.dump(data, default_flow_style=False))
+
+                        gta = GTAnalysis("./config.yaml",logging={'verbosity': 3})
+                        gta.setup()
+                        if OS_name != "Darwin":
+                            gta.lightcurve(self.sourcename, nbins=number_of_subBins, free_radius=self.roiwidth/2,use_local_ltcube=True, 
+                                                     use_scaled_srcmap=True, free_params=['norm','shape'], shape_ts_threshold=9, multithread=True, nthread=self.spinBox_N_cores_LC.value())
+                        else:
+                            gta.lightcurve(self.sourcename, nbins=number_of_subBins, free_radius=self.roiwidth/2,use_local_ltcube=True, use_scaled_srcmap=True, free_params=['norm','shape'], shape_ts_threshold=9, multithread=False)
+                        
+                        os.chdir(Working_directory)
+
+                # Here we copy/move the adaptive bins to the Adaptive-binning_light_curve directory, leaving a copy of the standard LC files in the Light_curve_XXX directory.
+                if not os.path.exists(self.OutputDir+"Adaptive-binning_light_curve_001"):
+                    os.mkdir(self.OutputDir+"Adaptive-binning_light_curve_001")
+                    last_adaptive_LC = "{:03d}".format(1)
+                    for n,new_lc_bins in enumerate(last_LC_bins_directories):
+                        if n in High_TS_bins:
+                            os.system(f"mv {new_lc_bins}/Output/lightcurve_* {self.OutputDir}Adaptive-binning_light_curve_001")
+                            local_lc_table = glob.glob(f"{new_lc_bins}/Output/*_lightcurve.fits")[0]
+                            Adaptive_binning_LC_tables[n] = Table.read(local_lc_table,format="fits", hdu=1)
+                        else:
+                            os.system(f"cp -r {new_lc_bins} {self.OutputDir}Adaptive-binning_light_curve_001")
+                            local_lc_table = glob.glob(f"{last_LC_directory}/*_lightcurve.fits")[0]
+                            Adaptive_binning_LC_tables[n] = Table.read(local_lc_table,format="fits", hdu=1)[n]
+                else:
+                    last_adaptive_LC = int(np.sort(glob.glob(self.OutputDir+"Adaptive-binning_light_curve_*"))[-1].split("_")[-1]) + 1  # Taking the number corresponding to the last adaptive binning light curve computed and adding 1
+                    last_adaptive_LC = "{:03d}".format(last_adaptive_LC)
+                    os.mkdir(self.OutputDir+f"Adaptive-binning_light_curve_{last_adaptive_LC}")
+                    for n,new_lc_bins in enumerate(last_LC_bins_directories):
+                        if n in High_TS_bins:
+                            os.system(f"mv {new_lc_bins}/Output/lightcurve_* {self.OutputDir}Adaptive-binning_light_curve_{last_adaptive_LC}")
+                            local_lc_table = glob.glob(f"{new_lc_bins}/Output/*_lightcurve.fits")[0]
+                            Adaptive_binning_LC_tables[n] = Table.read(local_lc_table,format="fits", hdu=1)
+                        else:
+                            os.system(f"mv {new_lc_bins} {self.OutputDir}Adaptive-binning_light_curve_{last_adaptive_LC}")
+                            local_lc_table = glob.glob(f"{last_LC_directory}/*_lightcurve.fits")[0]
+                            Adaptive_binning_LC_tables[n] = Table.read(local_lc_table,format="fits", hdu=1)[n]
+                
+                
+                # Saving the final table with the adaptive-binning LC:
+                final_table = Adaptive_binning_LC_tables[0]
+                for n in range((len(Adaptive_binning_LC_tables) - 1)):
+                    final_table = vstack([final_table,Adaptive_binning_LC_tables[n+1]])
+
+                final_table
+                final_table.write(f"{self.OutputDir}Adaptive-binning_light_curve_{last_adaptive_LC}/Adaptive-binning_lightcurve.fits", format="fits",overwrite=True)
+                
+
+
+            else:
+                print(f"No time bins with TS > 2x{TS_Threshold}. Current iteration of adaptive binning LC was not performed.")
+
+
+    def data_time_range_MET(self, from_GUI_only=False):
+        """
+        Returns the time range (tmin, tmax) of the analysis in Fermi MET (s), or None if it cannot be found.
+ 
+        Priority:
+            1) the fermipy configuration (self.gta), i.e. the range actually used in the analysis;
+            2) self.tmin / self.tmax (set by setFermipy);
+            3) the selection in the custom config file (if the "Custom" mode is selected);
+            4) the dates in the graphical interface (same conversion used by setFermipy).
+        If from_GUI_only is True, steps 1 and 2 are skipped, so only the current state of the GUI is used
+        (values from a previous analysis in the same session are ignored).
+        """
+        if not from_GUI_only:
+            try:
+                selection = self.gta.config["selection"]
+                return float(selection["tmin"]), float(selection["tmax"])
+            except (AttributeError, KeyError, TypeError, ValueError):
+                pass
+ 
+            if getattr(self, "tmin", None) is not None and getattr(self, "tmax", None) is not None:
+                return float(self.tmin), float(self.tmax)
+ 
+        if self.radioButton_Custom.isChecked():
+            try:
+                with open(self.white_box_config_file.text()) as file:
+                    selection = yaml.safe_load(file)["selection"]
+                return float(selection["tmin"]), float(selection["tmax"])
+            except (OSError, KeyError, TypeError, ValueError, yaml.YAMLError):
+                print("- WARNING: the config file could not be read. The dates in the GUI will be used.")
+ 
+        try:
+            METStart = 239557417.0
+            tStartMJD = Time('2008-08-04T15:43:36').mjd
+            limits = []
+            for date in (self.dateTimeEdit.text(), self.dateTimeEdit_2.text()):
+                iso = str(date[6:10])+'-'+str(date[3:5])+'-'+str(date[:2])+'T'+str(date[11:19])
+                limits.append((Time(iso).mjd - tStartMJD)*86400 + METStart)
+            return limits[0], limits[1]
+        except Exception:
+            return None
+
+
+    def compute_LC_bayesian_blocks(self):
+ 
+        """
+        This function reads a light curve (.csv or .fits) and computes its Bayesian blocks.
+        The calculation itself is done by the script easyfermi_bayesian_blocks.py.
+ 
+        Only the part of the input light curve that overlaps the time range of the analysis is used:
+        if the input (e.g. external) light curve is longer than the data, it is cut at the data limits;
+        if it is shorter, the Bayesian-blocks light curve only covers the time range of the input light curve.
+ 
+        Returns
+        -------
+        Data file with all the information regarding the photon-flux bayesian blocks light curve.
+ 
+        """
+ 
+        ts_min = 4.0  # This value is set to 4 to match the convention adopted in the Fermi LCR.
+ 
+        p0 = float(self.white_box_bayesian_blocks.text()) # False-alarm probability of the Bayesian blocks (Scargle et al. 2013). A lower p0 gives fewer blocks.
+ 
+        input_file = None  #Path to the input light curve.  If None, the file TARGET_NAME_lightcurve.fits of the last Light_curve_XXX directory (the one created by compute_LC) is used.
+        if self.comboBox_bayesian_blocks.currentText() == "External LC":
+            input_file = self.white_box_external_LC.text().strip()
+ 
+        if self.checkBox_bayesian_blocks.isChecked() and self.checkBox_LC.isChecked(): 
+ 
+            # Importing the script that computes the Bayesian blocks:
+            if str(Path(__file__).parent.resolve()) not in sys.path:
+                sys.path.insert(0, str(Path(__file__).parent.resolve()))
+            from easyfermi_bayesian_blocks import (read_light_curve, restrict_light_curve, bayesian_blocks_light_curve,
+                                                   block_edges_mjd, MET_to_MJD, MJD_to_MET)
+ 
+            # If no file was given, we take the fits light curve computed by compute_LC:
+            if input_file is None:
+                LC_directories = np.sort(glob.glob(self.OutputDir+"Light_curve_*"))
+                LC_adaptive_directories = np.sort(glob.glob(self.OutputDir+"Adaptive-binning_light_curve_*"))
+                if len(LC_adaptive_directories) > 0:
+                    LC_directories = LC_adaptive_directories  # If we have an adaptive light curve, we will use it to compute the Bayesian blocks.
+                if len(LC_directories) == 0:
+                    print("No light curve found in the output directory. Please provide input_file for the Bayesian blocks light curve.") #TRANSFORM THIS INTO AN ALARM POPUP!!!
+                    return None
+                fits_files = glob.glob(LC_directories[-1]+"/*_lightcurve.fits")
+                if len(fits_files) == 0:
+                    print(f"No *_lightcurve.fits file found in {LC_directories[-1]}. Please provide input_file.")
+                    return None
+                input_file = fits_files[0]
+ 
+            # Reading the light curve (csv or fits):
+            LC_data = read_light_curve(input_file, file_format="auto", flux_type="flux")
+ 
+            # ------------------------------------------------------------------
+            # Keeping only the part of the light curve inside the time range of the data:
+            # ------------------------------------------------------------------
+            data_range_MET = self.data_time_range_MET()
+            if data_range_MET is None:
+                print("- WARNING: the time range of the data could not be found. The full input light curve will be used.")
+            else:
+                data_tmin_mjd, data_tmax_mjd = MET_to_MJD(data_range_MET)
+                try:
+                    LC_data, _ = restrict_light_curve(LC_data, data_tmin_mjd, data_tmax_mjd)
+                except ValueError as error:
+                    print(f"- WARNING: {error} The Bayesian-blocks light curve was not computed.") #TRANSFORM THIS INTO AN ALARM POPUP!!!
+                    return None
+                if LC_data["n_bins_removed"] > 0:
+                    print(f"{LC_data['n_bins_removed']} of {LC_data['n_bins_original']} bins of the input light curve are outside "
+                          f"the time range of the data (MJD {data_tmin_mjd:.2f} - {data_tmax_mjd:.2f}) and were ignored.")
+ 
+            # Computing the Bayesian blocks:
+            try:
+                BB_data = bayesian_blocks_light_curve(LC_data, ts_min=ts_min, p0=p0)
+            except ValueError as error:
+                print(f"- WARNING: {error} The Bayesian-blocks light curve was not computed.")
+                return None
+ 
+            print(f"Bayesian blocks: {BB_data['n_blocks']} blocks from {BB_data['n_used']} of {len(LC_data['ts'])} time bins.")
+ 
+            
+            # ------------------------------------------------------------------
+            # Output directory:
+            # ------------------------------------------------------------------
+            BB_dir = os.path.join(self.OutputDir, f"Bayesian_blocks_light_curve_p0={p0}")  # created below, right before the LC
+ 
+            # ------------------------------------------------------------------
+            # Time-bin edges (MET, in seconds) following the Bayesian blocks:
+            # ------------------------------------------------------------------
+            # Internal edges in the middle of the gaps between blocks (upper limits inside a gap are split
+            # half/half between the neighbouring blocks); outer edges at the limits of the input light curve.
+            # See block_edges_mjd() in easyfermi_bayesian_blocks.py.
+            edges = MJD_to_MET(block_edges_mjd(LC_data, BB_data))
+ 
+            # The edges cannot go outside the time range of the data (bins partially outside it are kept
+            # in the Bayesian-blocks calculation, so the first/last edges may need to be clipped):
+            if data_range_MET is not None:
+                edges = np.clip(edges, data_range_MET[0], data_range_MET[1])
+            edges = np.unique(np.round(edges, 3))  # removes zero-width bins
+ 
+            if len(edges) < 2:
+                print("- WARNING: the Bayesian blocks do not define any time bin inside the time range of the data. "
+                      "The Bayesian-blocks light curve was not computed.")
+                return None
+ 
+            print(f"Computing the Bayesian-blocks light curve with {len(edges) - 1} time bins "
+                  f"(MJD {MET_to_MJD(edges[0]):.2f} - {MET_to_MJD(edges[-1]):.2f})...")
+ 
+            # ------------------------------------------------------------------
+            # Light curve with the Bayesian-blocks time bins:
+            # ------------------------------------------------------------------
+            # A previous Bayesian-blocks LC with the same p0 is replaced: otherwise the old files (the old
+            # bayesian_blocks_lightcurve.fits and old lightcurve_* time-bin directories) would be mixed with the new ones.
+            if os.path.isdir(BB_dir):
+                print(f"- WARNING: {BB_dir} already exists. Its content will be replaced by the new Bayesian-blocks light curve.")
+                shutil.rmtree(BB_dir)
+            os.makedirs(BB_dir)
+ 
+            lc_options = dict(
+                free_radius=self.roiwidth/2,
+                multithread=(OS_name != "Darwin"),
+            )
+ 
+            self.gta.lightcurve(
+                self.sourcename,
+                time_bins=edges.tolist(),
+                outdir=os.path.relpath(BB_dir, self.gta.workdir),  # fermipy interprets outdir relative to workdir
+                write_fits=True,
+                use_local_ltcube=True,
+                use_scaled_srcmap=True,
+                free_params=['norm','shape'],
+                shape_ts_threshold=9,
+                **lc_options,
+            )
+ 
+            os.system(f"mv {self.OutputDir}*lightcurve* {BB_dir}")
+ 
+            # LC file written by fermipy (the final name, bayesian_blocks_lightcurve.fits, also matches *_lightcurve.fits):
+            fits_out = [f for f in glob.glob(os.path.join(BB_dir, "*_lightcurve.fits"))
+                        if os.path.basename(f) != "bayesian_blocks_lightcurve.fits"]
+            if len(fits_out) > 0:
+                os.replace(max(fits_out, key=os.path.getmtime), os.path.join(BB_dir, "bayesian_blocks_lightcurve.fits"))
+                print(f"Bayesian-blocks light curve saved in {BB_dir}")
+            else:
+                print(f"Warning: no *_lightcurve.fits file found in {BB_dir}.")
+ 
+
+    def quickplot_BB(self):
+ 
+        """
+        Quick plot of the light curve together with its Bayesian blocks.
+ 
+        The Bayesian blocks are computed exactly as in compute_LC_bayesian_blocks(): only the bins that overlap
+        the time range of the data are used. The bins outside this range are shown in light gray, and the limits
+        of the data are shown as vertical red dashed lines.
+ 
+        Parameters
+        ----------
+ 
+        Returns
+        -------
+        A plot to take a quick look in the proposed Bayesian blocks for the given external LC.
+ 
+        """
+        if str(Path(__file__).parent.resolve()) not in sys.path:
+            sys.path.insert(0, str(Path(__file__).parent.resolve()))
+        from easyfermi_bayesian_blocks import (read_light_curve, restrict_light_curve, bayesian_blocks_light_curve,
+                                               block_edges_mjd, MET_to_MJD)
+ 
+        input_file = self.white_box_external_LC.text().strip()
+ 
+        ts_min = 4.0  # This value is set to 4 to match the convention adopted in the Fermi LCR.
+ 
+        p0 = float(self.white_box_bayesian_blocks.text()) # False-alarm probability of the Bayesian blocks (Scargle et al. 2013). A lower p0 gives fewer blocks.
+ 
+        # Reading the light curve (csv or fits):
+        LC_full = read_light_curve(input_file, file_format="auto", flux_type="flux")
+ 
+        # Time range of the data (MJD) and bins of the light curve inside it:
+        data_range_MET = self.data_time_range_MET(from_GUI_only=True)  # only the current GUI state
+        data_range_MJD = None
+        LC_data, inside = LC_full, np.ones(len(LC_full["ts"]), dtype=bool)
+        if data_range_MET is None:
+            print("- WARNING: the time range of the data could not be found. The full light curve is used.")
+        else:
+            data_range_MJD = MET_to_MJD(data_range_MET)
+            try:
+                LC_data, inside = restrict_light_curve(LC_full, *data_range_MJD)
+            except ValueError as error:
+                print(f"- WARNING: {error} The Bayesian blocks are shown for the full light curve.")
+ 
+        # Computing the Bayesian blocks:
+        BB_data = bayesian_blocks_light_curve(LC_data, ts_min=ts_min, p0=p0)
+ 
+        used = BB_data["used"]
+        t_mid = LC_data["tmid_mjd"]
+        t_half = 0.5 * (LC_data["tmax_mjd"] - LC_data["tmin_mjd"])
+        flux = LC_data["flux"]
+        flux_err = LC_data["flux_err"]
+        flux_ul = LC_data["flux_ul95"]
+        unit = LC_data["flux_unit"]
+ 
+        color_data = "black"
+        color_ul = "gray"
+        color_bb = "tab:red"
+        color_outside = "lightgray"
+        color_limits = "red"
+        # -------------------------------------------------------------------------------
+ 
+        fig, ax = plt.subplots(figsize=(10, 5))
+ 
+        # Bins used in the Bayesian blocks (detections):
+        ax.errorbar(t_mid[used], flux[used], xerr=t_half[used], yerr=flux_err[used],
+                    fmt="o", ms=3, color=color_data, ecolor=color_data, elinewidth=0.8,
+                    label="Light-curve bins", zorder=2)
+ 
+        # Bins not used (upper limits), if any:
+        ul = (~used) & np.isfinite(flux_ul)
+        if ul.any():
+            ax.errorbar(t_mid[ul], flux_ul[ul], xerr=t_half[ul], yerr=0.1 * np.max(flux_ul[ul]),
+                        uplims=True, fmt="none", ecolor=color_ul, elinewidth=0.8,
+                        label="Upper limits (95%)", zorder=1)
+ 
+        # Bins outside the time range of the data (not used in the Bayesian blocks):
+        outside = ~inside
+        if outside.any():
+            t_out = LC_full["tmid_mjd"][outside]
+            t_half_out = 0.5 * (LC_full["tmax_mjd"][outside] - LC_full["tmin_mjd"][outside])
+            detected_out = np.isfinite(LC_full["flux"][outside])
+            ax.errorbar(t_out[detected_out], LC_full["flux"][outside][detected_out], xerr=t_half_out[detected_out],
+                        yerr=LC_full["flux_err"][outside][detected_out], fmt="o", ms=3, color=color_outside,
+                        ecolor=color_outside, elinewidth=0.8, label="Bins outside the data time range", zorder=1)
+ 
+        # Bayesian blocks, drawn with the same time bins used in compute_LC_bayesian_blocks():
+        edges = block_edges_mjd(LC_data, BB_data)
+        if data_range_MJD is not None:
+            edges = np.clip(edges, *data_range_MJD)
+        for k in range(BB_data["n_blocks"]):
+            f = BB_data["block_flux"][k]
+            ax.hlines(f, edges[k], edges[k + 1], color=color_bb, lw=2, zorder=3,
+                      label="Bayesian blocks" if k == 0 else None)
+            if k > 0:  # vertical connection between consecutive blocks
+                ax.vlines(edges[k], BB_data["block_flux"][k - 1], f, color=color_bb, lw=1, alpha=0.6, zorder=3)
+ 
+        # Time range of the data. The x limits are kept, so a limit outside the light curve is not drawn,
+        # but it is still given in the legend:
+        if data_range_MJD is not None:
+            xlim = ax.get_xlim()
+            for i, t_limit in enumerate(data_range_MJD):
+                ax.axvline(t_limit, color=color_limits, ls="--", lw=1.5, zorder=4,
+                           label=f"Data time range (MJD {data_range_MJD[0]:.1f} - {data_range_MJD[1]:.1f})" if i == 0 else None)
+            ax.set_xlim(xlim)
+ 
+        ax.set_xlabel("Time (MJD)")
+        ax.set_ylabel(f"Flux ({unit})")
+        ax.set_title(f"Bayesian blocks: {BB_data['n_blocks']} blocks, "
+                     f"{BB_data['n_used']} bins used (p0 = {BB_data['p0']}, TS$_{{min}}$ = {BB_data['ts_min']})")
+        ax.legend(loc="best", frameon=False)
+        fig.tight_layout()
+ 
+        self.BB_quickplot_fig = fig  # keeps a reference so the window is not garbage-collected
+        plt.show(block=False)
+
+
+    def plot_LCs(self, adaptive, bayesian_blocks=False):
+
+        """
+        This function plots the latest light curve of the requested type.
+
+        Parameters
+        ----------
+        self: instance of the class Ui_mainWindow
+            This parameter contains all the variables read from the Graphical interface.
+        adaptive: bool
+            If True, plots the latest adaptive-binning light curve (Adaptive-binning_light_curve_*).
+            Nothing is plotted if no adaptive-binning light curve exists.
+        bayesian_blocks: bool
+            If True, plots the latest Bayesian-blocks light curve (Bayesian_blocks_light_curve*), with the
+            latest adaptive-binning (or, if absent, standard) light curve in the background. Overrides `adaptive`.
+            If both are False, plots the latest standard light curve (Light_curve_*).
+
+        Returns
+        -------
+        Quickplot_[adaptive-binning_|Bayesian_blocks_]LC_N_bins.pdf and Quickplot_[...]eLC_N_bins.pdf:
+            Plots showing the flux light curve and the energy flux light curve. Files are saved in the output directory read from the graphical interface.
+        """
+
+        if not self.checkBox_LC.isChecked():
+            return
+
+        TSmin = 9
+        output_format = self.comboBox_output_format.currentText()
+
+        def last_LC_file(directory_pattern, by_mtime=False):
+            """
+            Light-curve fits file of the last directory matching the pattern, or None.
+            Directories are sorted by name (Light_curve_001, 002, ...) or, if by_mtime is True, by the
+            modification time of their LC file (needed for Bayesian_blocks_light_curve_p0=X, whose names
+            do not follow the order in which they were created).
+            """
+            directories = [d for d in np.sort(glob.glob(self.OutputDir + directory_pattern)) if os.path.isdir(d)]
+            files = []
+            for directory in directories:
+                LC_files = sorted(glob.glob(os.path.join(directory, "*_lightcurve.fits")))
+                if len(LC_files) > 0:
+                    files.append(LC_files[0])
+            if len(files) == 0:
+                return None
+            return max(files, key=os.path.getmtime) if by_mtime else files[-1]
+
+        def read_LC(LC_file):
+            with pyfits.open(LC_file) as hdul:
+                return hdul[1].data.copy()
+
+        # ---------------------------------------------------------------
+        # Choosing the light curve(s) to plot
+        # ---------------------------------------------------------------
+        reference_file = None  # LC plotted in gray in the background (Bayesian blocks only)
+        if bayesian_blocks:
+            main_file = last_LC_file("Bayesian_blocks_light_curve*", by_mtime=True)
+            reference_file = last_LC_file("Adaptive-binning_light_curve_*") or last_LC_file("Light_curve_*")
+            prefix, label = f"Quickplot_Bayesian_blocks_p={self.white_box_bayesian_blocks.text()}_", "Bayesian blocks"
+        elif adaptive:
+            main_file = last_LC_file("Adaptive-binning_light_curve_*")
+            prefix, label = "Quickplot_adaptive-binning_", "adaptive binning"
+        else:
+            main_file = last_LC_file("Light_curve_*")
+            prefix, label = "Quickplot_", "standard"
+
+        if main_file is None:
+            print(f"No {label} light curve was found in the output directory. Nothing to plot.")
+            return
+
+        main_lc = read_LC(main_file)
+        reference_lc = read_LC(reference_file) if reference_file is not None else None
+        spline_lc, spline_file = (reference_lc, reference_file) if bayesian_blocks else (main_lc, main_file)
+
+        # ---------------------------------------------------------------
+        # Helpers
+        # ---------------------------------------------------------------
+        def masks(lc):
+            return lc['ts'] > TSmin, lc['ts'] <= TSmin  # data points, upper limits
+
+        def get_scale(lc, quantity):
+            detected, _ = masks(lc)
+            values = lc[quantity][detected] if detected.any() else lc[quantity+'_ul95']
+            return int(np.log10(values.max())) - 2
+
+        def upper_y(lc, quantity):
+            """Upper y limit (unscaled) needed to show the data of a light curve."""
+            detected, upper = masks(lc)
+            if detected.any():
+                y0 = lc[quantity][detected].max()
+                y1 = min((lc[quantity][detected] + lc[quantity+'_err'][detected]).max(), 4*y0)
+                if upper.any():
+                    y1 = max(y1, lc[quantity+'_ul95'][upper].max())
+                return y1
+            return lc[quantity+'_ul95'][upper].max()
+
+        def draw_LC(ax, lc, quantity, scale, detected_style, UL_style):
+            detected, upper = masks(lc)
+            tmean = (lc['tmin_mjd'] + lc['tmax_mjd'])/2
+            for selection, yname, style in ((detected, quantity, detected_style), (upper, quantity+'_ul95', UL_style)):
+                t = tmean[selection]
+                xerr = [t - lc['tmin_mjd'][selection], lc['tmax_mjd'][selection] - t]
+                if style.get('uplims'):
+                    yerr = 5*np.ones(selection.sum())
+                else:
+                    yerr = (10**-scale)*lc[quantity+'_err'][selection]
+                ax.errorbar(t, (10**-scale)*lc[yname][selection], xerr=xerr, yerr=yerr, fmt='o', capsize=4, **style)
+
+        def compute_spline(lc, quantity, scale):
+            """Cubic spline of the data points (scaled by 10^-scale), or None if there are 9 points or less."""
+            detected, _ = masks(lc)
+            if detected.sum() <= 9:
+                return None
+            tmean = (lc['tmin_mjd'] + lc['tmax_mjd'])/2
+            time_continuum = np.linspace(np.min(lc['tmin_mjd']), np.max(lc['tmax_mjd']), 10*len(lc['tmin_mjd']))
+            tck = interpolate.splrep(tmean[detected], (10**-scale)*lc[quantity][detected], k=3)
+            tck_error = interpolate.splrep(tmean[detected], (10**-scale)*lc[quantity+'_err'][detected], k=3)
+            return time_continuum, interpolate.splev(time_continuum, tck), interpolate.splev(time_continuum, tck_error)
+
+        def new_axes():
+            f = plt.figure(figsize=(9,4), dpi=250)
+            ax = f.add_subplot(1,1,1)
+            ax.xaxis.set_minor_locator(AutoMinorLocator(2))
+            ax.yaxis.set_minor_locator(AutoMinorLocator(2))
+            ax.tick_params(which='major', length=5, direction='in')
+            ax.tick_params(which='minor', length=2.5, direction='in', bottom=True, top=True, left=True, right=True)
+            ax.tick_params(bottom=True, top=True, left=True, right=True)
+            ax.grid(linestyle=':', which='both')
+            return f, ax
+
+        # ---------------------------------------------------------------
+        # Plots: energy flux (eLC) and photon flux (LC)
+        # ---------------------------------------------------------------
+        splines = {}
+        for quantity, name, ylabel, title in (
+                ('eflux', 'eLC', r'Energy flux [$10^{%d}$ MeV cm$^{-2}$ s$^{-1}$]', ' - Energy light curve (free shape)'),
+                ('flux', 'LC', r'Flux [$10^{%d}$ cm$^{-2}$ s$^{-1}$]', ' - Light curve (free shape)')):
+
+            if quantity not in main_lc.names:
+                print(f"- WARNING: column '{quantity}' not found in {main_file}. The {name} plot was skipped.")
+                continue
+
+            f, ax = new_axes()
+            scale = get_scale(main_lc, quantity)
+
+            # Spline of the standard/adaptive light curve:
+            if spline_lc is not None:
+                spline_scale = get_scale(spline_lc, quantity)
+                splines[quantity] = (compute_spline(spline_lc, quantity, spline_scale), spline_scale)
+                spline = splines[quantity][0]
+                if spline is not None:
+                    ax.plot(spline[0], (10**(spline_scale-scale))*spline[1], color="C1", label="Spline",
+                            alpha=0.2 if bayesian_blocks else 1)
+
+            if bayesian_blocks:
+                draw_LC(ax, main_lc, quantity, scale,
+                        dict(markeredgecolor="black", color="C0", label="Bayesian blocks LC"),
+                        dict(markeredgecolor="black", color="C1", uplims=True))
+                if reference_lc is not None:
+                    draw_LC(ax, reference_lc, quantity, scale,
+                            dict(markeredgecolor=None, color="gray", alpha=0.25, label="Original LC"),
+                            dict(markeredgecolor=None, color="gray", alpha=0.25, uplims=True))
+            else:
+                draw_LC(ax, main_lc, quantity, scale,
+                        dict(markeredgecolor='black'),
+                        dict(markeredgecolor='black', color='orange', uplims=True))
+
+            y1 = max(upper_y(lc, quantity) for lc in (main_lc, reference_lc) if lc is not None)
+            ax.set_ylim(-(10**-scale)*0.1*y1, (10**-scale)*1.1*y1)
+            ax.set_ylabel(ylabel % scale)
+            ax.set_xlabel('Time [MJD]')
+            ax.set_title(self.sourcename + title)
+            if len(ax.get_legend_handles_labels()[0]) > 0:
+                ax.legend(fontsize=11)
+            f.savefig(self.OutputDir+f'{prefix}{name}_{len(main_lc["ts"])}_bins.'+output_format, bbox_inches='tight')
+            plt.close(f)
+
+        # ---------------------------------------------------------------
+        # Saving the splines in the light-curve fits file (only once)
+        # ---------------------------------------------------------------
+        if all(splines.get(q, (None,))[0] is not None for q in ('eflux', 'flux')):
+            (time_continuum, eflux_continuum, eflux_continuum_err), eflux_scale = splines['eflux']
+            (_, flux_continuum, flux_continuum_err), flux_scale = splines['flux']
+            with pyfits.open(spline_file, memmap=False) as hdul:
+                if len(hdul) < 3:
+                    hdul.readall()
+                    spline_hdu = pyfits.BinTableHDU.from_columns([
+                        pyfits.Column(name="time [MJD]", array=time_continuum, format="D", unit="MJD"),
+                        pyfits.Column(name="eflux_continuum", array=eflux_continuum, format="D", unit="10^"+str(eflux_scale)+" MeV cm-2 s-1"),
+                        pyfits.Column(name="eflux_err_continuum", array=eflux_continuum_err, format="D", unit="10^"+str(eflux_scale)+" MeV cm-2 s-1"),
+                        pyfits.Column(name="flux_continuum", array=flux_continuum, format="D", unit="10^"+str(flux_scale)+" ph cm-2 s-1"),
+                        pyfits.Column(name="flux_err_continuum", array=flux_continuum_err, format="D", unit="10^"+str(flux_scale)+" ph cm-2 s-1")],
+                        name="LC spline data")
+                    hdul.append(spline_hdu)
+                    hdul.writeto(spline_file, overwrite=True)
         
     def compute_SED(self):
 
@@ -3126,666 +4044,251 @@ class Ui_mainWindow(QDialog):
             plt.tight_layout()
             plt.savefig(self.OutputDir+'Quickplot_SED_fermipy.'+output_format,bbox_inches='tight')
 
+            if self.checkBox_SED_per_bin.isChecked():
+                print("Computing SEDs per LC bin...")
+                self.SED_per_LC_bin(self.sourcename, which_LC=None, number_of_bins=Nbins, use_local_index=use_local_index, use_multiprocessing=True, n_cores=None)
+
+    def SED_per_LC_bin(self, target, which_LC=None, number_of_bins=10, use_local_index=False,
+                     use_multiprocessing=True, n_cores=None):
+
+        """
+        Computes the SED of the target in every time bin of a light curve and gives access to the *sed.fits data.
+        The calculation is done by SED_in_sequence(), from easyfermi_SED_in_sequence.py.
+
+        Parameters
+        ----------
+        which_LC: str
+            Path to the light-curve fits file (the lightcurve_XXX directories must be in the same directory).
+
+        number_of_bins: int
+            Number of energy bins of each SED.
+
+        use_local_index: bool
+            If True, the local spectral index of each energy bin is used (gta.sed use_local_index).
+
+        use_multiprocessing: bool
+            If True, the time bins are processed in parallel (Linux only; macOS runs without it).
+
+        n_cores: int or None
+            Number of processes. If None, (number of CPUs - 1) is used.
+
+        Returns
+        -------
+        SED_data: list of dict (one per time bin), also stored in self.SED_per_bin_data.
+            SED_data[i]["sed"]["e_ctr"], ["e2dnde"], ["e2dnde_err"], ["e2dnde_ul95"], ["ts"], ... (arrays, one value per energy bin)
+            SED_data[i]["model_flux"]: dict with energies, dnde, dnde_lo, dnde_hi (or None)
+            SED_data[i]["tmin_mjd"], ["tmax_mjd"], ["bin_index"], ["sed_file"], ["bin_directory"]
+        """
+
+        if which_LC is None:
+            # Automatic choice of the light curve. Priority: 1) Bayesian blocks, 2) Adaptive binning, 3) regular light curve.
+            LC_directory = None
+            BB_files = glob.glob(os.path.join(self.OutputDir, "Bayesian_blocks_light_curve*", "bayesian_blocks_lightcurve.fits"))
+            if len(BB_files) > 0:
+                LC_directory = os.path.dirname(max(BB_files, key=os.path.getmtime))  # folder of the most recent file
+            else:
+                for pattern in ("Adaptive-binning_light_curve_*", "Light_curve_*"):
+                    directories = np.sort(glob.glob(self.OutputDir+pattern))
+                    if len(directories) > 0:
+                        LC_directory = directories[-1]  # last available
+                        break
+
+            # The chosen directory needs the light-curve fits file and the time-bin directories:
+            fits_files = []
+            if LC_directory is not None:
+                fits_files = glob.glob(os.path.join(LC_directory, "*lightcurve.fits"))
+                if len(glob.glob(os.path.join(LC_directory, "lightcurve*"))) == 0:
+                    fits_files = []
+
+            if len(fits_files) == 0:
+                print("No light curve was found in the output directory. You can compute a light curve by clicking in the 'Light curve' checkbox.")
+                return None
+            which_LC = fits_files[0]
+            print(f"Light curve chosen automatically: {which_LC}. Priority: 1) the last modified Bayesian blocks LC, 2) the last modified Adaptive-binning LC, 3) the last modified standard LC")
+
+        if str(Path(__file__).parent.resolve()) not in sys.path:
+            sys.path.insert(0, str(Path(__file__).parent.resolve()))
+        from easyfermi_SED_in_sequence import SED_in_sequence
+
+        SED_data = SED_in_sequence(target, which_LC, number_of_bins=number_of_bins, use_local_index=use_local_index,
+                                   use_multiprocessing=use_multiprocessing, n_cores=n_cores)
+
+        self.SED_per_bin_data = SED_data
+        print(f"SEDs read for {len(SED_data)} time bins.")
+ 
 
     def EBL_and_MCMC(self):
-
+ 
         """This function corrects the data for EBL absorption and applies a MCMC to the corrected data.
            If the redshift is 0.0, the MCMC is applied to the non-corrected LAT data.
-
+           If the checkbox "SED per bin" is checked, the MCMC is also applied to the SED of every time bin
+           of the light curve (self.SED_per_bin_data, computed by SED_per_LC_bin()).
+ 
+        The MCMC, EBL correction, FITS output and plots are implemented in easyfermi_MCMC.py.
+ 
         Parameters
         ----------
         self: instance of the class Ui_mainWindow
             This parameter contains all the variables read from the Graphical interface.
-
+ 
         Returns
         -------
         TARGET_NAME_sed.fits
             Table containing the SED data + MCMC results. File is saved in the output directory read from the graphical interface.
         Quickplot_SED_MCMC.png or Quickplot_SED_MCMC.pdf:
             A plot of the SED for quick visualization. File is saved in the output directory read from the graphical interface.
-
+        Quickplot_MCMC_SED_pars.png:
+            Corner plot of the posterior distributions.
+        lightcurve_XXX/*sed.fits, lightcurve_XXX/Quickplot_SED_MCMC.png (only if "SED per bin" is checked):
+            MCMC results and SED plot of each time bin.
         """
-
-        TSmin = 9 
+ 
+        if str(Path(__file__).parent.resolve()) not in sys.path:
+            sys.path.insert(0, str(Path(__file__).parent.resolve()))
+        import easyfermi_MCMC as MCMC
+ 
+        TSmin = 9
+        model = MCMC.get_model(self.comboBox_MCMC.currentText())
         self.include_VHE = False
-        self.allow_MCMC = False
-        if self.checkBox_SED.isChecked():
-            if len(self.Energy_data_points) > 2:
-                self.allow_MCMC = True
-            else:
-                self.allow_MCMC = False
-
+        self.allow_MCMC = self.checkBox_SED.isChecked() and len(self.Energy_data_points) > 2
+ 
         if self.allow_MCMC:
+            log_e0 = np.log10(self.Emin)  # pivot energy of the models
+ 
+            # ---------------------------------------------------------------
+            # Data: Fermi-LAT points (TS > TSmin) + optional VHE points
+            # ---------------------------------------------------------------
+            VHE = None
             if self.white_box_VHE.text().split('.')[-1] == 'fits':
-                try:
-                    self.include_VHE = True
-                    VHE = pyfits.open(self.white_box_VHE.text())[1].data
-
-                    energy_VHE = VHE["e_ref"] * 1000000  # TeV to MeV
-                    energy_VHE_min = VHE["e_min"] * 1000000
-                    energy_VHE_max = VHE["e_max"] * 1000000
-                    e2dnde_VHE = VHE["e2dnde"] * 1e6  # TeV cm-2 s-1 to MeV cm-2 s-1
-                    e2dnde_err_VHE = VHE["e2dnde_err"] * 1e6
-                    e2dnde_UL_VHE = VHE["e2dnde_ul"] * 1e6
-                    TS_VHE = VHE["ts"]
-
-                    delete_nan_elements = np.isnan(e2dnde_UL_VHE)
-
-                    TS_VHE = np.delete(TS_VHE, delete_nan_elements)
-                    e2dnde_UL_VHE = np.delete(e2dnde_UL_VHE, delete_nan_elements)[TS_VHE <= TSmin]
-                    energy_UL_VHE = np.delete(energy_VHE, delete_nan_elements)[TS_VHE <= TSmin]
-                    energy_UL_VHE_min = np.delete(energy_VHE_min, delete_nan_elements)[TS_VHE <= TSmin]
-                    energy_UL_VHE_max = np.delete(energy_VHE_max, delete_nan_elements)[TS_VHE <= TSmin]
-                    energy_VHE = np.delete(energy_VHE, delete_nan_elements)[TS_VHE > TSmin]
-                    energy_VHE_min = np.delete(energy_VHE_min, delete_nan_elements)[TS_VHE > TSmin]
-                    energy_VHE_max = np.delete(energy_VHE_max, delete_nan_elements)[TS_VHE > TSmin]
-                    e2dnde_VHE = np.delete(e2dnde_VHE, delete_nan_elements)[TS_VHE > TSmin]
-                    e2dnde_err_VHE = np.delete(e2dnde_err_VHE, delete_nan_elements)[TS_VHE > TSmin]
-
-                    x_err_VHE = [energy_VHE - energy_VHE_min, energy_VHE_max - energy_VHE]
-                    x_err_UL_VHE =  [energy_UL_VHE - energy_UL_VHE_min, energy_UL_VHE_max - energy_UL_VHE]
-
-                except:
-                    self.include_VHE = False
-            else:
-                self.include_VHE = False
-
+                VHE = MCMC.read_VHE_SED(self.white_box_VHE.text(), TSmin)
+            self.include_VHE = VHE is not None
+ 
+            Energy_SED = self.Energy_data_points
+            Energy_err_SED = self.xerr_data_points
+            e2dnde_SED = self.e2dnde_data_points
+            e2dnde_err_SED = self.yerr_data_points
             if self.include_VHE:
-                Energy_SED = np.concatenate([self.Energy_data_points, energy_VHE])
-                Energy_err_SED = [np.concatenate([self.xerr_data_points[0],x_err_VHE[0]]), np.concatenate([self.xerr_data_points[1],x_err_VHE[1]])]
-                dnde_SED = np.concatenate([self.e2dnde_data_points, e2dnde_VHE]) / (Energy_SED**2)  # y in dnde
-                dnde_err_SED = np.concatenate([self.yerr_data_points, e2dnde_err_VHE]) / (Energy_SED**2)  # yerr in dnde
-                self.Energy_uplims = np.concatenate([self.Energy_uplims, energy_UL_VHE])
-                self.xerr_uplims = [np.concatenate([self.xerr_uplims[0],x_err_UL_VHE[0]]), np.concatenate([self.xerr_uplims[1],x_err_UL_VHE[1]])]
-                self.e2dnde_uplims = np.concatenate([self.e2dnde_uplims, e2dnde_UL_VHE])
-                self.yerr_uplims = np.concatenate([self.yerr_uplims, 0.3*e2dnde_UL_VHE])
-                N_bins_VHE = len(energy_VHE)
-                N_bins_VHE_UL = len(energy_UL_VHE)
-            else:
-                Energy_SED = self.Energy_data_points
-                Energy_err_SED = self.xerr_data_points
-                dnde_SED = self.e2dnde_data_points / (Energy_SED**2)
-                dnde_err_SED = self.yerr_data_points / (Energy_SED**2)
-
+                Energy_SED = np.concatenate([Energy_SED, VHE["energy"]])
+                Energy_err_SED = [np.concatenate([Energy_err_SED[i], VHE["energy_err"][i]]) for i in (0, 1)]
+                e2dnde_SED = np.concatenate([e2dnde_SED, VHE["e2dnde"]])
+                e2dnde_err_SED = np.concatenate([e2dnde_err_SED, VHE["e2dnde_err"]])
+                # The VHE upper limits are appended to the Fermi-LAT ones:
+                self.Energy_uplims = np.concatenate([self.Energy_uplims, VHE["ul_energy"]])
+                self.xerr_uplims = [np.concatenate([self.xerr_uplims[i], VHE["ul_energy_err"][i]]) for i in (0, 1)]
+                self.e2dnde_uplims = np.concatenate([self.e2dnde_uplims, VHE["ul_e2dnde"]])
+                self.yerr_uplims = np.concatenate([self.yerr_uplims, MCMC.UL_YERR_FRACTION * VHE["ul_e2dnde"]])
+ 
+            # Fermi-LAT points with less than 5 photons:
+            warning_mask = None
+            if len(self.few_photons_warning) == len(self.Energy_data_points):
+                warning_mask = self.few_photons_warning > 0
+ 
+            data = MCMC.SEDData(energy=Energy_SED, energy_err=Energy_err_SED,
+                                dnde=e2dnde_SED / Energy_SED**2, dnde_err=e2dnde_err_SED / Energy_SED**2,
+                                ul_energy=self.Energy_uplims, ul_energy_err=self.xerr_uplims,
+                                ul_e2dnde=self.e2dnde_uplims, ul_yerr=self.yerr_uplims,
+                                warning_mask=warning_mask,
+                                n_VHE=len(VHE["energy"]) if self.include_VHE else 0,
+                                n_VHE_UL=len(VHE["ul_energy"]) if self.include_VHE else 0)
+ 
+            # ---------------------------------------------------------------
+            # EBL correction
+            # ---------------------------------------------------------------
+            absorption = None
             if self.redshift > 0.0:
-                # Here we compute the EBL absorption model for a given redshift:
-                EBL_model = self.comboBox_redshift.currentText()
-                if EBL_model == "Dominguez et al. (2011)":
-                    EBL_model = "dominguez"
-                elif EBL_model == "Franceschini et al. (2008)":
-                    EBL_model = "franceschini"
-                elif EBL_model == "Franceschini & Rodighiero (2017)":
-                        EBL_model = "franceschini17"
-                elif EBL_model == "Saldana-Lopez et al. (2021)":
-                    EBL_model = "saldana-lopez21"
-                elif EBL_model == "Finke et al. (2010)":
-                    EBL_model = "finke"
-                elif EBL_model == "Finke et al. (2022) model A":
-                    EBL_model = "finke2022"
-                    EBL_DATA_BUILTIN["finke2022"] = '$GAMMAPY_DATA/ebl/ebl_finke22.fits.gz'
-
-
-                os.environ["GAMMAPY_DATA"] = str(EBLpath)  # gammapy will look for EBL models in this directory
-                absorption = EBLAbsorptionNormSpectralModel.read_builtin(EBL_model, redshift=self.redshift)
-                abs_data = absorption.evaluate(Energy_SED*u.MeV,self.redshift, alpha_norm=1)
-                dnde_data_points_deabsorbed = dnde_SED/abs_data
-                dnde_error_deabsorbed = dnde_err_SED/abs_data
-
-
-                abs_uplims = absorption.evaluate(self.Energy_uplims*u.MeV,self.redshift, alpha_norm=1)
-                e2dnde_uplims_deabsorbed = self.e2dnde_uplims/abs_uplims
-                yerr_uplims_deabsorbed = self.yerr_uplims/abs_uplims
-
-                Energy_SED_deabsorbed_log = np.log10(Energy_SED)
-                dnde_data_points_deabsorbed_log = np.log10(dnde_data_points_deabsorbed)
-                dnde_error_deabsorbed_log = (1 / np.log(10)) * (1 / dnde_data_points_deabsorbed) * dnde_error_deabsorbed  # converting the errors to log scale
-
-                # data to be saved later:
-                absorption_all_data = absorption.evaluate(self.sed['e_ctr']*u.MeV,self.redshift, alpha_norm=1)
-                e2dnde_all_data_unabsorbed = self.sed['e2dnde']/absorption_all_data
-                e2dnde_all_data_errors_unabsorbed = self.sed['e2dnde_err']/absorption_all_data
-                e2dnde_all_ul95_unabsorbed = self.sed['e2dnde_ul95']/absorption_all_data
-            else:
-                Energy_SED_log = np.log10(Energy_SED)
-                dnde_data_points_log = np.log10(dnde_SED)
-                dnde_error_log = (1 / np.log(10)) * (1 / dnde_SED) * dnde_err_SED  # converting the errors to log scale
-
-
-            def plotter(sampler, x):
-
-                """
-                Function to plot the distribution of possible models around the maximum likelihood model.
-                
-                Parameters
-                ----------
-                sampler: array
-                    table where each column contains the distribution of possible values for a given parameter
-                x: array
-                    the x-axis of the SED to be plotted.
-
-                Returns
-                -------
-                """
-
-                samples = sampler.flatchain
-                for theta in samples[np.random.randint(len(samples), size=100)]:
-                    if self.comboBox_MCMC.currentText() == "LogPar":
-                        model = 10 ** (2 * x + LogPar(theta, x))
-                    elif self.comboBox_MCMC.currentText() == "LogPar_MTT":
-                        model = 10 ** LogPar_MTT(theta, x)
-                    elif self.comboBox_MCMC.currentText() == "PLEC":
-                        model = 10 ** (2 * x + PLEC(theta, x))
-                    elif self.comboBox_MCMC.currentText() == "PLEC_bfix":
-                        model = 10 ** (2 * x + PLEC_bfix(theta, x))
-                    elif self.comboBox_MCMC.currentText() == "PLEC_deMenezes":
-                        model = 10 ** PLEC_deMenezes(theta, x)
-                    elif self.comboBox_MCMC.currentText() == "PowerLaw":
-                        model = 10 ** (2 * x + PowerLaw(theta, x))
-                    plt.plot(10**x, model, color="r", zorder=0, alpha=0.1)  # plotting with parameters in the posterior distribution
-                plt.ticklabel_format(style="sci", axis="x", scilimits=(0, 0))
-                plt.xlabel("Energy [MeV]")
-                plt.ylabel("E$^2dN/dE$ [MeV cm$^{-2}$ s$^{-1}$]")
-                plt.grid(linestyle=":")
-                plt.legend()
-
-            def PowerLaw(theta, x):
-                N0, alpha = theta
-                Ep = np.log10(self.Emin)
-                return N0 - alpha*(x - Ep)
-            
-            def LogPar(theta, x):
-                N0, alpha, beta = theta
-                Ep = np.log10(self.Emin)
-                return N0 + (-alpha - beta * np.log((10**x) / (10**Ep))) * (x - Ep)
-            
-            def LogPar_MTT(theta, x):
-                Splog, alpha, Ep = theta
-                return Splog + (-alpha*(np.log10((10**x)/(10**Ep))**2))
-
-            def PLEC(theta, x):
-                Ep = np.log10(self.Emin)
-                N0, alpha, Ec, b = theta
-                # N0, alpha, Ec = theta
-                return N0 - alpha * (x - Ep) + np.log10(np.exp(-((10**x / (10**Ec)) ** b)))
-
-            def PLEC_bfix(theta, x):
-                Ep = np.log10(self.Emin)
-                b = 1
-                N0, alpha, Ec = theta
-                # N0, alpha, Ec = theta
-                return N0 - alpha * (x - Ep) + np.log10(np.exp(-((10**x / (10**Ec)) ** b)))
-
-            ######################################
-            def PLEC_deMenezes(theta, x):
-                Sp, alpha, Ep, b = theta
-                return Sp + (alpha - 2)*(Ep - x) + np.log10(np.exp(((2-alpha)/b)*(1 - ((10**x)/(10**Ep))**b) ))
-
-            def lnlike(theta, x, y, yerr):
-                if self.comboBox_MCMC.currentText() == "LogPar":
-                    likelihood = -0.5 * np.sum(((y - LogPar(theta, x)) / yerr) ** 2)
-                elif self.comboBox_MCMC.currentText() == "LogPar_MTT":
-                    likelihood = -0.5 * np.sum(((y - LogPar_MTT(theta, x)) / yerr) ** 2)
-                elif self.comboBox_MCMC.currentText() == "PLEC":
-                    likelihood = -0.5 * np.sum(((y - PLEC(theta, x)) / yerr) ** 2)
-                elif self.comboBox_MCMC.currentText() == "PLEC_bfix":
-                    likelihood = -0.5 * np.sum(((y - PLEC_bfix(theta, x)) / yerr) ** 2)
-                elif self.comboBox_MCMC.currentText() == "PLEC_deMenezes":
-                    likelihood = -0.5 * np.sum(((y - PLEC_deMenezes(theta, x)) / yerr) ** 2)
-                elif self.comboBox_MCMC.currentText() == "PowerLaw":
-                    likelihood = -0.5 * np.sum(((y - PowerLaw(theta, x)) / yerr) ** 2)
-
-                return likelihood
-
-            def lnprior_PowerLaw(theta):
-                N0, alpha = theta
-                if -15 < N0 < -7 and 0.5 < alpha < 5.0:
-                    return 0.0
-                return -np.inf
-            
-            def lnprior_LogPar(theta):
-                N0, alpha, beta = theta
-                if -15 < N0 < -7 and 1.0 < alpha < 4.0 and -1 < beta < 1.0:
-                    return 0.0
-                return -np.inf
-            
-            def lnprior_LogPar_MTT(theta):
-                Splog, alpha, Ep = theta
-                if -7 < Splog < -1 and -1.0 < alpha < 1.0 and 2 < Ep < 7:
-                    return 0.0
-                return -np.inf
-            
-            def lnprior_PLEC(theta):
-                N0, alpha, Ec, b = theta
-                # N0, alpha, Ec = theta
-                if -15 < N0 < -7 and 1.0 < alpha < 4.0 and 3.0 < Ec < 7.0 and 0.2 < b < 3.0:
-                    return 0.0
-                return -np.inf
-            
-            def lnprior_PLEC_bfix(theta):
-                N0, alpha, Ec = theta
-                # N0, alpha, Ec = theta
-                if -15 < N0 < -7 and 1.0 < alpha < 4.0 and 3.0 < Ec < 7.0:
-                    return 0.0
-                return -np.inf
-
-            def lnprior_PLEC_deMenezes(theta):
-                Sp, alpha, Ep, b = theta
-                if -8 < Sp < -1 and 0 < alpha < 4.0 and 2.0 < Ep < 7.0 and 0.01 < b < 3.0:
-                    return 0.0
-                return -np.inf
-
-            def lnprob(theta, x, y, yerr):
-                if self.comboBox_MCMC.currentText() == "LogPar":
-                    lp = lnprior_LogPar(theta)
-                elif self.comboBox_MCMC.currentText() == "LogPar_MTT":
-                    lp = lnprior_LogPar_MTT(theta)
-                elif self.comboBox_MCMC.currentText() == "PLEC":
-                    lp = lnprior_PLEC(theta)
-                elif self.comboBox_MCMC.currentText() == "PLEC_bfix":
-                    lp = lnprior_PLEC_bfix(theta)
-                elif self.comboBox_MCMC.currentText() == "PLEC_deMenezes":
-                    lp = lnprior_PLEC_deMenezes(theta)
-                elif self.comboBox_MCMC.currentText() == "PowerLaw":
-                    lp = lnprior_PowerLaw(theta)
-
-                if not np.isfinite(lp):
-                    return -np.inf
-                return lp + lnlike(theta, x, y, yerr)
-
-
-            if self.redshift > 0.0:
-                if self.comboBox_MCMC.currentText() == "LogPar_MTT" or self.comboBox_MCMC.currentText() == "PLEC_deMenezes":
-                    e2dnde_err = (1 / np.log(10)) * (1 / (dnde_data_points_deabsorbed*(Energy_SED**2))) * (dnde_error_deabsorbed*(Energy_SED**2))  # converting the errors to log scale
-                    data = (Energy_SED_deabsorbed_log, dnde_data_points_deabsorbed_log + 2*Energy_SED_deabsorbed_log, e2dnde_err)
-                else:
-                    data = (Energy_SED_deabsorbed_log, dnde_data_points_deabsorbed_log, dnde_error_deabsorbed_log)
-            else:
-                if self.comboBox_MCMC.currentText() == "LogPar_MTT" or self.comboBox_MCMC.currentText() == "PLEC_deMenezes":
-                    e2dnde_err = (1 / np.log(10)) * (1 / (dnde_SED*(Energy_SED**2))) * (dnde_err_SED*(Energy_SED**2))  # converting the errors to log scale
-                    data = (Energy_SED_log, dnde_data_points_log + 2*Energy_SED_log, e2dnde_err)
-                else:
-                    data = (Energy_SED_log, dnde_data_points_log, dnde_error_log)
-
-            nwalkers = 300
-            niter = 500
-            if self.comboBox_MCMC.currentText() == "LogPar":
-                initial = np.array([-13, 1.7, 0.2])
-            elif self.comboBox_MCMC.currentText() == "LogPar_MTT":
-                initial = np.array([-4.5, 0.2, 3.5])
-            elif self.comboBox_MCMC.currentText() == "PLEC":
-                initial = np.array([-13, 1.7, 5, 1])
-            elif self.comboBox_MCMC.currentText() == "PLEC_bfix":
-                initial = np.array([-13, 1.7, 5])
-            elif self.comboBox_MCMC.currentText() == "PLEC_deMenezes":
-                initial = np.array([-4, 1.7, 5, 1])
-            elif self.comboBox_MCMC.currentText() == "PowerLaw":
-                initial = np.array([-13, 2.0])
-
-            ndim = len(initial)
-            p0 = [
-                np.array(initial) + 0.3 * np.random.randn(ndim) for i in range(nwalkers)
-            ]  # p0 is the methodology of stepping from one place on a grid to the next.
-
-
-            def main(p0, nwalkers, niter, ndim, lnprob, data):
-                sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=data)
-
-                print("Running burn-in...")
-                p0, _, _ = sampler.run_mcmc(p0, 100)
-                sampler.reset()
-
-                print("Running production...")
-                pos, prob, state = sampler.run_mcmc(p0, niter)
-
-                return sampler, pos, prob, state
-
-            sampler, pos, prob, state = main(p0, nwalkers, niter, ndim, lnprob, data)
-
-            # Setting the x limits:
-            xmin = np.log10(Energy_SED[0]-Energy_err_SED[0][0])
-            xmax = np.log10(Energy_SED[-1]+Energy_err_SED[1][-1])
-            
-            try:
-                xmin2 = np.log10(self.Energy_uplims[0]-self.xerr_uplims[0][0])
-                if xmin2 < xmin:
-                    xmin = xmin2
-            except:
-                pass
-            try:
-                xmax2 = np.log10(self.Energy_uplims[-1]+self.xerr_uplims[1][-1])
-                if xmax2 > xmax:
-                    xmax = xmax2
-            except:
-                pass
-
-            x = np.linspace(xmin, xmax, 1000)  # defining a high resolution x for the plots
-
-            # Saving MCMC parameters and data points corrected for EBL:
+                absorption = MCMC.EBL_absorption_model(self.comboBox_redshift.currentText(), self.redshift, EBLpath)
+                data.correct_for_EBL(absorption, self.redshift)
+ 
+            # ---------------------------------------------------------------
+            # MCMC
+            # ---------------------------------------------------------------
+            # Likelihood: chi^2 on the data points (TS > 9, Fermi-LAT + VHE) + the energy bins without detection (upper limits)
+            likelihood = MCMC.SEDLikelihood(model, log_e0, data, sed=self.sed, absorption=absorption, redshift=self.redshift)
+            result = MCMC.run_MCMC(likelihood)
+            self.AIC = result.AIC
+ 
+            # ---------------------------------------------------------------
+            # Saving the results (Target_results.txt and *_sed.fits)
+            # ---------------------------------------------------------------
+            with open(self.OutputDir+"Target_results.txt", "a") as add_results:
+                add_results.write("\n\nMCMC results:\n")
+                add_results.write("Model: "+model.name+"\n")
+                add_results.writelines(result.text_lines())
+ 
+            new_sed_columns = None
+            new_hdus = [result.parameters_hdu(), result.posterior_hdu()]
+            if absorption is not None:
+                new_sed_columns = MCMC.EBL_corrected_SED_columns(self.sed['e_ctr'], self.sed['e2dnde'],
+                                                                 self.sed['e2dnde_err'], self.sed['e2dnde_ul95'],
+                                                                 absorption, self.redshift)
+                if self.include_VHE:
+                    new_hdus.append(MCMC.VHE_EBL_table(VHE, absorption, self.redshift))
+ 
             SED_file = glob.glob(self.OutputDir+"*_sed.fits")[0]
-            hdul = pyfits.open(SED_file)
-            if self.redshift > 0.0:
-                original_data_cols = hdul[1].data.columns
-                new_col_e2dnde_unabsorbed_data = pyfits.Column(name="e2dnde_EBL_corrected",array=e2dnde_all_data_unabsorbed,format="D",unit="cm-2 MeV s-1")
-                new_col_e2dnde_unabsorbed_errors = pyfits.Column(name="e2dnde_err_EBL_corrected",array=e2dnde_all_data_errors_unabsorbed,format="D",unit="cm-2 MeV s-1")
-                new_col_e2dnde_ul95_unabsorbed = pyfits.Column(name="e2dnde_ul95_EBL_corrected",array=e2dnde_all_ul95_unabsorbed,format="D",unit="cm-2 MeV s-1")                
-                all_cols = pyfits.BinTableHDU.from_columns(original_data_cols + new_col_e2dnde_unabsorbed_data + new_col_e2dnde_unabsorbed_errors + new_col_e2dnde_ul95_unabsorbed)
-                hdul[1].data = all_cols.data
-                hdul[1].name = "SED"
-
-                if self.white_box_VHE.text().split('.')[-1] == 'fits':
-                    
-                    VHE_col_energy = VHE["e_ref"] * 1000000  # in MeV
-                    VHE_col_energy = np.delete(VHE_col_energy, delete_nan_elements)
-                    VHE_absorption = absorption.evaluate(VHE_col_energy*u.MeV,self.redshift, alpha_norm=1)
-                    VHE_col_energy = pyfits.Column(name="energy",array= VHE_col_energy,format="D",unit="MeV")
-
-                    VHE_col_energy_min = VHE["e_min"] * 1000000
-                    VHE_col_energy_min = np.delete(VHE_col_energy_min, delete_nan_elements)
-                    VHE_col_energy_min = pyfits.Column(name="energy_min",array= VHE_col_energy_min,format="D",unit="MeV")
-
-                    VHE_col_energy_max = VHE["e_max"] * 1000000
-                    VHE_col_energy_max = np.delete(VHE_col_energy_max, delete_nan_elements)
-                    VHE_col_energy_max = pyfits.Column(name="energy_max",array= VHE_col_energy_max,format="D",unit="MeV")
-
-                    VHE_col_e2dnde = VHE["e2dnde"] * 1e6  # TeV cm-2 s-1 to MeV cm-2 s-1
-                    VHE_col_e2dnde = np.delete(VHE_col_e2dnde, delete_nan_elements)/VHE_absorption  # Correcting for EBL absorption
-                    VHE_col_e2dnde = pyfits.Column(name="e2dnde_VHE",array= VHE_col_e2dnde,format="D",unit="MeV cm-2 s-1")
-
-                    VHE_col_e2dnde_err = VHE["e2dnde_err"] * 1e6
-                    VHE_col_e2dnde_err = np.delete(VHE_col_e2dnde_err, delete_nan_elements)/VHE_absorption  # Correcting for EBL absorption
-                    VHE_col_e2dnde_err = pyfits.Column(name="e2dnde_VHE_err",array= VHE_col_e2dnde_err,format="D",unit="MeV cm-2 s-1")
-
-                    VHE_col_e2dnde_UL = VHE["e2dnde_ul"] * 1e6
-                    VHE_col_e2dnde_UL = np.delete(VHE_col_e2dnde_UL, delete_nan_elements)/VHE_absorption  # Correcting for EBL absorption
-                    VHE_col_e2dnde_UL = pyfits.Column(name="e2dnde_VHE_UL95",array= VHE_col_e2dnde_UL,format="D",unit="MeV cm-2 s-1")
-
-                    VHE_col_TS = VHE["ts"]
-                    VHE_col_TS = np.delete(VHE_col_TS, delete_nan_elements)
-                    VHE_col_TS = pyfits.Column(name="TS",array= VHE_col_TS,format="D")
-
-                    VHE_table_EBL = pyfits.BinTableHDU.from_columns([VHE_col_energy, VHE_col_energy_min, VHE_col_energy_max, VHE_col_e2dnde, VHE_col_e2dnde_err, VHE_col_e2dnde_UL, VHE_col_TS])
-
-            add_results = open(self.OutputDir+"Target_results.txt","a")
-            add_results.write("\n\nMCMC results:\n")
-            add_results.write("Model: "+self.comboBox_MCMC.currentText()+"\n")
-            samples = sampler.flatchain
-            theta_max = samples[np.argmax(sampler.flatlnprobability)]
-            self.AIC = 2*len(theta_max) - 2*lnlike(theta_max, data[0], data[1], data[2])  # Akaike information criterion
-
-            if self.comboBox_MCMC.currentText() == "LogPar":
-                best_fit_model = LogPar(theta_max, x)
-                N0 = np.quantile(samples[:,0],q=[0.16,0.5,0.84])
-                Alpha = np.quantile(samples[:,1],q=[0.16,0.5,0.84])
-                Beta = np.quantile(samples[:,2],q=[0.16,0.5,0.84])
-                add_results.write(f"N0 (log scale): {N0[1]} - {N0[1]-N0[0]} + {N0[2]-N0[1]}\n")
-                add_results.write(f"Alpha: {Alpha[1]} - {Alpha[1]-Alpha[0]} + {Alpha[2]-Alpha[1]}\n")
-                add_results.write(f"Beta: {Beta[1]} - {Beta[1]-Beta[0]} + {Beta[2]-Beta[1]}\n")
-                add_results.write(f"Akaike information criterion: {self.AIC}\n")
-                c1 = np.array(["N0 (log scale)","Alpha","Beta","Ep=Emin (log scale)", "Akaike_IC"])
-                c2 = np.array([N0[1],Alpha[1],Beta[1],np.log10(self.Emin),self.AIC])
-                c3 = np.array([N0[1]-N0[0],Alpha[1]-Alpha[0],Beta[1]-Beta[0],0,0])
-                c4 = np.array([N0[2]-N0[1],Alpha[2]-Alpha[1],Beta[2]-Beta[1],0,0])
-                c1 = pyfits.Column(name='Parameter', array=c1, format='22A')
-                c2 = pyfits.Column(name='Value', array=c2, format='D')
-                c3 = pyfits.Column(name='error_minus', array=c3, format='D')
-                c4 = pyfits.Column(name='error_plus', array=c4, format='D')
-                table_hdu = pyfits.BinTableHDU.from_columns([c1, c2, c3, c4])
-                c1_posterior = pyfits.Column(name='N0 distribution (log scale)', array=samples[:,0], format='D')
-                c2_posterior = pyfits.Column(name='Alpha distribution', array=samples[:,1], format='D')
-                c3_posterior = pyfits.Column(name='Beta distribution', array=samples[:,2], format='D')
-                table_hdu_posterior = pyfits.BinTableHDU.from_columns([c1_posterior, c2_posterior, c3_posterior])
-
-            elif self.comboBox_MCMC.currentText() == "LogPar_MTT":
-                best_fit_model = LogPar_MTT(theta_max, x)
-                N0 = np.quantile(samples[:,0],q=[0.16,0.5,0.84])
-                Alpha = np.quantile(samples[:,1],q=[0.16,0.5,0.84])
-                Ep = np.quantile(samples[:,2],q=[0.16,0.5,0.84])
-                add_results.write(f"N0 (log scale): {N0[1]} - {N0[1]-N0[0]} + {N0[2]-N0[1]}\n")
-                add_results.write(f"Alpha: {Alpha[1]} - {Alpha[1]-Alpha[0]} + {Alpha[2]-Alpha[1]}\n")
-                add_results.write(f"Ep (log scale): {Ep[1]} - {Ep[1]-Ep[0]} + {Ep[2]-Ep[1]}\n")
-                add_results.write(f"Akaike information criterion: {self.AIC}\n")
-                c1 = np.array(["N0 (log scale)","Alpha","Ep (log scale)", "Akaike_IC"])
-                c2 = np.array([N0[1],Alpha[1],Ep[1],self.AIC])
-                c3 = np.array([N0[1]-N0[0],Alpha[1]-Alpha[0],Ep[1]-Ep[0],0])
-                c4 = np.array([N0[2]-N0[1],Alpha[2]-Alpha[1],Ep[2]-Ep[1],0])
-                c1 = pyfits.Column(name='Parameter', array=c1, format='22A')
-                c2 = pyfits.Column(name='Value', array=c2, format='D')
-                c3 = pyfits.Column(name='error_minus', array=c3, format='D')
-                c4 = pyfits.Column(name='error_plus', array=c4, format='D')
-                table_hdu = pyfits.BinTableHDU.from_columns([c1, c2, c3, c4])
-                c1_posterior = pyfits.Column(name='N0 distribution (log scale)', array=samples[:,0], format='D')
-                c2_posterior = pyfits.Column(name='Alpha distribution', array=samples[:,1], format='D')
-                c3_posterior = pyfits.Column(name='Ep distribution', array=samples[:,2], format='D')
-                table_hdu_posterior = pyfits.BinTableHDU.from_columns([c1_posterior, c2_posterior, c3_posterior])
-
-            elif self.comboBox_MCMC.currentText() == "PLEC":
-                best_fit_model = PLEC(theta_max, x)
-                N0 = np.quantile(samples[:,0],q=[0.16,0.5,0.84])
-                Alpha = np.quantile(samples[:,1],q=[0.16,0.5,0.84])
-                Ec = np.quantile(samples[:,2],q=[0.16,0.5,0.84])
-                b = np.quantile(samples[:,3],q=[0.16,0.5,0.84])
-                add_results.write(f"N0 (log scale): {N0[1]} - {N0[1]-N0[0]} + {N0[2]-N0[1]}\n")
-                add_results.write(f"Alpha: {Alpha[1]} - {Alpha[1]-Alpha[0]} + {Alpha[2]-Alpha[1]}\n")
-                add_results.write(f"Ec: {Ec[1]} - {Ec[1]-Ec[0]} + {Ec[2]-Ec[1]}\n")
-                add_results.write(f"b: {b[1]} - {b[1]-b[0]} + {b[2]-b[1]}\n")
-                add_results.write(f"Akaike information criterion: {self.AIC}\n")
-                c1 = np.array(["N0 (log scale)","Alpha","Ec","b","Ep=Emin (log scale)", "Akaike_IC"])
-                c2 = np.array([N0[1],Alpha[1],Ec[1],b[1],np.log10(self.Emin),self.AIC])
-                c3 = np.array([N0[1]-N0[0],Alpha[1]-Alpha[0],Ec[1]-Ec[0],b[1]-b[0],0,0])
-                c4 = np.array([N0[2]-N0[1],Alpha[2]-Alpha[1],Ec[2]-Ec[1],b[2]-b[1],0,0])
-                c1 = pyfits.Column(name='Parameter', array=c1, format='22A')
-                c2 = pyfits.Column(name='Value', array=c2, format='D')
-                c3 = pyfits.Column(name='error_minus', array=c3, format='D')
-                c4 = pyfits.Column(name='error_plus', array=c4, format='D')
-                table_hdu = pyfits.BinTableHDU.from_columns([c1, c2, c3, c4])
-                c1_posterior = pyfits.Column(name='N0 distribution (log scale)', array=samples[:,0], format='D')
-                c2_posterior = pyfits.Column(name='Alpha distribution', array=samples[:,1], format='D')
-                c3_posterior = pyfits.Column(name='Ec distribution', array=samples[:,2], format='D')
-                c4_posterior = pyfits.Column(name='b distribution', array=samples[:,3], format='D')
-                table_hdu_posterior = pyfits.BinTableHDU.from_columns([c1_posterior, c2_posterior, c3_posterior, c4_posterior])
-            
-            elif self.comboBox_MCMC.currentText() == "PLEC_bfix":
-                best_fit_model = PLEC_bfix(theta_max, x)
-                N0 = np.quantile(samples[:,0],q=[0.16,0.5,0.84])
-                Alpha = np.quantile(samples[:,1],q=[0.16,0.5,0.84])
-                Ec = np.quantile(samples[:,2],q=[0.16,0.5,0.84])
-                add_results.write(f"N0 (log scale): {N0[1]} - {N0[1]-N0[0]} + {N0[2]-N0[1]}\n")
-                add_results.write(f"Alpha: {Alpha[1]} - {Alpha[1]-Alpha[0]} + {Alpha[2]-Alpha[1]}\n")
-                add_results.write(f"Ec: {Ec[1]} - {Ec[1]-Ec[0]} + {Ec[2]-Ec[1]}\n")
-                add_results.write("b: 1\n")
-                add_results.write(f"Akaike information criterion: {self.AIC}\n")
-                c1 = np.array(["N0 (log scale)","Alpha","Ec","b","Ep=Emin (log scale)", "Akaike_IC"])
-                c2 = np.array([N0[1],Alpha[1],Ec[1],1,np.log10(self.Emin),self.AIC])
-                c3 = np.array([N0[1]-N0[0],Alpha[1]-Alpha[0],Ec[1]-Ec[0],0,0,0])
-                c4 = np.array([N0[2]-N0[1],Alpha[2]-Alpha[1],Ec[2]-Ec[1],0,0,0])
-                c1 = pyfits.Column(name='Parameter', array=c1, format='22A')
-                c2 = pyfits.Column(name='Value', array=c2, format='D')
-                c3 = pyfits.Column(name='error_minus', array=c3, format='D')
-                c4 = pyfits.Column(name='error_plus', array=c4, format='D')
-                table_hdu = pyfits.BinTableHDU.from_columns([c1, c2, c3, c4])
-                c1_posterior = pyfits.Column(name='N0 distribution (log scale)', array=samples[:,0], format='D')
-                c2_posterior = pyfits.Column(name='Alpha distribution', array=samples[:,1], format='D')
-                c3_posterior = pyfits.Column(name='Ec distribution', array=samples[:,2], format='D')
-                table_hdu_posterior = pyfits.BinTableHDU.from_columns([c1_posterior, c2_posterior, c3_posterior])
-            
-            elif self.comboBox_MCMC.currentText() == "PLEC_deMenezes":
-                best_fit_model = PLEC_deMenezes(theta_max, x)
-                Sp = np.quantile(samples[:,0],q=[0.16,0.5,0.84])
-                Alpha = np.quantile(samples[:,1],q=[0.16,0.5,0.84])
-                Ep = np.quantile(samples[:,2],q=[0.16,0.5,0.84])
-                b = np.quantile(samples[:,3],q=[0.16,0.5,0.84])
-                add_results.write(f"Sp (log scale): {Sp[1]} - {Sp[1]-Sp[0]} + {Sp[2]-Sp[1]}\n")
-                add_results.write(f"Alpha: {Alpha[1]} - {Alpha[1]-Alpha[0]} + {Alpha[2]-Alpha[1]}\n")
-                add_results.write(f"Ep: {Ep[1]} - {Ep[1]-Ep[0]} + {Ep[2]-Ep[1]}\n")
-                add_results.write(f"b: {b[1]} - {b[1]-b[0]} + {b[2]-b[1]}\n")
-                add_results.write(f"Akaike information criterion: {self.AIC}\n")
-                c1 = np.array(["Sp (log scale)","Alpha","Ep","b", "Akaike_IC"])
-                c2 = np.array([Sp[1],Alpha[1],Ep[1],b[1],self.AIC])
-                c3 = np.array([Sp[1]-Sp[0],Alpha[1]-Alpha[0],Ep[1]-Ep[0],b[1]-b[0],0])
-                c4 = np.array([Sp[2]-Sp[1],Alpha[2]-Alpha[1],Ep[2]-Ep[1],b[2]-b[1],0])
-                c1 = pyfits.Column(name='Parameter', array=c1, format='22A')
-                c2 = pyfits.Column(name='Value', array=c2, format='D')
-                c3 = pyfits.Column(name='error_minus', array=c3, format='D')
-                c4 = pyfits.Column(name='error_plus', array=c4, format='D')
-                table_hdu = pyfits.BinTableHDU.from_columns([c1, c2, c3, c4])
-                c1_posterior = pyfits.Column(name='Sp distribution (log scale)', array=samples[:,0], format='D')
-                c2_posterior = pyfits.Column(name='Alpha distribution', array=samples[:,1], format='D')
-                c3_posterior = pyfits.Column(name='Ep distribution', array=samples[:,2], format='D')
-                c4_posterior = pyfits.Column(name='b distribution', array=samples[:,3], format='D')
-                table_hdu_posterior = pyfits.BinTableHDU.from_columns([c1_posterior, c2_posterior, c3_posterior, c4_posterior])
-
-            elif self.comboBox_MCMC.currentText() == "PowerLaw":
-                best_fit_model = PowerLaw(theta_max, x)
-                N0 = np.quantile(samples[:,0],q=[0.16,0.5,0.84])
-                Alpha = np.quantile(samples[:,1],q=[0.16,0.5,0.84])
-                add_results.write(f"N0 (log scale): {N0[1]} - {N0[1]-N0[0]} + {N0[2]-N0[1]}\n")
-                add_results.write(f"Alpha: {Alpha[1]} - {Alpha[1]-Alpha[0]} + {Alpha[2]-Alpha[1]}\n")
-                add_results.write(f"Akaike information criterion: {self.AIC}\n")
-                c1 = np.array(["N0 (log scale)","Alpha","Ep=Emin (log scale)", "Akaike_IC"])
-                c2 = np.array([N0[1],Alpha[1],np.log10(self.Emin),self.AIC])
-                c3 = np.array([N0[1]-N0[0],Alpha[1]-Alpha[0],0,0])
-                c4 = np.array([N0[2]-N0[1],Alpha[2]-Alpha[1],0,0])
-                c1 = pyfits.Column(name='Parameter', array=c1, format='22A')
-                c2 = pyfits.Column(name='Value', array=c2, format='D')
-                c3 = pyfits.Column(name='error_minus', array=c3, format='D')
-                c4 = pyfits.Column(name='error_plus', array=c4, format='D')
-                table_hdu = pyfits.BinTableHDU.from_columns([c1, c2, c3, c4])
-                c1_posterior = pyfits.Column(name='N0 distribution (log scale)', array=samples[:,0], format='D')
-                c2_posterior = pyfits.Column(name='Alpha distribution', array=samples[:,1], format='D')
-                table_hdu_posterior = pyfits.BinTableHDU.from_columns([c1_posterior, c2_posterior])
-
-            add_results.close()
-            hdul.append(table_hdu)
-            hdul[4].name = "MCMC Parameters"
-            hdul.append(table_hdu_posterior)
-            hdul[5].name = "MCMC Posterior dist."
-            if self.redshift > 0.0 and self.white_box_VHE.text().split('.')[-1] == 'fits':
-                hdul.append(VHE_table_EBL)
-                hdul[6].name = "VHE data corrected for EBL"
-
-            hdul.writeto(SED_file,overwrite=True)
-            hdul.close()
-
-
-            # Corner plot:
-            if self.comboBox_MCMC.currentText() == "LogPar":
-                labels = ["N0", "alpha", "beta"]
-            elif self.comboBox_MCMC.currentText() == "LogPar_MTT":
-                labels = ["Sp_log", "alpha", "Ep_log"]
-            elif self.comboBox_MCMC.currentText() == "PLEC":
-                labels = ["N0", "alpha", "Ec", "b"]
-            elif self.comboBox_MCMC.currentText() == "PLEC_bfix":
-                labels = ["N0", "alpha", "Ec"]
-            elif self.comboBox_MCMC.currentText() == "PLEC_deMenezes":
-                labels = ["Sp_log", "alpha", "Ep", "b"]
-            elif self.comboBox_MCMC.currentText() == "PowerLaw":
-                labels = ["N0", "alpha"]
-
-            corner.corner(
-                samples,
-                show_titles=True,
-                labels=labels,
-                plot_datapoints=True,
-                quantiles=[0.16, 0.5, 0.84],
-            )
-
-            plt.savefig(self.OutputDir+'Quickplot_MCMC_SED_pars.png',bbox_inches='tight')
-
-            # SED plot:
-            f = plt.figure(figsize=(6,5),dpi=250)
-            ax = f.add_subplot(1,1,1)
-            ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-            ax.yaxis.set_minor_locator(AutoMinorLocator(2))
-            ax.tick_params(which='major', length=5, direction='in')
-            ax.tick_params(which='minor', length=2.5, direction='in',bottom=True, top=True, left=True, right=True)
-            ax.tick_params(bottom=True, top=True, left=True, right=True)
-            ax.grid(linestyle=':',which='both')
-
-
-            alpha_original_data = 1
-            color_original_data = "C0"
-            color_original_VHE_data = "C1"
-            if self.redshift > 0.0:
-                # Warnings:
-                if self.include_VHE:
-                    self.e2dnde_SED_warning = dnde_data_points_deabsorbed[:-N_bins_VHE][self.few_photons_warning > 0]
-                else:
-                    self.e2dnde_SED_warning = dnde_data_points_deabsorbed[self.few_photons_warning > 0]
-                # Plots:
-                plt.errorbar(Energy_SED, dnde_data_points_deabsorbed*(Energy_SED**2), xerr=Energy_err_SED, yerr=dnde_error_deabsorbed*(Energy_SED**2), color="C0", markeredgecolor="black", ecolor="black", zorder = 130, fmt="o", label="Fermi-LAT EBL corrected")
-                plt.errorbar(self.Energy_uplims, e2dnde_uplims_deabsorbed, xerr=self.xerr_uplims, yerr=yerr_uplims_deabsorbed, uplims=True, color="C0", markeredgecolor="black", ecolor="black", zorder = 130, fmt="o")
-                if len(self.energy_SED_warning) > 0.0:
-                    plt.plot(self.energy_SED_warning,self.e2dnde_SED_warning*(self.energy_SED_warning**2),"mo", zorder = 131,label="Less than 5 photons")
-                if self.include_VHE:
-                    plt.errorbar(Energy_SED[-N_bins_VHE:], dnde_data_points_deabsorbed[-N_bins_VHE:]*(Energy_SED[-N_bins_VHE:]**2), xerr=[Energy_err_SED[0][-N_bins_VHE:], Energy_err_SED[1][-N_bins_VHE:]], yerr=dnde_error_deabsorbed[-N_bins_VHE:]*(Energy_SED[-N_bins_VHE:]**2), color="C1", markeredgecolor="black", ecolor="black", zorder = 130, fmt="o", label="VHE EBL corrected")
-                    plt.errorbar(self.Energy_uplims[-N_bins_VHE_UL:], e2dnde_uplims_deabsorbed[-N_bins_VHE_UL:], xerr=[self.xerr_uplims[0][-N_bins_VHE_UL:], self.xerr_uplims[1][-N_bins_VHE_UL:]], yerr=yerr_uplims_deabsorbed[-N_bins_VHE_UL:], uplims=True, color="C1", markeredgecolor="black", ecolor="black", zorder = 130, fmt="o")
-                
-                alpha_original_data = 0.4
-                #color_original_data = "gray"
-                #color_original_VHE_data = "gray"
-
-            plt.errorbar(Energy_SED, dnde_SED*(Energy_SED**2), xerr=Energy_err_SED, yerr=dnde_err_SED*(Energy_SED**2), color=color_original_data, alpha = alpha_original_data, zorder = 120, fmt="o", label="Fermi-LAT")
-            if self.include_VHE:
-                plt.errorbar(Energy_SED[-N_bins_VHE:], dnde_SED[-N_bins_VHE:]*(Energy_SED[-N_bins_VHE:]**2), xerr=[Energy_err_SED[0][-N_bins_VHE:], Energy_err_SED[1][-N_bins_VHE:]], yerr=dnde_err_SED[-N_bins_VHE:]*(Energy_SED[-N_bins_VHE:]**2), color=color_original_VHE_data, alpha = alpha_original_data, zorder = 120, fmt="o", label="VHE instrument")
-            if self.redshift == 0.0:
-                if len(self.energy_SED_warning) > 0.0:
-                    plt.plot(self.energy_SED_warning,self.e2dnde_SED_warning,"mo", zorder = 131,label="Less than 5 photons")
-
-
-            plt.errorbar(self.Energy_uplims, self.e2dnde_uplims, xerr=self.xerr_uplims, yerr=self.yerr_uplims, uplims=True, color=color_original_data, alpha = alpha_original_data, zorder = 120, fmt="o")
-            if self.include_VHE:
-                plt.errorbar(self.Energy_uplims[-N_bins_VHE_UL:], self.e2dnde_uplims[-N_bins_VHE_UL:], xerr=[self.xerr_uplims[0][-N_bins_VHE_UL:], self.xerr_uplims[1][-N_bins_VHE_UL:]], yerr=self.yerr_uplims[-N_bins_VHE_UL:], uplims=True, color=color_original_VHE_data, alpha = alpha_original_data, zorder = 120, fmt="o")
-
-            plotter(sampler,x)
-
-            plt.plot(self.E, self.dnde*(self.E**2), color="gray",alpha=0.9, zorder = 119, label="Fermipy fit")
-            if self.comboBox_MCMC.currentText() == "LogPar_MTT" or self.comboBox_MCMC.currentText() == "PLEC_deMenezes":
-                plt.plot(10**x, 10 ** best_fit_model, color="black", zorder = 119, label="Highest Likelihood MCMC")
+            MCMC.update_SED_fits(SED_file, new_sed_columns, new_hdus)
+ 
+            # ---------------------------------------------------------------
+            # Plots
+            # ---------------------------------------------------------------
+            MCMC.corner_plot(result, self.OutputDir+'Quickplot_MCMC_SED_pars.png')
+            MCMC.plot_SED_MCMC(result, data, data.log_energy_grid(),
+                               self.OutputDir+'Quickplot_SED_MCMC.'+self.comboBox_output_format.currentText(),
+                               model_energy=self.E, model_dnde=self.dnde,
+                               title=self.sourcename+' - SED - MCMC - '+model.name)
+ 
+        # -------------------------------------------------------------------
+        # MCMC of the SED of every time bin of the light curve
+        # -------------------------------------------------------------------
+        if self.checkBox_SED_per_bin.isChecked():
+            SED_per_bin_data = getattr(self, "SED_per_bin_data", None)  # computed by SED_per_LC_bin()
+            if not SED_per_bin_data:
+                print("- WARNING: no SED per time bin is available, so the MCMC per time bin was not performed. "
+                      "Please run SED_per_LC_bin() first.")
             else:
-                plt.plot(10**x, 10 ** (2 * x + best_fit_model), color="black", zorder = 119, label="Highest Likelihood MCMC")
+                redshift = getattr(self, "redshift", None)
+                if redshift is None:
+                    try:
+                        redshift = float(self.white_box_redshift.text())
+                    except ValueError:
+                        redshift = 0.0
+ 
+                self.MCMC_per_bin_results = MCMC.fit_SEDs_per_bin(
+                    SED_per_bin_data, model.name, Emin=self.Emin, redshift=redshift,
+                    EBL_model=self.comboBox_redshift.currentText(), EBL_path=EBLpath,
+                    source_name=self.sourcename, TSmin=TSmin, plot_format="png")
 
-            plt.xscale("log")
-            plt.yscale("log")
-            plt.xlabel("Energy [MeV]")
-            plt.ylabel("E$^2dN/dE$ [MeV cm$^{-2}$ s$^{-1}$]")
-            plt.title(self.sourcename+' - SED - MCMC - '+self.comboBox_MCMC.currentText())
-            plt.grid(which="both", linestyle=":")
+                # -----------------------------------------------------------
+                # Copying the SED fits files and the MCMC plots of all time bins to the directory
+                # SEDs_for_all_LC_bins, inside the light-curve directory (next to the lightcurve_XXX directories).
+                # The time interval of each bin (MET, from the name of the time-bin directory) is added to the names:
+                #   TARGET_sed.fits        -> TARGET_<tmin>_<tmax>_sed.fits
+                #   Quickplot_SED_MCMC.png -> Quickplot_SED_MCMC_<tmin>_<tmax>.png
+                # -----------------------------------------------------------
                 
-            if len(dnde_SED) > 0:
-                ymax = 2*((dnde_SED + dnde_err_SED)*(Energy_SED**2)).max()
-                ymin = 0.5*((dnde_SED - dnde_err_SED)*(Energy_SED**2)).min()
-                if ymax > 4*(dnde_SED*(Energy_SED**2)).max():
-                    ymax = 4*(dnde_SED*(Energy_SED**2)).max()
-                
-                if self.redshift > 0.0:
-                    EBL_corrected_max = 2*np.max(dnde_data_points_deabsorbed*(Energy_SED**2) + dnde_error_deabsorbed*(Energy_SED**2))
-                    if EBL_corrected_max > ymax:
-                        ymax = EBL_corrected_max
-
-                if ymin < (dnde_SED*(Energy_SED**2)).min()/5.0:
-                    ymin = (dnde_SED*(Energy_SED**2)).min()/5.0
-                    
-                if len(self.e2dnde_uplims) > 0:
-                    if self.redshift > 0.0:
-                        yaux = e2dnde_uplims_deabsorbed.max()
-                    else:
-                        yaux = self.e2dnde_uplims.max()
-                    if yaux > ymax:
-                        ymax = 2*yaux
-                        
-                    yaux = self.e2dnde_uplims.min()
-                    if yaux < ymin:
-                        ymin = 0.5*yaux
-            else:
-                ymax = 2*self.e2dnde_uplims.max()
-                ymin = 0.5*self.e2dnde_uplims.min()
-                
-            
-            plt.ylim(ymin,ymax)
-            plt.xlim(0.8 * 10**x.min(),1.2 * 10**x.max())
-            plt.legend(fontsize=11)
-            plt.tight_layout()
-            plt.savefig(self.OutputDir+'Quickplot_SED_MCMC.'+self.comboBox_output_format.currentText(),bbox_inches='tight')
+ 
+                LC_directory = os.path.dirname(os.path.normpath(SED_per_bin_data[0]["bin_directory"]))
+                SEDs_directory = os.path.join(LC_directory, "SEDs_for_all_LC_bins")
+                os.makedirs(SEDs_directory, exist_ok=True)
+ 
+                n_copied = 0
+                for entry in SED_per_bin_data:
+                    bin_name = os.path.basename(os.path.normpath(entry["bin_directory"]))
+                    match = re.search(r"(\d+)_(\d+)$", bin_name)  # fermipy: lightcurve_<tmin>_<tmax>
+                    interval = f"{match.group(1)}_{match.group(2)}" if match else bin_name.replace("lightcurve", "bin").strip("_")
+ 
+                    sed_file = entry.get("sed_file")
+                    if sed_file and os.path.isfile(sed_file):
+                        base = os.path.basename(sed_file)
+                        stem = base[:-len("_sed.fits")] if base.endswith("_sed.fits") else os.path.splitext(base)[0]
+                        new_sed_file = os.path.join(SEDs_directory, f"{stem}_{interval}_sed.fits")
+                        shutil.copy2(sed_file, new_sed_file)
+                        n_copied += 1
+ 
+                    plot_file = os.path.join(entry["bin_directory"], "Quickplot_SED_MCMC.png")
+                    if os.path.isfile(plot_file):
+                        shutil.copy2(plot_file, os.path.join(SEDs_directory, f"Quickplot_SED_MCMC_{interval}.png"))
+ 
+                print(f"SED files and MCMC plots of {n_copied} time bins copied to {SEDs_directory}")
 
 
     def compute_Extension(self):
@@ -3841,338 +4344,6 @@ class Ui_mainWindow(QDialog):
             plt.title(self.sourcename+' - Extension')
             plt.tight_layout()
             plt.savefig(self.OutputDir+'Quickplot_extension.'+output_format,bbox_inches='tight')
-
-
-    def compute_LC(self):
-        
-        """
-        This function calls fermipy to compute the target light curve (under request by the user).
-        
-        Parameters
-        ----------
-        self: instance of the class Ui_mainWindow
-            This parameter contains all the variables read from the Graphical interface.
-
-        Returns
-        -------
-        TARGET_NAME_lightcurve.fits and TARGET_NAME_lightcurve.npy:
-            Data files with all the information regarding the energy-flux and photon-flux light curves.
-            
-        """
-        
-        self.Compute_LC = True   
-
-        if os.path.exists(self.OutputDir+"Light_curve_001"):
-            last_LC_directory = np.sort(glob.glob(self.OutputDir+"Light_curve_*"))[-1]
-            last_number_of_bins = np.sort(glob.glob(last_LC_directory+"/lightcurve_*"))
-            if len(last_number_of_bins) == self.spinBox_LC_N_time_bins.value():
-                self.Compute_LC = False
-
-
-            
-        if self.checkBox_LC.isChecked() and self.Compute_LC:
-            #Running the LC in parallel cores is possible only in Linux systems:
-            if OS_name != "Darwin":
-                self.gta.lightcurve(self.sourcename, nbins=self.spinBox_LC_N_time_bins.value(), free_radius=self.freeradius,use_local_ltcube=True, use_scaled_srcmap=True, free_params=['norm','shape'], shape_ts_threshold=9, multithread=True, nthread=self.spinBox_N_cores_LC.value())
-            else:
-                self.gta.lightcurve(self.sourcename, nbins=self.spinBox_LC_N_time_bins.value(), free_radius=self.freeradius,use_local_ltcube=True, use_scaled_srcmap=True, free_params=['norm','shape'], shape_ts_threshold=9, multithread=False)
-            
-            if not os.path.exists(self.OutputDir+"Light_curve_001"):
-                os.mkdir(self.OutputDir+"Light_curve_001")
-                os.system(f"mv {self.OutputDir}*lightcurve* {self.OutputDir}Light_curve_001")
-            else:
-                last_LC = int(np.sort(glob.glob(self.OutputDir+"Light_curve_*"))[-1].split("_")[-1]) + 1  # Taking the number corresponding to the last light curve computed and adding 1
-                last_LC = "{:03d}".format(last_LC)
-                os.mkdir(self.OutputDir+f"Light_curve_{last_LC}")
-                os.system(f"mv {self.OutputDir}*lightcurve* {self.OutputDir}Light_curve_{last_LC}")
-
-
-    def compute_LC_adaptive(self):
-        
-        """
-        This function calls fermipy to compute the target light curve with adaptive binning.
-        
-        Parameters
-        ----------
-        self: instance of the class Ui_mainWindow
-            This parameter contains all the variables read from the Graphical interface.
-
-        Returns
-        -------
-        Adaptive-binning_lightcurve.fits:
-            Data file with all the information regarding the energy-flux and photon-flux adaptive-binning light curves.
-            
-        """
-        
-        
-        if self.checkBox_adaptive_binning.isChecked() and self.checkBox_LC.isChecked():
-            try:
-                TS_Threshold = float(self.white_box_TS_threshold.text())
-                if TS_Threshold > 0.0:
-                    self.adaptive = True
-            except:
-                print("Invalid TS threshold value.")
-        else:
-            self.adaptive = False
-
-
-        if self.adaptive:
-
-            Adaptive_binning_LC_tables = {}
-
-            if os.path.exists(self.OutputDir+"Adaptive-binning_light_curve_001"):
-                last_LC_directory = np.sort(glob.glob(self.OutputDir+"Adaptive-binning_light_curve_*"))[-1]
-            else:
-                last_LC_directory = np.sort(glob.glob(self.OutputDir+"Light_curve_*"))[-1]
-
-            last_LC_bins_directories = np.sort(glob.glob(last_LC_directory+"/lightcurve_*"))
-
-            LC_last_data_file = glob.glob(last_LC_directory+"/*_lightcurve.fits")[0]
-            hdul = pyfits.open(LC_last_data_file)
-            TS_at_each_time_bin = hdul[1].data["ts"]
-            High_TS_bins = np.where(TS_at_each_time_bin > 2*TS_Threshold)[0]
-            if len(High_TS_bins) > 0:
-                for high_TS_index in High_TS_bins:
-                    number_of_subBins = int(TS_at_each_time_bin[high_TS_index]/TS_Threshold)
-                    if number_of_subBins > 1:
-                        os.chdir(last_LC_bins_directories[high_TS_index])  # Here we enter in the directory of each LC bin with TS > 2*TS_Threshold
-                        stream = open("./config.yaml", 'r')
-                        data = yaml.load(stream,Loader)
-                        data["fileio"]["workdir"] = "./"
-                        data["fileio"]["outdir"] = "./Output"
-                        data["fileio"]["logfile"] = "./Output"
-                        data["components"][0]["gtlike"]["srcmap_base"] = "./srcmap_00.fits"
-                        data["components"][0]["gtlike"]["bexpmap_roi_base"] = "./bexpmap_roi_00.fits"
-                        data["components"][0]["gtlike"]["bexpmap_base"] = "./bexpmap_00.fits"
-                        data["components"][0]["data"]["evfile"] = "./ft1_00.fits"
-                        with open("./config.yaml", 'w') as yaml_file:
-                            yaml_file.write( yaml.dump(data, default_flow_style=False))
-
-                        gta = GTAnalysis("./config.yaml",logging={'verbosity': 3})
-                        gta.setup()
-                        if OS_name != "Darwin":
-                            gta.lightcurve(self.sourcename, nbins=number_of_subBins, free_radius=self.roiwidth/2,use_local_ltcube=True, 
-                                                     use_scaled_srcmap=True, free_params=['norm','shape'], shape_ts_threshold=9, multithread=True, nthread=self.spinBox_N_cores_LC.value())
-                        else:
-                            gta.lightcurve(self.sourcename, nbins=number_of_subBins, free_radius=self.roiwidth/2,use_local_ltcube=True, use_scaled_srcmap=True, free_params=['norm','shape'], shape_ts_threshold=9, multithread=False)
-                        
-                        os.chdir(Working_directory)
-
-                # Here we copy/move the adaptive bins to the Adaptive-binning_light_curve directory, leaving a copy of the standard LC files in the Light_curve_XXX directory.
-                if not os.path.exists(self.OutputDir+"Adaptive-binning_light_curve_001"):
-                    os.mkdir(self.OutputDir+"Adaptive-binning_light_curve_001")
-                    last_adaptive_LC = "{:03d}".format(1)
-                    for n,new_lc_bins in enumerate(last_LC_bins_directories):
-                        if n in High_TS_bins:
-                            os.system(f"mv {new_lc_bins}/Output/lightcurve_* {self.OutputDir}Adaptive-binning_light_curve_001")
-                            local_lc_table = glob.glob(f"{new_lc_bins}/Output/*_lightcurve.fits")[0]
-                            Adaptive_binning_LC_tables[n] = Table.read(local_lc_table,format="fits", hdu=1)
-                        else:
-                            os.system(f"cp -r {new_lc_bins} {self.OutputDir}Adaptive-binning_light_curve_001")
-                            local_lc_table = glob.glob(f"{last_LC_directory}/*_lightcurve.fits")[0]
-                            Adaptive_binning_LC_tables[n] = Table.read(local_lc_table,format="fits", hdu=1)[n]
-                else:
-                    last_adaptive_LC = int(np.sort(glob.glob(self.OutputDir+"Adaptive-binning_light_curve_*"))[-1].split("_")[-1]) + 1  # Taking the number corresponding to the last adaptive binning light curve computed and adding 1
-                    last_adaptive_LC = "{:03d}".format(last_adaptive_LC)
-                    os.mkdir(self.OutputDir+f"Adaptive-binning_light_curve_{last_adaptive_LC}")
-                    for n,new_lc_bins in enumerate(last_LC_bins_directories):
-                        if n in High_TS_bins:
-                            os.system(f"mv {new_lc_bins}/Output/lightcurve_* {self.OutputDir}Adaptive-binning_light_curve_{last_adaptive_LC}")
-                            local_lc_table = glob.glob(f"{new_lc_bins}/Output/*_lightcurve.fits")[0]
-                            Adaptive_binning_LC_tables[n] = Table.read(local_lc_table,format="fits", hdu=1)
-                        else:
-                            os.system(f"mv {new_lc_bins} {self.OutputDir}Adaptive-binning_light_curve_{last_adaptive_LC}")
-                            local_lc_table = glob.glob(f"{last_LC_directory}/*_lightcurve.fits")[0]
-                            Adaptive_binning_LC_tables[n] = Table.read(local_lc_table,format="fits", hdu=1)[n]
-                
-                
-                # Saving the final table with the adaptive-binning LC:
-                final_table = Adaptive_binning_LC_tables[0]
-                for n in range((len(Adaptive_binning_LC_tables) - 1)):
-                    final_table = vstack([final_table,Adaptive_binning_LC_tables[n+1]])
-
-                final_table
-                final_table.write(f"{self.OutputDir}Adaptive-binning_light_curve_{last_adaptive_LC}/Adaptive-binning_lightcurve.fits", format="fits",overwrite=True)
-                
-
-
-            else:
-                print(f"No time bins with TS > 2x{TS_Threshold}. Current iteration of adaptive binning LC was not performed.")
-
-
-    def plot_LCs(self,adaptive):
-
-        """
-        This function plots the latest light curves computed.
-        
-        Parameters
-        ----------
-        self: instance of the class Ui_mainWindow
-            This parameter contains all the variables read from the Graphical interface.
-
-        Returns
-        -------
-        Quickplot_adaptive_LC.pdf and Quickplot_adaptive_eLC.pdf:
-            Plots showing the flux light curve and the energy flux light curve. File is saved in the output directory read from the graphical interface.
-
-            
-        """
-
-        # Checking if there is something to plot:
-        if adaptive:
-            if os.path.exists(self.OutputDir+"Adaptive-binning_light_curve_001"):
-                last_LC_directory = np.sort(glob.glob(self.OutputDir+"Adaptive-binning_light_curve_*"))[-1]
-                we_can_plot = True
-            else:
-                we_can_plot = False
-        else:
-            if os.path.exists(self.OutputDir+"Light_curve_001"):
-                last_LC_directory = np.sort(glob.glob(self.OutputDir+"Light_curve_*"))[-1]
-                we_can_plot = True
-            else:
-                we_can_plot = False
-
-
-        # Reading the data and plotting:
-        if we_can_plot and self.checkBox_LC.isChecked():
-
-            TSmin = 9
-            output_format = self.comboBox_output_format.currentText() 
-
-            LC_last_data_file = glob.glob(last_LC_directory+"/*_lightcurve.fits")[0]
-            hdul = pyfits.open(LC_last_data_file)
-            lc = hdul[1].data
-
-            ################################################
-            ########## LC energy flux
-            ################################################
-            f = plt.figure(figsize=(9,4),dpi=250)
-            ax = f.add_subplot(1,1,1)
-            ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-            ax.yaxis.set_minor_locator(AutoMinorLocator(2))
-            ax.tick_params(which='major', length=5, direction='in')
-            ax.tick_params(which='minor', length=2.5, direction='in',bottom=True, top=True, left=True, right=True)
-            ax.tick_params(bottom=True, top=True, left=True, right=True)
-            ax.grid(linestyle=':',which='both')
-
-            
-            if len(lc['eflux'][lc['ts']>TSmin]) > 0:
-                scale = int(np.log10(lc['eflux'][lc['ts']>TSmin].max())) -2
-            else:
-                scale = int(np.log10(lc['eflux_ul95'].max())) -2
-                
-            tmean = (lc['tmin_mjd'] + lc['tmax_mjd'])/2
-
-
-            if len(tmean[lc['ts']>TSmin]) > 9:
-                time_continuum = np.linspace(np.min(lc['tmin_mjd']),np.max(lc['tmax_mjd']),10*len(lc['tmin_mjd']))
-                tck_eflux = interpolate.splrep(tmean[lc['ts']>TSmin], (10**-scale)*lc['eflux'][lc['ts']>TSmin], k=3)
-                tck_eflux_error = interpolate.splrep(tmean[lc['ts']>TSmin], (10**-scale)*lc['eflux_err'][lc['ts']>TSmin],k=3)
-
-                eflux_continuum = interpolate.splev(time_continuum, tck_eflux)
-                eflux_continuum_err = interpolate.splev(time_continuum, tck_eflux_error)
-                ax.plot(time_continuum,eflux_continuum,color="C1", label="Spline")
-                
-                # Saving Spline
-                col_time = pyfits.Column(name="time [MJD]",array=time_continuum,format="D",unit="MJD")
-                col_eflux = pyfits.Column(name="eflux_continuum",array=eflux_continuum,format="D",unit="10^"+str(scale)+" MeV cm-2 s-1")
-                col_eflux_err = pyfits.Column(name="eflux_err_continuum",array=eflux_continuum_err,format="D",unit="10^"+str(scale)+" MeV cm-2 s-1")
-
-            plt.errorbar(tmean[lc['ts']>TSmin], (10**-scale)*lc['eflux'][lc['ts']>TSmin], xerr = [ tmean[lc['ts']>TSmin]- lc['tmin_mjd'][lc['ts']>TSmin], lc['tmax_mjd'][lc['ts']>TSmin] - tmean[lc['ts']>TSmin] ], yerr=(10**-scale)*lc['eflux_err'][lc['ts']>TSmin], markeredgecolor='black', fmt='o', capsize=4)
-            plt.errorbar(tmean[lc['ts']<=TSmin], (10**-scale)*lc['eflux_ul95'][lc['ts']<=TSmin], xerr = [ tmean[lc['ts']<=TSmin]- lc['tmin_mjd'][lc['ts']<=TSmin], lc['tmax_mjd'][lc['ts']<=TSmin] - tmean[lc['ts']<=TSmin] ], yerr=5*np.ones(len(lc['eflux_err'][lc['ts']<=TSmin])), markeredgecolor='black', fmt='o', uplims=True, color='orange', capsize=4)
-            plt.ylabel(r'Energy flux [$10^{'+str(scale)+'}$ MeV cm$^{-2}$ s$^{-1}$]')
-            plt.xlabel('Time [MJD]')
-            plt.title(self.sourcename+' - Energy light curve (free shape)')
-            
-            
-            if len(lc['eflux'][lc['ts']>TSmin]) > 0:
-                y0 = (lc['eflux'][lc['ts']>TSmin]).max()
-                y1 = (lc['eflux'][lc['ts']>TSmin] + lc['eflux_err'][lc['ts']>TSmin]).max()
-                if y1 > 4*y0:
-                    y1 = 4*y0
-                
-                if len(lc['eflux_ul95'][lc['ts']<=TSmin]) > 0:
-                    y2 = (lc['eflux_ul95'][lc['ts']<=TSmin]).max()
-                    if y2 > y1:
-                        y1 = y2
-                
-            else:
-                y1 = (lc['eflux_ul95'][lc['ts']<=TSmin]).max()
-                
-            ymin = -(10**-scale)*0.1*y1
-            plt.ylim(ymin,(10**-scale)*1.1*y1)
-            plt.legend()
-            if adaptive:
-                plt.savefig(self.OutputDir+f'Quickplot_adaptive-binning_eLC_{len(lc["ts"])}_bins.'+output_format,bbox_inches='tight')
-            else:
-                plt.savefig(self.OutputDir+f'Quickplot_eLC_{len(lc["ts"])}_bins.'+output_format,bbox_inches='tight')
-            
-
-            ################################################
-            ########## LC photon flux
-            ################################################
-            f = plt.figure(figsize=(9,4),dpi=250)
-            ax = f.add_subplot(1,1,1)
-            ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-            ax.yaxis.set_minor_locator(AutoMinorLocator(2))
-            ax.tick_params(which='major', length=5, direction='in')
-            ax.tick_params(which='minor', length=2.5, direction='in',bottom=True, top=True, left=True, right=True)
-            ax.tick_params(bottom=True, top=True, left=True, right=True)
-            ax.grid(linestyle=':',which='both')
-            
-            if len(lc['flux'][lc['ts']>TSmin]) > 0:
-                scale = int(np.log10(lc['flux'][lc['ts']>TSmin].max())) -2
-            else:
-                scale = int(np.log10(lc['flux_ul95'].max())) -2
-            
-            if len(tmean[lc['ts']>TSmin]) > 9:
-                tck_flux = interpolate.splrep(tmean[lc['ts']>TSmin], (10**-scale)*lc['flux'][lc['ts']>TSmin], k=3)
-                tck_flux_error = interpolate.splrep(tmean[lc['ts']>TSmin], (10**-scale)*lc['flux_err'][lc['ts']>TSmin],k=3)
-
-                flux_continuum = interpolate.splev(time_continuum, tck_flux)
-                flux_continuum_err = interpolate.splev(time_continuum, tck_flux_error)
-                ax.plot(time_continuum,flux_continuum,color="C1", label="Spline")
-                
-                col_flux = pyfits.Column(name="flux_continuum",array=flux_continuum,format="D",unit="10^"+str(scale)+" ph cm-2 s-1")
-                col_flux_err = pyfits.Column(name="flux_err_continuum",array=flux_continuum_err,format="D",unit="10^"+str(scale)+" ph cm-2 s-1")
-                all_cols = pyfits.BinTableHDU.from_columns([col_time, col_eflux, col_eflux_err, col_flux, col_flux_err])
-                if len(hdul) < 3: 
-                    hdul.append(all_cols)
-                    hdul[2].name = "LC spline data"
-                    hdul.writeto(LC_last_data_file,overwrite=True)
-                    hdul.close()                
-
-                
-            plt.errorbar(tmean[lc['ts']>TSmin], (10**-scale)*lc['flux'][lc['ts']>TSmin], xerr = [ tmean[lc['ts']>TSmin]- lc['tmin_mjd'][lc['ts']>TSmin], lc['tmax_mjd'][lc['ts']>TSmin] - tmean[lc['ts']>TSmin] ], yerr=(10**-scale)*lc['flux_err'][lc['ts']>TSmin], markeredgecolor='black', fmt='o', capsize=4)
-            plt.errorbar(tmean[lc['ts']<=TSmin], (10**-scale)*lc['flux_ul95'][lc['ts']<=TSmin], xerr = [ tmean[lc['ts']<=TSmin]- lc['tmin_mjd'][lc['ts']<=TSmin], lc['tmax_mjd'][lc['ts']<=TSmin] - tmean[lc['ts']<=TSmin] ], yerr=5*np.ones(len(lc['flux_err'][lc['ts']<=TSmin])), markeredgecolor='black', fmt='o', uplims=True, color='orange', capsize=4)
-            plt.ylabel(r'Flux [$10^{'+str(scale)+'}$ cm$^{-2}$ s$^{-1}$]')
-            plt.xlabel('Time [MJD]')
-            plt.title(self.sourcename+' - Light curve (free shape)')
-            
-            
-            if len(lc['flux'][lc['ts']>TSmin]) > 0:
-                y0 = (lc['flux'][lc['ts']>TSmin]).max()
-                y1 = (lc['flux'][lc['ts']>TSmin] + lc['flux_err'][lc['ts']>TSmin]).max()
-                if y1 > 4*y0:
-                    y1 = 4*y0
-                
-                if len(lc['flux_ul95'][lc['ts']<=TSmin]) > 0:
-                    y2 = (lc['flux_ul95'][lc['ts']<=TSmin]).max()
-                    if y2 > y1:
-                        y1 = y2
-                
-            else:
-                y1 = (lc['flux_ul95'][lc['ts']<=TSmin]).max()
-            
-            ymin = -(10**-scale)*0.1*y1               
-            plt.ylim(ymin,(10**-scale)*1.1*y1)
-            plt.legend()
-            
-            if adaptive:
-                plt.savefig(self.OutputDir+f'Quickplot_adaptive-binning_LC_{len(lc["ts"])}_bins.'+output_format,bbox_inches='tight')
-            else:
-                plt.savefig(self.OutputDir+f'Quickplot_LC_{len(lc["ts"])}_bins.'+output_format,bbox_inches='tight')
-
     
 
 
