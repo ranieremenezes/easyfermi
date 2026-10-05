@@ -1667,8 +1667,10 @@ class Ui_mainWindow(QDialog):
         """
         
         fname = QFileDialog.getOpenFileName(self, 'Open file', '', '(*.yaml)')
-        stream = open(fname[0], 'r')
-        keys = yaml.load(stream,Loader)
+        if fname[0] == "":  # The user canceled the dialog
+            return
+        with open(fname[0], 'r') as stream:
+            keys = yaml.load(stream, Loader)
         
         if keys["Standard"] is True:
             self.radioButton_Standard.setChecked(True)
@@ -2220,13 +2222,78 @@ class Ui_mainWindow(QDialog):
         Popup showing the credits.
         """
 
-        msg = QtWidgets.QMessageBox()
-        msg.setWindowTitle("Credits")
-        msg.setText("-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n- I would like to thank Clodomir Vianna, Fabio Cafardo, Lucas Costa Campos and Raí Menezes for their help and strong support in this project.\n- A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Zhiyuan Pei (Matt Pui), and Romana Grossova, the first users/testers of easyfermi. \n ")
-        msg.setInformativeText("To acknowledge easyfermi, please cite <a href='https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract'>de Menezes, R. (2022)</a>. Since easyfermi relies on fermipy, gammapy, astropy, and emcee, please also cite <a href='https://ui.adsabs.harvard.edu/abs/2017ICRC...35..824W/abstract'>Wood et al. (2017)</a>, <a href='https://ui.adsabs.harvard.edu/abs/2023A%26A...678A.157D/abstract'>Donath et al. (2023)</a>, <a href='https://ui.adsabs.harvard.edu/abs/2018AJ....156..123A/abstract'>Astropy Collaboration (2018)</a>, and <a href='https://ui.adsabs.harvard.edu/abs/2013PASP..125..306F/abstract'>Foreman-Mackey et al. (2013)</a>.\n\n")
-        msg.setIcon(QtWidgets.QMessageBox.Information) #Information, Critical, Warning
-        
-        msg.exec_()
+        def link(url, text):
+            return f"<a href='{url}' style='color:#3b8eea; text-decoration:none;'>{text}</a>"
+
+        html = f"""
+        <h3 style="margin-bottom:2px;">Acknowledgments</h3>
+        <hr>
+        <p style="line-height:140%;">
+        I would like to thank <b>Clodomir Vianna</b>, <b>Michele Peresano</b>, <b>Fabio Cafardo</b>,
+        <b>Lucas Costa Campos</b> and <b>Raí Menezes</b> for their help and strong support in this project.
+        </p>
+        <p style="line-height:140%;">
+        A big thanks to <b>Alessandra Azzollini</b>, <b>Douglas Carlos</b>, <b>Kaori Nakashima</b>,
+        <b>Lucas Siconato</b>, <b>Zhiyuan Pei (Matt Pui)</b>, and <b>Romana Grossova</b>,
+        the first users/testers of easyfermi.
+        </p>
+
+        <h3 style="margin-top:18px; margin-bottom:2px;">How to cite</h3>
+        <hr>
+        <p style="line-height:140%;">
+        To acknowledge easyfermi, please cite
+        {link("https://ui.adsabs.harvard.edu/abs/2022arXiv220611272D/abstract", "de Menezes, R. (2022)")}.
+        </p>
+        <p style="line-height:140%;">
+        Since easyfermi relies on <i>fermipy</i>, <i>gammapy</i>, <i>astropy</i>, and <i>emcee</i>,
+        please also cite:
+        </p>
+        <ul style="line-height:140%;">
+            <li>{link("https://ui.adsabs.harvard.edu/abs/2017ICRC...35..824W/abstract", "Wood et al. (2017)")} &mdash; fermipy</li>
+            <li>{link("https://ui.adsabs.harvard.edu/abs/2023A%26A...678A.157D/abstract", "Donath et al. (2023)")} &mdash; gammapy</li>
+            <li>{link("https://ui.adsabs.harvard.edu/abs/2018AJ....156..123A/abstract", "Astropy Collaboration (2018)")} &mdash; astropy</li>
+            <li>{link("https://ui.adsabs.harvard.edu/abs/2013PASP..125..306F/abstract", "Foreman-Mackey et al. (2013)")} &mdash; emcee</li>
+        </ul>
+        """
+
+        dialog = QtWidgets.QDialog()
+        dialog.setWindowTitle("Credits")
+        dialog.setMinimumSize(560, 500)
+        dialog.resize(640, 520)
+        layout = QtWidgets.QVBoxLayout(dialog)
+        layout.setContentsMargins(24, 20, 24, 16)
+        layout.setSpacing(10)
+
+        # Header: logo (if there is one in resources/images) + title
+        header = QtWidgets.QHBoxLayout()
+        logos = sorted(libpath.glob("*logo*.jpg")) + sorted(libpath.glob("*easyfermi*.png"))
+        if len(logos) > 0:
+            logo = QtWidgets.QLabel()
+            logo.setPixmap(QtGui.QPixmap(str(logos[0])).scaledToHeight(64, QtCore.Qt.SmoothTransformation))
+            header.addWidget(logo)
+        title = QtWidgets.QLabel("<span style='font-size:26pt; font-weight:600;'>easyfermi</span><br>"
+                                 "<span style='color:gray;'>Graphical interface for Fermi-LAT data analysis</span>")
+        header.addWidget(title)
+        header.addStretch()
+        layout.addLayout(header)
+
+        # Text with clickable links (they open in the default browser)
+        text = QtWidgets.QTextBrowser()
+        text.setOpenExternalLinks(True)
+        text.setFrameShape(QtWidgets.QFrame.NoFrame)
+        text.setStyleSheet("QTextBrowser { background: transparent; }")
+        text.setHtml(html)
+        layout.addWidget(text)
+
+        button = QtWidgets.QPushButton("Close")
+        button.setDefault(True)
+        button.clicked.connect(dialog.accept)
+        button_row = QtWidgets.QHBoxLayout()
+        button_row.addStretch()
+        button_row.addWidget(button)
+        layout.addLayout(button_row)
+
+        dialog.exec_()
     
     def popup_go(self):
 
