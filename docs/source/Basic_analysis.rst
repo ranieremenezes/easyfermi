@@ -29,7 +29,7 @@ All the intermediate analsyis files, such as ccube, ltcube, srcmaps, and exposur
 
 .. note::
 
-   - For analyses in a time window larger than 1 year, the computation of the ltcube can take several hours to finish. In extreme situations, e.g. if you ara analyzing 14 years of data and check the box "improve sensitivity" on the graphical interface, the computation of the ltcube can take more than 20 hours.
+   - For analyses in a time window larger than 1 year, the computation of the ltcube can take several hours to finish. In extreme situations, e.g. if you are analyzing 14 years of data and check the box "improve sensitivity" on the graphical interface, the computation of the ltcube can take more than 20 hours.
    - If you want to analyze different targets **in the same time window and energy interval**, you don't need to compute the ltcube multiple times. You compute it once, and for the subsequent analyses you can simply import the ltcube list file (called "ltcube_list.txt" and saved in the output directory) under the checkbox "Use external ltcube".
 
 The next step in the analysis is calling the ``fermipy`` function `optimize() <https://fermipy.readthedocs.io/en/0.6.8/fermipy.html#fermipy.gtanalysis.GTAnalysis.optimize>`_ with the following configuration:
@@ -51,12 +51,12 @@ After the optimization, we give the option to the user to call the ``fermipy`` f
     
     find_sources(sqrt_ts_threshold=Minimum_significance, min_separation=Minimum_separation, multithread=True)
     
-which will look for possible non-cataloged gamma-ray sources by generating a TS map for the RoI and identify peaks with :math:`\sqrt{TS} >` *Minimum_significance* and an angular separation of at least *Minimum_separation* from a higher amplitude peak in the TS map. This method can run several times until no sources with :math:`sqrt(TS) >` *Minimum_significance* are found. The values for *Minimum_significance* and *Minimum_separation* can be defined by the user in the graphical interface.
+which will look for possible non-cataloged gamma-ray sources by generating a TS map for the RoI and identify peaks with :math:`\sqrt{TS} >` *Minimum_significance* and an angular separation of at least *Minimum_separation* from a higher amplitude peak in the TS map. This method can run several times until no sources with :math:``\sqrt{TS} >` *Minimum_significance* are found. The values for *Minimum_significance* and *Minimum_separation* can be defined by the user in the graphical interface.
 
 .. image:: ./easyfermi_find_sources.png
   :width: 700
 
-The standard fit in ``easyfermi`` is done with the ``fermipy`` function `fit() <https://fermipy.readthedocs.io/en/0.6.8/fermipy.html#fermipy.gtanalysis.GTAnalysis.fit>`_ with ``NewMinuit`` as the optimizer, although this can be changed by the user in the checkbox **Change optimizer**. The radius within which the parameters of all sources are free to vary (normalization and spectral shape) is set as half the RoI width (see the second paragraph of this section), but can be changed by the user in the panel **Free source radius**, under the **Customized** button. The adopted spectral model for the target will be that listed in the selected *Fermi*-LAT catalog (default is 4FGL-DR3) or a power law if the target is not listed in the selected catalog. This model can be changed at any time by the user under the box **Change model**, and the complete description of all available models can be found `here <https://fermi.gsfc.nasa.gov/ssc/data/analysis/scitools/source_models.html>`_. 
+The standard fit in ``easyfermi`` is done with the ``fermipy`` function `fit() <https://fermipy.readthedocs.io/en/0.6.8/fermipy.html#fermipy.gtanalysis.GTAnalysis.fit>`_ with ``NewMinuit`` as the optimizer, although this can be changed by the user in the checkbox **Change optimizer**. The radius within which the parameters of all sources are free to vary (normalization and spectral shape) is set as half the RoI width (see the second paragraph of this section), but can be changed by the user in the panel **Free source radius**, under the **Customized** button. The adopted spectral model for the target will be that listed in the selected *Fermi*-LAT catalog (default is 4FGL-DR4) or a power law if the target is not listed in the selected catalog. This model can be changed at any time by the user under the box **Change model**, and the complete description of all available models can be found `here <https://fermi.gsfc.nasa.gov/ssc/data/analysis/scitools/source_models.html>`_. 
 
 If the fit does not converge, ``easyfermi``:
 

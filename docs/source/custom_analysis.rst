@@ -186,7 +186,7 @@ Let's say you want to modify the values and/or ranges for the parameters in a sp
 .. image:: ./easyfermi_window_delete_source.png
   :width: 700
   
-* Now manually add your target to the config.yaml file setting the parameter values and ranges as you prefer. This name **cannot contain blank spaces** as e.g. "NGC 1022", **neither it can be listed in the adopted Fermi-LAT catalog**, as e.g. "Mkn_421", so please give it single name not listed in the LAT catalog, like "SourceA", "NGC_1022", "Super_duper_Mkn_421", or something else in this line. In the figure below we show the example for a power-law model:
+* Now manually add your target to the config.yaml file setting the parameter values and ranges as you prefer. This name **cannot contain blank spaces** as e.g. "NGC 1022", **nor can it be listed in the adopted Fermi-LAT catalog**, as e.g. "Mkn_421", so please give it single name not listed in the LAT catalog, like "SourceA", "NGC_1022", "Super_duper_Mkn_421", or something else in this line. In the figure below we show the example for a power-law model:
 .. code-block::
     
     data:
@@ -267,6 +267,6 @@ or
          Index2 : {value: 0.1, scale : "1", free : "1", max : "4", min : "0"},
          SpatialModel: 'PointSource' }
 
-* For other spectral models you can follow the exact nomenclature of parameters found in the `LAT Source Model Definitions <https://fermi.gsfc.nasa.gov/ssc/data/analysis/scitools/source_models.html>`_. The equiavalencies between easyfermi and Fermitools spectral models are 'Power-law': 'PowerLaw', 'Power-law2': 'PowerLaw2', 'LogPar': 'LogParabola', 'PLEC': 'PLSuperExpCutoff', 'PLEC2': 'PLSuperExpCutoff2', 'PLEC3': 'PLSuperExpCutoff3', 'PLEC4': 'PLSuperExpCutoff4', 'BPL': 'BrokenPowerLaw', 'ExpCutOff-EBL': 'ExpCutoff'.
+* For other spectral models you can follow the exact nomenclature of parameters found in the `LAT Source Model Definitions <https://fermi.gsfc.nasa.gov/ssc/data/analysis/scitools/source_models.html>`_. The equivalencies between easyfermi and Fermitools spectral models are 'Power-law': 'PowerLaw', 'Power-law2': 'PowerLaw2', 'LogPar': 'LogParabola', 'PLEC': 'PLSuperExpCutoff', 'PLEC2': 'PLSuperExpCutoff2', 'PLEC3': 'PLSuperExpCutoff3', 'PLEC4': 'PLSuperExpCutoff4', 'BPL': 'BrokenPowerLaw', 'ExpCutOff-EBL': 'ExpCutoff'.
 
 * Now upload your modified configuration file under the button "Custom" and press "Go!". That's all. 

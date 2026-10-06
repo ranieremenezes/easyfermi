@@ -7,7 +7,7 @@ Light curves
 .. _Constant time bins:
 
 Constant-binning light curve
----------------------------
+----------------------------
 
 
 A constant-binning light curve is generated with the ``fermipy`` function `lightcurve() <https://fermipy.readthedocs.io/en/latest/advanced/lightcurve.html>`_ with the following configuration for Linux/WindowsWSL OS:
@@ -83,5 +83,69 @@ In the figures below, we show the constant- and adaptive-binned light curves for
   
 .. image:: ./BLLac_adaptive.png
   :width: 700
+
+.. _Bayesian blocks:
+
+Bayesian-blocks light curve
+---------------------------
+
+This method computes a light curve whose time bins are defined by the Bayesian blocks (`Scargle et al. 2013 <https://ui.adsabs.harvard.edu/abs/2013ApJ...764..167S/abstract>`_) of a previously available light curve. Periods in which the flux is statistically consistent with a constant value are merged into a single time bin, while significant flux changes define the edges between bins. 
+
+It is activated by the box **Bayesian blocks LC**. The input light curve is selected in the drop-down menu next to this box:
+
+* **Local LC**: the light curve computed by **easyfermi** in the same analysis. If an adaptive-binning light curve exists in the output directory (see section `Adaptive-binning light curve`_), it is used; otherwise, the latest constant-binning light curve is adopted (see section `Constant time bins`_).
+
+* **External LC**: a light curve selected by the user with the browse button. It can be a **.fits** table from a previous **easyfermi**/``fermipy`` analysis or a **.csv** file downloaded from the `Fermi-LAT Light Curve Repository (LCR) <https://fermi.gsfc.nasa.gov/ssc/data/access/lat/LightCurveRepository/>`_. 
+
+.. note::
+
+   The **.csv** files from the LCR only provide the photon flux and do not give the width of the time bins. In this case, **easyfermi** adopts the median time separation between consecutive bins as the width of all bins.
+
+The Bayesian blocks are computed as follows:
+
+1. For the **External LC** option: only the part of the input light curve that overlaps the time range of the analysis is used. A bin that is only partially inside this range is kept, and the bins entirely outside it are ignored. If an external light curve is shorter than the time range of the analysis, the Bayesian-blocks light curve covers only the period of the external light curve.
+
+2. The blocks are computed with the function `bayesian_blocks <https://docs.astropy.org/en/stable/api/astropy.stats.bayesian_blocks.html>`_ from ``astropy``, using the fitness function for point measurements, i.e. the flux and flux error of each time bin. Only the bins with :math:`TS \geq 4` (the convention adopted in the LCR to define upper limits) enter the calculation. The bins with upper limits are ignored.
+
+3. The false-alarm probability of the algorithm is set by the box :math:`\rho_0`. It corresponds to the parameter :math:`p_0` of Scargle et al. (2013), i.e. the probability of finding a change in the flux when the flux is actually constant. The lower the value of :math:`\rho_0`, the more significant a flux change needs to be to define a new block, and thus the smaller the number of blocks. The default value is 0.05.
+
+4. The edge between two consecutive blocks is placed in the middle of the gap between the last bin of the first block and the first bin of the second block. Bins with upper limits that fall inside this gap are therefore split equally between the two neighboring blocks. The first and last edges are the limits of the input light curve.
+
+Then, we apply the ``fermipy`` function `lightcurve() <https://fermipy.readthedocs.io/en/latest/advanced/lightcurve.html>`_ with the time bins given by the Bayesian blocks, using the following configuration for Linux/WindowsWSL OS:
+
+.. code-block::
+
+    lightcurve(Target_Name, time_bins=Edges, free_radius=Radius,
+    use_local_ltcube=True, use_scaled_srcmap=True, free_params=['norm','shape'],
+    shape_ts_threshold=9, multithread=True)
+
+And the following one for Mac OS, where the computation is not parallelized:
+
+.. code-block::
+
+    lightcurve(Target_Name, time_bins=Edges, free_radius=Radius,
+    use_local_ltcube=True, use_scaled_srcmap=True, free_params=['norm','shape'],
+    shape_ts_threshold=9, multithread=False)
+
+Where ``Edges`` are the edges of the time bins (in MET) defined by the Bayesian blocks and ``Radius`` is half of the RoI width (see :ref:`basic`).
+
+The results are saved in the directory **Bayesian_blocks_light_curve_p0=XXX**, where **XXX** is the value of :math:`\rho_0` set in the graphical interface. This directory contains the analysis of each time bin (one **lightcurve_XXX** directory per bin) and the file **bayesian_blocks_lightcurve.fits** with the light-curve data. Light curves computed with different values of :math:`\rho_0` are saved in different directories, but if a directory with the same value of :math:`\rho_0` already exists, its content is replaced.
+
+Quick plots
+~~~~~~~~~~~
+
+When the option **External LC** is selected, the button **Quick plot** shows the Bayesian blocks of the external light curve without running the analysis, which is useful to choose the value of :math:`\rho_0`. The plot is computed with the time range and the value of :math:`\rho_0` currently set in the graphical interface and is shown in a new window. The black points are the bins used in the calculation, the gray arrows are the upper limits, and the red lines are the Bayesian blocks. The light gray points are the bins outside the time range of the analysis, which is marked by the red dashed vertical lines. The title of the figure gives the number of blocks, the number of bins used and the values of :math:`\rho_0` and :math:`TS_{min}` adopted, as shown in the figure below:
+
+.. image:: ./BB_quickplot.png
+  :width: 700
+
+After the analysis, **easyfermi** also saves the figures **Quickplot_Bayesian_blocks_p=XXX_LC_N_bins** (photon flux) and **Quickplot_Bayesian_blocks_p=XXX_eLC_N_bins** (energy flux) in the output directory, where **XXX** is the value of :math:`\rho_0` and **N** is the number of Bayesian blocks. They show the Bayesian-blocks light curve on top of the original light curve in gray (the adaptive-binning light curve, if available, or the constant-binning one).
+
+
+
+SEDs for the light-curve bins
+-----------------------------
+
+If the box **Compute SEDs for LC bins** is checked, **easyfermi** also computes the SED of every time bin of the latest light curve available and fits a spectral model to each one of them with the MCMC. The light curve is chosen with the following priority: 1) the latest modified Bayesian-blocks light curve, 2) the latest modified adaptive-binning light curve, and 3) the latest modified constant-binning light curve. For more details, see section :ref:`SED per LC bin`.
 
 

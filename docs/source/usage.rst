@@ -10,7 +10,7 @@ To use ``easyfermi``, first install the fermitools environment using mamba (or c
 
 .. code-block:: console
 
-   $ mamba create --name easyfermi -c conda-forge -c fermi python=3.9 "fermitools>=2.2.0" "healpy=1.16.1" "gammapy=1.1" "scipy=1.10.1" "astropy=5.3.3" "pyqt=5.15.9" "astroquery=0.4.6" "psutil=5.9.8" "emcee=3.1.4" "corner=2.2.2"
+   $ mamba create --name easyfermi -c conda-forge -c fermi python=3.12 "fermitools=2.5.3" "healpy=1.20.0" "gammapy=2.1" "scipy=1.17.1" "astropy=7.2.0" "pyqt=5.15.9" "astroquery=0.4.6" "psutil=5.9.8" "emcee=3.1.4" "corner=2.2.2" "matplotlib=3.11.2" 
    
 Then activate the environment and install ``fermipy`` and ``easyfermi``:
 
@@ -19,7 +19,7 @@ Then activate the environment and install ``fermipy`` and ``easyfermi``:
     $ mamba activate easyfermi
     $ pip install fermipy easyfermi
 
-* (ONLY FOR WINDOWS) Install the libgl1 package:
+* (ONLY FOR WINDOWS with WSL) Install the libgl1 package:
 
 .. code-block:: console
 

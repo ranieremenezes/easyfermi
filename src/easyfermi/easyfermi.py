@@ -1024,7 +1024,7 @@ class Ui_mainWindow(QDialog):
         self.comboBox_minimizer.setToolTip("Select an optimizer for the fit.")
         self.comboBox_redshift.setToolTip("Select an EBL absorption model.")
         self.comboBox_bayesian_blocks.setToolTip("You can compute the Bayesian blocks LC using either the local LC file or an external dataset.\ne.g., a CSV from the Fermi LCR or a FITS table from a previous analysis.")
-        self.comboBox_MCMC.setToolTip("Choose a spectral model for the MCMC.\n\nWalkers = 300\nIterations = 500")
+        self.comboBox_MCMC.setToolTip("Choose a spectral model for the MCMC.")
         self.comboBox_output_format.setToolTip("Select the output format for the main plots (i.e. SED, light curve etc).")
         self.checkBox_only_norm.setToolTip("Check if you wish that only the normalizations can vary.")
         self.checkBox_freeze_gal.setToolTip("Freeze the Galactic diffuse model.")
@@ -3710,7 +3710,7 @@ class Ui_mainWindow(QDialog):
             detected_out = np.isfinite(LC_full["flux"][outside])
             ax.errorbar(t_out[detected_out], LC_full["flux"][outside][detected_out], xerr=t_half_out[detected_out],
                         yerr=LC_full["flux_err"][outside][detected_out], fmt="o", ms=3, color=color_outside,
-                        ecolor=color_outside, elinewidth=0.8, label="Bins outside the data time range", zorder=1)
+                        ecolor=color_outside, elinewidth=0.8, label="External LC bins outside the data time range", zorder=1)
  
         # Bayesian blocks, drawn with the same time bins used in compute_LC_bayesian_blocks():
         edges = block_edges_mjd(LC_data, BB_data)
@@ -4384,9 +4384,9 @@ class Ui_mainWindow(QDialog):
         if self.checkBox_extension.isChecked():
             self.gta.config['extension']['width_min'] = 0.01
             if self.radioButton_disk.isChecked(): 
-                exten = self.gta.extension(self.sourcename,width=np.linspace(0.01,self.doubleSpinBox_extension_max_size.value(),20).tolist(), spatial_model='RadialDisk')
+                exten = self.gta.extension(self.sourcename,width=np.linspace(0.01,self.doubleSpinBox_extension_max_size.value(),20).tolist(), spatial_model='RadialDisk', sqrt_ts_threshold = 3, update = True)
             else:
-                exten = self.gta.extension(self.sourcename,width=np.linspace(0.01,self.doubleSpinBox_extension_max_size.value(),20).tolist(), spatial_model='RadialGaussian')
+                exten = self.gta.extension(self.sourcename,width=np.linspace(0.01,self.doubleSpinBox_extension_max_size.value(),20).tolist(), spatial_model='RadialGaussian', sqrt_ts_threshold = 3, update = True)
                 
             self.gta.write_roi(self.sourcename+'_extension')            
             f = plt.figure(figsize=(6,5),dpi=250)

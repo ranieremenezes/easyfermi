@@ -140,10 +140,7 @@ The Bayesian blocks light curves are computed based on Scargle et al. 2013 (http
 
 I want to thank Clodomir Vianna for helping me with the design of _easyfermi_, for making the _easyfermi_ logo, and for the several hours of discussion about this project. Clodomir is the one responsible for making _easyfermi_ user-friendly. Thanks to Fabio Cafardo, Lucas Costa Campos, Raí Menezes, and Michele Peresano for their help and strong support to this project. A big thanks to Alessandra Azzollini, Douglas Carlos, Kaori Nakashima, Lucas Siconato, Zhiyuan Pei (Matt Pui), and Romana Grossova, the first users/testers of _easyfermi_.
 
- <br>
-<p align="center" width="100%">
- <img height="200" src="https://github.com/clodoN1109/easyFermi/assets/104923248/a5fd6166-4dce-475b-92e6-78cbcbcd36af">
-</p> 
+
 
 # easyfermi community
 
