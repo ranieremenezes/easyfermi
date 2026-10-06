@@ -6,8 +6,8 @@ project = 'easyfermi'
 copyright = '2021, Raniere de Menezes'
 author = 'Raniere de Menezes'
 
-release = '2.0'
-version = '2.0.0'
+release = '2.1'
+version = '2.1.0'
 
 # -- General configuration
 
